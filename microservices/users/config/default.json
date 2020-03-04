@@ -1,0 +1,11 @@
+{
+    "dbConfig" : {
+        "host" : "localhost",
+        "port" : "27017",
+        "username" : "",
+        "password" : ""
+    },
+    "grpc" : {
+        "port" : "5001"
+    }
+}

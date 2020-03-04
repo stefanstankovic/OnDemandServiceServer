@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package user;
+
+message UserData {
+    string id = 1;
+    string email = 2;
+	string mobile = 3;
+    string password = 4;
+	string role = 5;
+	string accessToken = 6;
+	string createAt = 7;
+	string updateAt = 8;
+}
+
+message UpdateUserRequest {
+    string id = 1;
+    UserData data = 2;
+}
+
+message UserDataResponse {
+	bool success = 1;
+	string message = 2;
+	UserData data = 3;
+}
+
+message UserDetails {
+    string id = 1;
+    string firstName = 2;
+    string lastname = 3;
+    string birthday = 4;
+	UserData user = 5;
+	string createAt = 6;
+	string updateAt = 7;
+}
+
+message UpdateUserDetailsRequest {
+    string id = 1;
+    UserDetails data = 2;
+}
+
+message UserDetailsResponse {
+	bool success = 1;
+	string message = 2;
+	UserDetails data = 3;
+}
+
+message Login {
+    string email = 1;
+    string password = 2;
+}
+
+message WorkerOptions {
+    string id = 1;
+    bool busy = 2;
+    float readius = 3;
+	UserData user = 4;
+	string createAt = 5;
+	string updateAt = 6;
+}
+
+message WorkerOptionsRequest {
+    string id = 1;
+    WorkerOptions data = 2;
+}
+
+message WorkerOptionsResponse {
+    bool success = 1;
+	string Message = 2;
+    WorkerOptions data = 3;
+}
+
+message Response {
+    bool success = 1;
+    string Id = 2;
+    string message = 3;
+}
+
+message Id {
+    string id = 1;
+}
+
+message Query {
+    string where = 1;
+    string orderBy = 2;
+    int32 limit = 3;
+    string before = 4;
+    string after = 5;
+}
+
+service User {
+    rpc AddUser (UserData) returns (Response);
+    rpc UpdateUser (UpdateUserRequest) returns (UserDataResponse);
+    rpc FindUserById (Id) returns (UserDataResponse);
+    rpc FindUser (Query) returns (UserDataResponse);
+    rpc AddUserDetails (UserDetails) returns (Response);
+    rpc UpdateUserDetails (UpdateUserDetailsRequest) returns (UserDetailsResponse);
+    rpc FindUserDetailsByUserId (Id) returns (UserDetailsResponse);
+    rpc AddWorkerOptions (WorkerOptions) returns (Response);
+    rpc UpdateWorkerOptions (WorkerOptionsRequest) returns (WorkerOptionsResponse);
+    rpc FindWorkerOpstionsByUserId (Id) returns (WorkerOptionsResponse);
+    rpc ValidateLogin (Login) returns (Response);
+}

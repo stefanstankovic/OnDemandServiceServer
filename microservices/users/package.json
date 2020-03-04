@@ -1,0 +1,32 @@
+{
+  "name": "on-demand-service-server",
+  "version": "0.0.0",
+  "description": "OnDemandServiceServer",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean",
+    "start": "nodemon .\\dist\\server.js"
+  },
+  "devDependencies": {
+    "@types/config": "0.0.36",
+    "@types/dotenv": "^8.2.0",
+    "@types/google-protobuf": "^3.7.2",
+    "@types/mongoose": "^5.7.3",
+    "@types/node": "^8.10.59",
+    "grpc-tools": "^1.8.1",
+    "grpc_tools_node_protoc_ts": "^2.5.10",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.2"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "google-protobuf": "^3.11.4",
+    "grpc": "^1.24.2",
+    "mongoose": "^5.9.3"
+  }
+}
