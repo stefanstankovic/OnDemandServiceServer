@@ -1,20 +1,26 @@
 import { model, Schema, Document } from 'mongoose';
 
+export type AccessToken = {
+    token: string,
+    expired: boolean,
+    expiration: string
+}
+
 export interface IUser extends Document {
   email: string;
   mobile: string;
   password: string;
   role: string;
-  accessToken: string;
+  accessToken: AccessToken;
   createAt: string;
   updateAt: string;
 }
 
 const UserSchema: Schema = new Schema({
-    email: { 
-      type: String, 
-      required: true, 
-      unique: true 
+    email: {
+      type: String,
+      required: true,
+      unique: true
     },
     mobile: {
         type: String,
@@ -30,10 +36,21 @@ const UserSchema: Schema = new Schema({
         enum: ["user", "worker", "admin"]
     },
     accessToken: {
-        type: String
+        token: {
+            type: String,
+            required: false
+        },
+        expired: {
+            type: Boolean,
+            required: false
+        },
+        expiration: {
+            type: Date,
+            required: false
+        }
     }
-}, { 
-    timestamps: { 
+}, {
+    timestamps: {
         createdAt: 'created_at',
         updatedAt: 'updated_at'
     }

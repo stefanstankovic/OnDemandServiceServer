@@ -2,7 +2,7 @@ import * as grpc from 'grpc';
 import userHelper from '../../helpers/user.helper';
 import userDetailsHelper from '../../helpers/userDetails.helper';
 
-import { 
+import {
     UserData,
     UpdateUserRequest,
     UserDataResponse,
@@ -20,90 +20,101 @@ import { IUserServer, UserService } from '../_proto/user/user_grpc_pb';
 
 
 class UserHandler implements IUserServer {
-   
-    addUser = async (
+    addUser = (
         call: grpc.ServerUnaryCall<UserData>,
-        callback: grpc.sendUnaryData<Response>) 
-        : Promise<void> => {            
-            const response = await userHelper.AddUser(call.request);
-            callback(null, response);
+        callback: grpc.sendUnaryData<Response>)
+        : void => {
+            userHelper.AddUser(call.request)
+            .then((response: Response) => {
+                callback(null, response);
+            });
     };
 
-    updateUser = async (
+    updateUser = (
         call: grpc.ServerUnaryCall<UpdateUserRequest>,
-        callback: grpc.sendUnaryData<UserDataResponse>) 
-        : Promise<void> => {
-            const response = await userHelper.UpdateUser(call.request);
-            callback(null, response);
+        callback: grpc.sendUnaryData<UserDataResponse>)
+        : void => {
+            userHelper.UpdateUser(call.request)
+            .then((response) => {
+                callback(null, response);
+            });
     };
 
-    findUserById = async (
+    findUserById = (
         call: grpc.ServerUnaryCall<Id>,
-        callback: grpc.sendUnaryData<UserDataResponse>) 
-        : Promise<void> => {
-            const response = await userHelper.FindUserById(call.request);
-            callback(null, response);
-            
+        callback: grpc.sendUnaryData<UserDataResponse>)
+        : void => {
+            userHelper.FindUserById(call.request)
+            .then((response) => {
+                callback(null, response);
+            });
     };
 
-    findUser = async (
+    findUser = (
         call: grpc.ServerUnaryCall<Query>,
-        callback: grpc.sendUnaryData<UserDataResponse>) 
-        : Promise<void> => {
+        callback: grpc.sendUnaryData<UserDataResponse>)
+        : void => {
+            callback(null, null);
     };
 
-    addUserDetails = async (
-        call: grpc.ServerUnaryCall<UserDetails>, 
-        callback: grpc.sendUnaryData<Response>) 
-        : Promise<void> => {
-            const response = await userDetailsHelper.AddUserDetails(call.request);
-            callback(null, response);
+    addUserDetails = (
+        call: grpc.ServerUnaryCall<UserDetails>,
+        callback: grpc.sendUnaryData<Response>)
+        : void => {
+            userDetailsHelper.AddUserDetails(call.request)
+            .then((response) => {
+                callback(null, response);
+            });
     };
 
-    updateUserDetails = async (
+    updateUserDetails = (
         call: grpc.ServerUnaryCall<UpdateUserDetailsRequest>,
-        callback: grpc.sendUnaryData<UserDetailsResponse>) 
-        : Promise<void> => {
-            const response = await userDetailsHelper.UpdateUserDetails(call.request);
-            callback(null, response);
+        callback: grpc.sendUnaryData<UserDetailsResponse>)
+        : void => {
+            userDetailsHelper.UpdateUserDetails(call.request).then((response) => {
+                callback(null, response);
+            });
     };
 
-    findUserDetailsByUserId = async (
+    findUserDetailsByUserId = (
         call: grpc.ServerUnaryCall<Id>,
-        callback: grpc.sendUnaryData<UserDetailsResponse>) 
-        : Promise<void> => {
-            const response = await userDetailsHelper.FindUserDetailsByUserId(call.request);
-            callback(null, response);
+        callback: grpc.sendUnaryData<UserDetailsResponse>)
+        : void => {
+            userDetailsHelper.FindUserDetailsByUserId(call.request).then((response) => {
+                callback(null, response);
+            });
     };
 
-    addWorkerOptions = async (
+    addWorkerOptions = (
         call: grpc.ServerUnaryCall<WorkerOptions>,
         callback: grpc.sendUnaryData<Response>)
-        : Promise<void> => {
+        : void => {
+            callback(null, null);
     };
 
-    updateWorkerOptions = async(
+    updateWorkerOptions = (
         call: grpc.ServerUnaryCall<WorkerOptionsRequest>,
-        callback: grpc.sendUnaryData<WorkerOptionsResponse>) 
-        : Promise<void> => {
+        callback: grpc.sendUnaryData<WorkerOptionsResponse>)
+        : void => {
+            callback(null, null);
     };
 
-    
-    findWorkerOpstionsByUserId = async (
+    findWorkerOptionsByUserId = (
         call: grpc.ServerUnaryCall<Id>,
-        callback: grpc.sendUnaryData<WorkerOptionsResponse>) 
-        : Promise<void> => {
+        callback: grpc.sendUnaryData<WorkerOptionsResponse>)
+        : void => {
+            callback(null, null);
     };
 
-    validateLogin = async (
+    validateLogin = (
         call: grpc.ServerUnaryCall<Login>,
-        callback: grpc.sendUnaryData<Response>) 
-        : Promise<void> => {
-            const response = await userHelper.ValidateLogin(call.request);
-            callback(null, response);
+        callback: grpc.sendUnaryData<Response>)
+        : void => {
+            userHelper.ValidateLogin(call.request).then((response: Response) => {
+                callback(null, response);
+            })
     };
-    
-} 
+}
 
 export default {
     server: UserService,

@@ -14,9 +14,7 @@
   "devDependencies": {
     "@types/config": "0.0.36",
     "@types/dotenv": "^8.2.0",
-    "@types/express": "^4.17.2",
     "@types/google-protobuf": "^3.7.2",
-    "@types/mongoose": "^5.7.3",
     "@types/node": "^8.10.59",
     "grpc-tools": "^1.8.1",
     "grpc_tools_node_protoc_ts": "^2.5.10",
@@ -26,7 +24,6 @@
   },
   "dependencies": {
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
     "google-protobuf": "^3.11.4",
     "grpc": "^1.24.2"
   }

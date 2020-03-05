@@ -9,11 +9,11 @@ class UserDetailsHelper {
 
     public async AddUserDetails(userDetailsData: GrpcUserDetails) : Promise<Response> {
         let result = new Response();
-        
+
         if (!userDetailsData.getUser() || !userDetailsData.getUser()?.getId()) {
             result.setMessage('UserId can\'t be empty');
             result.setSuccess(false);
-            
+
             return result;
         }
 
@@ -22,7 +22,7 @@ class UserDetailsHelper {
         if (!user) {
             result.setMessage(`User with ${userDetailsData.getUser()?.getId} doesn't exist.`);
             result.setSuccess(false);
-            
+
             return result;
         }
 
@@ -66,7 +66,7 @@ class UserDetailsHelper {
             result.setSuccess(false);
             result.setMessage((ex as Error).message)
         }
-        
+
         return result;
     }
 
@@ -78,13 +78,13 @@ class UserDetailsHelper {
         if (!userDetails) {
             result.setMessage(`User details for user ${idData.getId()} doens't exist!`);
             result.setSuccess(false);
-            
+
             return result;
         }
 
         result.setData(await this.UserDetailsFromDbUserDetails(userDetails));
         result.setSuccess(true);
-        
+
         return result;
     }
 
@@ -112,7 +112,7 @@ class UserDetailsHelper {
         userDetailsData.setBirthday(userDetails.birthday);
         userDetailsData.setCreateat(userDetails.createAt);
         userDetailsData.setUpdateat(userDetails.updateAt);
-        
+
         let userResponse = await UserHelper.FindUserById(userDetails.user);
         userDetailsData.setUser(userResponse.getData());
 
