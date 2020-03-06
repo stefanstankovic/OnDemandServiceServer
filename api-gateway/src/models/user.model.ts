@@ -16,10 +16,10 @@ export type UserType = {
 
 export class User /*implements IUser*/ {
     constructor(
-        public email: string,
-        public mobile: string,
-        public password: string,
-        public role: string,
+        public email: string| null = null,
+        public mobile: string| null = null,
+        public password: string| null = null,
+        public role: string| null = null,
         public id: string | null = null,
         public createAt: string | null = null,
         public updateAt: string | null = null,
@@ -33,12 +33,12 @@ export class User /*implements IUser*/ {
         if (!isNull(this.id)) {
             grpcUserData.setId(this.id);
         }
-        grpcUserData.setEmail(this.email);
-        grpcUserData.setMobile(this.mobile);
-        grpcUserData.setPassword(this.password);
-        grpcUserData.setRole(this.role);
+        grpcUserData.setEmail(this.email!);
+        grpcUserData.setMobile(this.mobile!);
+        grpcUserData.setPassword(this.password!);
+        grpcUserData.setRole(this.role!);
 
-        if (!isNull(this.accessToken)){
+        if (!isNull(this.accessToken) && !isUndefined(this.accessToken)){
             grpcUserData.setAccesstoken(this.accessToken.grpcAccessToken);
         }
 
@@ -61,5 +61,29 @@ export class User /*implements IUser*/ {
             this.accessToken.grpcAccessToken = grpcAccessToken;
         }
 
+    }
+
+    get userObject() : UserType {
+        return {
+            id: this.id,
+            email: this.email!,
+            mobile: this.mobile!,
+            password: this.password!,
+            role: this.role!,
+            createAt: this.createAt,
+            updateAt: this.updateAt,
+            accessToken: this.accessToken
+        }
+    }
+
+    set userObject(user: UserType) {
+        this.email = user.email,
+        this.mobile = user.mobile,
+        this.password = user.password,
+        this.role = user.role,
+        this.id = user.id,
+        this.createAt = user.createAt,
+        this.updateAt = user.updateAt,
+        this.accessToken = user.accessToken
     }
 }

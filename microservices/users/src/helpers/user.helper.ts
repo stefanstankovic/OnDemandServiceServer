@@ -9,15 +9,19 @@ import {
 } from '../grpc/_proto/user/user_pb';
 import User, { IUser, AccessToken } from '../models/user.model';
 import { isString, isObject, isBoolean } from 'lodash';
+import { hash, compare} from 'bcrypt';
 
 class UserHelper {
+    private readonly _saltRound :number = 10;
+
     constructor(){}
 
     public async AddUser(userData : UserData): Promise<Response> {
+        let passwordHash = await hash(userData.getPassword(), this._saltRound);
         let newUser : IUser = new User({
             email: userData.getEmail(),
             mobile: userData.getMobile(),
-            password: userData.getPassword(),
+            password: passwordHash,
             role: userData.getRole(),
             accessToken: userData.getAccesstoken()
         });
@@ -81,20 +85,33 @@ class UserHelper {
         return result;
     }
 
-    public async ValidateLogin(loginData : Login) : Promise<Response> {
-        let result =  new Response();
+    public async ValidateLogin(loginData : Login) : Promise<UserDataResponse> {
+        let result =  new UserDataResponse();
 
-        let user = await User.findOne({email : loginData.getEmail(), password: loginData.getPassword()});
+        try {
+            let user = await User.findOne({email : loginData.getEmail()});
+            if (!user) {
+                throw new Error (`User with email ${loginData.getEmail()} doesn't exist`);
+            }
 
-        if (!user) {
+            let samePassword = await compare(loginData.getPassword(), user.password);
+
+            if (samePassword) {
+                result.setSuccess(true);
+                result.setData(this.UserDataFromDbUser(user));
+                return result;
+            }
+
             result.setSuccess(false);
+            result.setMessage("Wrong password!");
+            return result;
+        } catch (ex) {
+            const err  = ex as Error;
 
+            result.setSuccess(false);
+            result.setMessage(err.message);
             return result;
         }
-
-        result.setSuccess(true);
-
-        return result;
     }
 
     private UpdateUserProperties(user: IUser, userRequestData: UpdateUserRequest) : IUser {

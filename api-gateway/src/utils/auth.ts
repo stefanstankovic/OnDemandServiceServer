@@ -2,11 +2,12 @@ import * as jwt from 'jsonwebtoken';
 import { UnauthorizedError } from '../models/errors/unauthorized.error';
 import { Request, Response, NextFunction } from 'express';
 import { set } from 'lodash';
+import { UserType } from '../models/user.model';
 
 export type JwtAuthOptions = {
     secret : string,
-    getToken: (req: Request) => string | null,
-    authRequest: boolean
+    getToken: (req: Request) => string | null ,
+    authRequest: boolean | null
 }
 
 export class JwtAuth {
@@ -42,5 +43,10 @@ export class JwtAuth {
         }
 
         set(req, 'user', decoded);
+    }
+
+    async sign(user: UserType) : Promise<string> {
+        const token = await jwt.sign(user, this.options.secret);
+        return token;
     }
 }

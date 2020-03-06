@@ -169,17 +169,13 @@ export class UserClient extends ClientBase<IUserClient>
         });
     }
 
-    public async validateLogin(email: string, password: string) : Promise<Response> {
+    public async validateLogin(login : Login) : Promise<UserDataResponse> {
         if (!this._client) {
             throw new Error("User Client isn't initialized.");
         }
 
-        const login = new Login();
-        login.setEmail(email);
-        login.setPassword(password);
-
-        return new Promise<Response> ((resolve, reject) => {
-            this._client!.validateLogin(login, (error: grpc.ServiceError | null, response: Response) : void => {
+        return new Promise<UserDataResponse> ((resolve, reject) => {
+            this._client!.validateLogin(login, (error: grpc.ServiceError | null, response: UserDataResponse) : void => {
                 if(error){
                     reject(error);
                 }

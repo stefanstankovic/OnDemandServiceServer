@@ -111,14 +111,14 @@ interface IUserService_IFindWorkerOptionsByUserId extends grpc.MethodDefinition<
     responseSerialize: grpc.serialize<user_pb.WorkerOptionsResponse>;
     responseDeserialize: grpc.deserialize<user_pb.WorkerOptionsResponse>;
 }
-interface IUserService_IValidateLogin extends grpc.MethodDefinition<user_pb.Login, user_pb.Response> {
+interface IUserService_IValidateLogin extends grpc.MethodDefinition<user_pb.Login, user_pb.UserDataResponse> {
     path: string; // "/user.User/ValidateLogin"
     requestStream: boolean; // false
     responseStream: boolean; // false
     requestSerialize: grpc.serialize<user_pb.Login>;
     requestDeserialize: grpc.deserialize<user_pb.Login>;
-    responseSerialize: grpc.serialize<user_pb.Response>;
-    responseDeserialize: grpc.deserialize<user_pb.Response>;
+    responseSerialize: grpc.serialize<user_pb.UserDataResponse>;
+    responseDeserialize: grpc.deserialize<user_pb.UserDataResponse>;
 }
 
 export const UserService: IUserService;
@@ -134,7 +134,7 @@ export interface IUserServer {
     addWorkerOptions: grpc.handleUnaryCall<user_pb.WorkerOptions, user_pb.Response>;
     updateWorkerOptions: grpc.handleUnaryCall<user_pb.WorkerOptionsRequest, user_pb.WorkerOptionsResponse>;
     findWorkerOptionsByUserId: grpc.handleUnaryCall<user_pb.Id, user_pb.WorkerOptionsResponse>;
-    validateLogin: grpc.handleUnaryCall<user_pb.Login, user_pb.Response>;
+    validateLogin: grpc.handleUnaryCall<user_pb.Login, user_pb.UserDataResponse>;
 }
 
 export interface IUserClient {
@@ -168,9 +168,9 @@ export interface IUserClient {
     findWorkerOptionsByUserId(request: user_pb.Id, callback: (error: grpc.ServiceError | null, response: user_pb.WorkerOptionsResponse) => void): grpc.ClientUnaryCall;
     findWorkerOptionsByUserId(request: user_pb.Id, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: user_pb.WorkerOptionsResponse) => void): grpc.ClientUnaryCall;
     findWorkerOptionsByUserId(request: user_pb.Id, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: user_pb.WorkerOptionsResponse) => void): grpc.ClientUnaryCall;
-    validateLogin(request: user_pb.Login, callback: (error: grpc.ServiceError | null, response: user_pb.Response) => void): grpc.ClientUnaryCall;
-    validateLogin(request: user_pb.Login, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: user_pb.Response) => void): grpc.ClientUnaryCall;
-    validateLogin(request: user_pb.Login, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: user_pb.Response) => void): grpc.ClientUnaryCall;
+    validateLogin(request: user_pb.Login, callback: (error: grpc.ServiceError | null, response: user_pb.UserDataResponse) => void): grpc.ClientUnaryCall;
+    validateLogin(request: user_pb.Login, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: user_pb.UserDataResponse) => void): grpc.ClientUnaryCall;
+    validateLogin(request: user_pb.Login, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: user_pb.UserDataResponse) => void): grpc.ClientUnaryCall;
 }
 
 export class UserClient extends grpc.Client implements IUserClient {
@@ -205,7 +205,7 @@ export class UserClient extends grpc.Client implements IUserClient {
     public findWorkerOptionsByUserId(request: user_pb.Id, callback: (error: grpc.ServiceError | null, response: user_pb.WorkerOptionsResponse) => void): grpc.ClientUnaryCall;
     public findWorkerOptionsByUserId(request: user_pb.Id, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: user_pb.WorkerOptionsResponse) => void): grpc.ClientUnaryCall;
     public findWorkerOptionsByUserId(request: user_pb.Id, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: user_pb.WorkerOptionsResponse) => void): grpc.ClientUnaryCall;
-    public validateLogin(request: user_pb.Login, callback: (error: grpc.ServiceError | null, response: user_pb.Response) => void): grpc.ClientUnaryCall;
-    public validateLogin(request: user_pb.Login, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: user_pb.Response) => void): grpc.ClientUnaryCall;
-    public validateLogin(request: user_pb.Login, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: user_pb.Response) => void): grpc.ClientUnaryCall;
+    public validateLogin(request: user_pb.Login, callback: (error: grpc.ServiceError | null, response: user_pb.UserDataResponse) => void): grpc.ClientUnaryCall;
+    public validateLogin(request: user_pb.Login, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: user_pb.UserDataResponse) => void): grpc.ClientUnaryCall;
+    public validateLogin(request: user_pb.Login, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: user_pb.UserDataResponse) => void): grpc.ClientUnaryCall;
 }

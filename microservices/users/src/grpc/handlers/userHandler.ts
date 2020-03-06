@@ -108,9 +108,9 @@ class UserHandler implements IUserServer {
 
     validateLogin = (
         call: grpc.ServerUnaryCall<Login>,
-        callback: grpc.sendUnaryData<Response>)
+        callback: grpc.sendUnaryData<UserDataResponse>)
         : void => {
-            userHelper.ValidateLogin(call.request).then((response: Response) => {
+            userHelper.ValidateLogin(call.request).then((response: UserDataResponse) => {
                 callback(null, response);
             })
     };

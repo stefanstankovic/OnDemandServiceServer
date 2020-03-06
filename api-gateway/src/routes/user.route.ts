@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { singUp } from '../controllers/user.controller';
+import { login, singUp } from '../controllers/user.controller';
 
 const routes = Router();
 
-routes.post('/login');
+routes.post('/login', login);
 
 routes.post('/signup', singUp);
 

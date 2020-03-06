@@ -104,5 +104,5 @@ service User {
     rpc AddWorkerOptions (WorkerOptions) returns (Response);
     rpc UpdateWorkerOptions (WorkerOptionsRequest) returns (WorkerOptionsResponse);
     rpc FindWorkerOptionsByUserId (Id) returns (WorkerOptionsResponse);
-    rpc ValidateLogin (Login) returns (Response);
+    rpc ValidateLogin (Login) returns (UserDataResponse);
 }
