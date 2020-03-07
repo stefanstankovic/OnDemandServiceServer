@@ -17,8 +17,7 @@ import {
 } from '../../grpc/_proto/notifications/notifications_pb';
 
 
-export class NotificationClient extends ClientBase<INotificationsClient>
-{
+export class NotificationClient extends ClientBase<INotificationsClient> {
     constructor(notificationServiceIp: string, notificationServicePort : string, credentials: grpc.ChannelCredentials) {
         super(notificationServiceIp, notificationServicePort, credentials);
 

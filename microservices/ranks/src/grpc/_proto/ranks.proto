@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package ranks;
+
+message RankData {
+    string userId = 1;
+    string type = 2;
+    int32 stars = 3;
+    string comment = 4;
+}
+
+message Response {
+    bool success = 1;
+    string message = 2;
+    string id = 3;
+}
+
+message Query {
+    string userId = 1;
+    string type =2;
+    int32 stars = 3;
+    string commentPattren = 4;
+    int32 skip = 5;
+    int32 take = 6;
+}
+
+message RanksResponse {
+    bool success = 1;
+    string message = 2;
+    repeated RankData ranks = 3;
+}
+
+service Ranks {
+    rpc AddRank (RankData) returns (Response);
+    rpc GetRanks (Query) returns (RanksResponse);
+}
