@@ -2,6 +2,7 @@ import { JwtAuth, JwtAuthOptions} from '../utils/auth';
 import { RequestHandler} from 'express';
 import { isUndefined } from 'lodash';
 
+// TODO include middleware in app
 export const authenticationMiddleware : RequestHandler = (req, res, next) => {
     const jwtAuthOptions : JwtAuthOptions = {
         secret : !isUndefined(process.env.JWT_SECRET) ? process.env.JWT_SECRET : "aaaabbbbccc123",

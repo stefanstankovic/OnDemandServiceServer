@@ -1,18 +1,22 @@
 import * as grpc from 'grpc';
 import { UserClient } from './users/user.client';
+import { NotificationClient } from './notifications/notifications.clinet';
+
 import { isNull, isUndefined } from 'lodash';
 import { EventEmitter } from 'events';
 
 export type Services = {
     eventsBus: EventEmitter,
-    userClient: UserClient
+    userClient: UserClient,
+    notificationsClient: NotificationClient
 }
 
 export class ServiceRegistry {
 
-    private static _instance : ServiceRegistry | null = null;
-    private _userServiceClient : UserClient;
-    private _eventBus :EventEmitter;
+    private static _instance: ServiceRegistry | null = null;
+    private _userServiceClient: UserClient;
+    private _eventBus: EventEmitter;
+    private _notificationsClient: NotificationClient;
 
     private constructor() {
         this._eventBus = new EventEmitter();
@@ -20,8 +24,11 @@ export class ServiceRegistry {
         const grpcCredentials = grpc.credentials.createInsecure();
         let userServiceIp = !isUndefined (process.env.USERS_SVC_IP) ? process.env.USERS_SVC_IP : "127.0.0.1";
         let userServicePort = !isUndefined (process.env.USERS_SVC_PORT) ? process.env.USERS_SVC_PORT : "5001";
-
         this._userServiceClient = new UserClient(userServiceIp, userServicePort, grpcCredentials);
+
+        let notificationsServiceIp = !isUndefined (process.env.NOTIFICATIONS_SVC_IP) ? process.env.NOTIFICATIONS_SVC_IP : "127.0.0.1";
+        let notificationsServicePort = !isUndefined (process.env.NOTIFICATIONS_SVC_IP) ? process.env.NOTIFICATIONS_SVC_IP : "5002";
+        this._notificationsClient = new NotificationClient(notificationsServiceIp, notificationsServicePort, grpcCredentials);
     }
 
     public static getInstance() : ServiceRegistry {
@@ -36,7 +43,8 @@ export class ServiceRegistry {
     get services() : Services {
         return {
             eventsBus: this._eventBus,
-            userClient: this._userServiceClient
+            userClient: this._userServiceClient,
+            notificationsClient: this._notificationsClient
         };
     }
 }

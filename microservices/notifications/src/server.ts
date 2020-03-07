@@ -1,6 +1,6 @@
 import './utils/config';
 import * as grpc from 'grpc';
-import userHandler  from './grpc/handlers/user.handler';
+import notificationHandler  from './grpc/handlers/notifications.handler';
 import { connect, set } from 'mongoose';
 import {isEmpty, isNull} from 'lodash';
 
@@ -34,7 +34,7 @@ export const startServer: StartServerType = (): void => {
         });
     }
 
-    server.addService(userHandler.server, userHandler.handler);
+    server.addService(notificationHandler.server, notificationHandler.handler);
     server.bindAsync(`0.0.0.0:${process.env.GRPC_PORT}`,
         grpc.ServerCredentials.createInsecure(),
         (err: Error | null, port: number): void => {

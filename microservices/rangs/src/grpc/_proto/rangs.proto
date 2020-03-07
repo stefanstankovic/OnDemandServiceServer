@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package rangs;
+
+message RangData {
+    string userId = 1;
+    string type = 2;
+    int32 stars = 3;
+    string comment = 4;
+}
+
+message Response {
+    bool success = 1;
+    string message = 2;
+    string id = 3;
+}
+
+service Notifications {
+    rpc AddRang (RangData) returns (Response);
+}

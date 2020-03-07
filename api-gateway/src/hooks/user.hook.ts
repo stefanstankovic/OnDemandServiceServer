@@ -9,8 +9,13 @@ export class UserHook {
         this._evensBus = this._services.eventsBus;
 
         this._evensBus.on(Events.userSignUp, this.onSignup);
+        this._evensBus.on(Events.userLogIn, this.onLogin);
     }
 
     onSignup(...args: any[]) {
+    }
+
+    onLogin(...args: any[]){
+
     }
 }

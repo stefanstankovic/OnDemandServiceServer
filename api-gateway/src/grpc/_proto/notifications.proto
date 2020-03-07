@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package notifications;
+
+message NotificationData {
+    string userId = 1;
+    string type = 2;
+    string messageData = 3;
+    bool delivered = 4;
+}
+
+message EmailData {
+    string email = 1;
+    string type = 2;
+    string messageData = 3;
+    int32 attempt = 4;
+}
+
+message Response {
+    bool success = 1;
+    string message = 2;
+    string id = 3;
+}
+
+message  UserId {
+    string Id = 1;
+}
+
+message PushNotifications {
+    bool success = 1;
+    string message = 2;
+    repeated NotificationData notifications = 3;
+}
+
+message EmailAddress {
+    string email = 1;
+}
+
+message Emails {
+    bool success = 1;
+    string message = 2;
+    repeated EmailData emails = 3;
+}
+
+message Query {
+    string userId = 1;
+    string email = 2;
+    string partiallyConenten = 3;
+}
+
+service Notifications {
+    rpc SendPushNotification (NotificationData) returns (Response);
+    rpc SendEmail (EmailData) returns (Response);
+    rpc GetPushNotificationsForUser (UserId) returns (PushNotifications);
+    rpc GetEmailsForEmailAddress (EmailAddress) returns (Emails);
+    rpc FindPushNotificationsForUserByContent (Query) returns (PushNotifications);
+    rpc FindEmailsForEmailByContent (Query) returns (Emails);
+    rpc GetUndeliveredNotificationsForUser (UserId) returns (PushNotifications);
+}

@@ -32,8 +32,7 @@ class UserHandler implements IUserServer {
 
     updateUser = (
         call: grpc.ServerUnaryCall<UpdateUserRequest>,
-        callback: grpc.sendUnaryData<UserDataResponse>)
-        : void => {
+        callback: grpc.sendUnaryData<UserDataResponse>): void => {
             userHelper.UpdateUser(call.request)
             .then((response) => {
                 callback(null, response);
@@ -42,8 +41,7 @@ class UserHandler implements IUserServer {
 
     findUserById = (
         call: grpc.ServerUnaryCall<Id>,
-        callback: grpc.sendUnaryData<UserDataResponse>)
-        : void => {
+        callback: grpc.sendUnaryData<UserDataResponse>): void => {
             userHelper.FindUserById(call.request)
             .then((response) => {
                 callback(null, response);
@@ -54,13 +52,13 @@ class UserHandler implements IUserServer {
         call: grpc.ServerUnaryCall<Query>,
         callback: grpc.sendUnaryData<UserDataResponse>)
         : void => {
+            // TODO implement find user function
             callback(null, null);
     };
 
     addUserDetails = (
         call: grpc.ServerUnaryCall<UserDetails>,
-        callback: grpc.sendUnaryData<Response>)
-        : void => {
+        callback: grpc.sendUnaryData<Response>): void => {
             userDetailsHelper.AddUserDetails(call.request)
             .then((response) => {
                 callback(null, response);
@@ -69,8 +67,7 @@ class UserHandler implements IUserServer {
 
     updateUserDetails = (
         call: grpc.ServerUnaryCall<UpdateUserDetailsRequest>,
-        callback: grpc.sendUnaryData<UserDetailsResponse>)
-        : void => {
+        callback: grpc.sendUnaryData<UserDetailsResponse>): void => {
             userDetailsHelper.UpdateUserDetails(call.request).then((response) => {
                 callback(null, response);
             });
@@ -78,8 +75,7 @@ class UserHandler implements IUserServer {
 
     findUserDetailsByUserId = (
         call: grpc.ServerUnaryCall<Id>,
-        callback: grpc.sendUnaryData<UserDetailsResponse>)
-        : void => {
+        callback: grpc.sendUnaryData<UserDetailsResponse>): void => {
             userDetailsHelper.FindUserDetailsByUserId(call.request).then((response) => {
                 callback(null, response);
             });
@@ -87,29 +83,25 @@ class UserHandler implements IUserServer {
 
     addWorkerOptions = (
         call: grpc.ServerUnaryCall<WorkerOptions>,
-        callback: grpc.sendUnaryData<Response>)
-        : void => {
+        callback: grpc.sendUnaryData<Response>): void => {
             callback(null, null);
     };
 
     updateWorkerOptions = (
         call: grpc.ServerUnaryCall<WorkerOptionsRequest>,
-        callback: grpc.sendUnaryData<WorkerOptionsResponse>)
-        : void => {
+        callback: grpc.sendUnaryData<WorkerOptionsResponse>): void => {
             callback(null, null);
     };
 
     findWorkerOptionsByUserId = (
         call: grpc.ServerUnaryCall<Id>,
-        callback: grpc.sendUnaryData<WorkerOptionsResponse>)
-        : void => {
+        callback: grpc.sendUnaryData<WorkerOptionsResponse>): void => {
             callback(null, null);
     };
 
     validateLogin = (
         call: grpc.ServerUnaryCall<Login>,
-        callback: grpc.sendUnaryData<UserDataResponse>)
-        : void => {
+        callback: grpc.sendUnaryData<UserDataResponse>): void => {
             userHelper.ValidateLogin(call.request).then((response: UserDataResponse) => {
                 callback(null, response);
             })

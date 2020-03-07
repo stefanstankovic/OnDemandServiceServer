@@ -1,6 +1,7 @@
 import {isString} from 'lodash';
 import { Response, NextFunction, Request} from 'express';
 
+// TODO include middleware in app
 export const authorizationMiddleware = (roles: string|Array<string>) => {
     if (isString(roles)){
         roles = [roles];
