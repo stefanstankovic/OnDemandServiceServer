@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package workers;
+
+message Response {
+    bool success = 1;
+    string message = 2;
+    string id = 3;
+}
+
+message Location {
+    string workerId = 1;
+    string latitude = 2;
+    string longitude = 3;
+}
+
+message LocationResult {
+    bool success = 1;
+    string message = 2;
+    Location location = 3;
+}
+
+message WorkerData {
+    string workerId = 1;
+    bool busy = 2;
+    bool active = 3;
+    Location location = 4;
+}
+
+message WorkerId {
+    string workerId = 1;
+}
+
+message Paging {
+    string orderBy = 1;
+    int32 skip = 2;
+    int32 take = 3;
+}
+
+message WorkersResponse {
+    bool success = 1;
+    string message = 2;
+    repeated WorkerData workers = 3;
+}
+
+message WorkerStatus {
+    bool active = 1;
+    bool busy = 2;
+    Paging paging = 3;
+}
+
+message Radius {
+    int32 radius = 1;
+    Location location = 2;
+    Paging paging = 3;
+}
+
+message Status {
+    string workerId = 1;
+    bool active = 2;
+    bool busy = 3;
+}
+
+service Workers {
+    rpc AddWorker (WorkerData) returns (Response);
+    rpc RemoveWorker(WorkerId) returns (Response);
+    rpc GetWorkers (WorkerStatus) returns (WorkersResponse);
+    rpc FreeWorkersInRadius (Radius) returns (WorkersResponse);
+    rpc UpdateWorkerStatus (Status) returns (Response);
+    rpc UpdateWorkerLocation (Location) returns (Response);
+    rpc GetWorkerLocation (WorkerId) returns (LocationResult);
+}

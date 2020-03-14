@@ -59,7 +59,7 @@ class UserDetailsHelper {
 
         userDetails = this.UpdateUserDetailsProperties(userDetails, userDetailsData);
         try {
-            await userDetails.update(userDetails._id);
+            await userDetails.update(userDetails._id).exec();
             result.setSuccess(true);
             result.setData(await this.UserDetailsFromDbUserDetails(userDetails));
         } catch (ex) {

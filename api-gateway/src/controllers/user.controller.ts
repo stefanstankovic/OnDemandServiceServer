@@ -1,7 +1,7 @@
 import {RequestHandler,Request} from 'express';
 
-import { Login, LoginType } from '../models/login.model';
-import { User, UserType } from '../models/user.model';
+import { Login, LoginType } from '../models/user/login.model';
+import { User, UserType } from '../models/user/user.model';
 
 import { Response, UserDataResponse } from '../grpc/_proto/user/user_pb';
 
@@ -28,8 +28,8 @@ export const singUp : RequestHandler = async (req, res, next) => {
         || isUndefined(userBody.mobile)
         || isUndefined(userBody.role)
         || userBody.password.length < 8) {
-        res.status(400).json({success : false, message: "Invalid input."});
-        return next();
+            res.status(400).json({success : false, message: "Invalid input."});
+            return next();
     }
 
     let user = new User();

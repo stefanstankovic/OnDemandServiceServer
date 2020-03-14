@@ -2,7 +2,7 @@ import * as jwt from 'jsonwebtoken';
 import { UnauthorizedError } from '../models/errors/unauthorized.error';
 import { Request, Response, NextFunction } from 'express';
 import { set } from 'lodash';
-import { UserType } from '../models/user.model';
+import { UserType } from '../models/user/user.model';
 
 export type JwtAuthOptions = {
     secret : string,

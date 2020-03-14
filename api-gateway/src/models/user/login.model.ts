@@ -1,4 +1,4 @@
-import { Login as GrpcLoginModel } from '../grpc/_proto/user/user_pb';
+import { Login as GrpcLoginModel } from '../../grpc/_proto/user/user_pb';
 import { isNull } from 'lodash';
 
 export type LoginType = {

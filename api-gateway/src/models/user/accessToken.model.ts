@@ -1,4 +1,4 @@
-import { AccessToken as GrpcAccessToken} from '../grpc/_proto/user/user_pb';
+import { AccessToken as GrpcAccessToken} from '../../grpc/_proto/user/user_pb';
 
 export class AccessToken {
 
