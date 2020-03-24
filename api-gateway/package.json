@@ -20,6 +20,7 @@
     "@types/jsonwebtoken": "^8.3.8",
     "@types/lodash": "^4.14.149",
     "@types/node": "^8.10.59",
+    "@types/socket.io": "^2.1.4",
     "grpc-tools": "^1.8.1",
     "grpc_tools_node_protoc_ts": "^2.5.10",
     "nodemon": "^2.0.2",
@@ -35,6 +36,7 @@
     "google-protobuf": "^3.11.4",
     "grpc": "^1.24.2",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "socket.io": "^2.3.0"
   }
 }

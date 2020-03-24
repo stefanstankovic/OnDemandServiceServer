@@ -8,7 +8,17 @@ import { errorMiddleware } from './middlewares/error.middleware';
 import { HooksRegistry } from './hooks/hooks.registry';
 import { ServiceRegistry } from './services/service.registry';
 
+import * as socketio from 'socket.io';
+
 const app = express();
+const port : string           = process.env.PORT || "3000";
+const socketPingTimeout : number    = process.env.SOCKET_PING_INTERVAL as number | undefined || 18000;
+const socketPingInterval : number   = process.env.SOCKET_PING_TIMEOUT as number | undefined ||  5000;
+const io : socketio.Server          = socketio(app,
+                                    {
+                                        pingTimeout : socketPingTimeout,
+                                        pingInterval : socketPingInterval
+                                    });
 
 app.use(errorMiddleware);
 
@@ -22,4 +32,4 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // Register events
 new HooksRegistry(ServiceRegistry.getInstance().services);
 
-app.listen(3000);
+app.listen(port);

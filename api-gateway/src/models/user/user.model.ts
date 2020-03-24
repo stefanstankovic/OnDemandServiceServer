@@ -14,7 +14,7 @@ export type UserType = {
     accessToken: AccessToken | null;
 };
 
-export class User /*implements IUser*/ {
+export class User {
     constructor(
         public email: string| null = null,
         public mobile: string| null = null,

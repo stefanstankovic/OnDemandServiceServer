@@ -1,6 +1,6 @@
 import Rank, { IRank } from '../models/Rank.model';
 import { Response, RanksResponse, RankData, Query } from '../grpc/_proto/ranks/ranks_pb';
-import { isNull, isUndefined, set } from 'lodash';
+import { set, isNil } from 'lodash';
 
 export class RanksHelper {
     constructor() {}
@@ -11,6 +11,7 @@ export class RanksHelper {
         try {
             const rank :IRank = new Rank ({
                 userId: rankData.getUserid(),
+                rankedById: rankData.getRankedbyid(),
                 type: rankData.getType(),
                 stars: rankData.getStars(),
                 comment: rankData.getComment()
@@ -39,6 +40,7 @@ export class RanksHelper {
         response.setRanksList(result.map( (value) => {
             const data = new RankData();
             data.setUserid(value.userId);
+            data.setRankedbyid(value.rankedById);
             data.setType(value.type);
             data.setStars(value.stars);
             data.setComment(value.comment);
@@ -56,19 +58,23 @@ export class RanksHelper {
     private BuildMongoQuery(query: Query) : Object {
         const mongoQuery = new Object();
 
-        if (!isNull(query.getUserid()) && !isUndefined(query.getUserid())) {
+        if (!isNil(query.getUserid())) {
             set(mongoQuery, "userId", query.getUserid());
         }
 
-        if (!isNull(query.getType()) && !isUndefined(query.getType())) {
+        if (!isNil(query.getType())) {
             set(mongoQuery, "type", query.getType());
         }
 
-        if (!isNull(query.getStars()) && !isUndefined(query.getStars())) {
+        if (isNil(query.getRangerid())) {
+            set(mongoQuery, "rankedById", query.getRangerid());
+        }
+
+        if (!isNil(query.getStars())) {
             set(mongoQuery, "starts", query.getStars());
         }
 
-        if (!isNull(query.getCommentpattren()) && !isUndefined(query.getCommentpattren())) {
+        if (!isNil(query.getCommentpattren())) {
             set(mongoQuery, "comment", { $regex: '.*' + query.getCommentpattren() + '.*' });
         }
 

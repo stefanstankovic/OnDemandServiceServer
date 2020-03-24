@@ -10,6 +10,9 @@ export class RankData extends jspb.Message {
     getUserid(): string;
     setUserid(value: string): void;
 
+    getRankedbyid(): string;
+    setRankedbyid(value: string): void;
+
     getType(): string;
     setType(value: string): void;
 
@@ -33,6 +36,7 @@ export class RankData extends jspb.Message {
 export namespace RankData {
     export type AsObject = {
         userid: string,
+        rankedbyid: string,
         type: string,
         stars: number,
         comment: string,
@@ -72,6 +76,9 @@ export class Query extends jspb.Message {
     getUserid(): string;
     setUserid(value: string): void;
 
+    getRangerid(): string;
+    setRangerid(value: string): void;
+
     getType(): string;
     setType(value: string): void;
 
@@ -101,6 +108,7 @@ export class Query extends jspb.Message {
 export namespace Query {
     export type AsObject = {
         userid: string,
+        rangerid: string,
         type: string,
         stars: number,
         commentpattren: string,

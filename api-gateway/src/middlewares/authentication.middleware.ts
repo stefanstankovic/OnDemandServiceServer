@@ -19,5 +19,5 @@ export const authenticationMiddleware : RequestHandler = (req, res, next) => {
 
     const jwtAuth = new JwtAuth(jwtAuthOptions);
 
-    return jwtAuth.authorize(req, res, next);
+    jwtAuth.authorize(req, res, next);
 }

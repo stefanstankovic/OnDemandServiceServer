@@ -14,7 +14,7 @@ export class JwtAuth {
     constructor(private options : JwtAuthOptions){
     }
 
-    async authorize(req : Request, res: Response, next : NextFunction) {
+    authorize(req : Request, res: Response, next : NextFunction) {
         let token : string | null;
         try {
             token = this.options.getToken(req);
@@ -33,7 +33,7 @@ export class JwtAuth {
         let decoded : object | string;
 
         try {
-            decoded = await jwt.verify(token, this.options.secret);
+            decoded = jwt.verify(token, this.options.secret);
         } catch (ex) {
             let error = ex as Error;
             let unauthorizedError = new UnauthorizedError('invalid_token', error.message);
@@ -45,8 +45,8 @@ export class JwtAuth {
         set(req, 'user', decoded);
     }
 
-    async sign(user: UserType) : Promise<string> {
-        const token = await jwt.sign(user, this.options.secret);
+    sign(user: UserType) : string {
+        const token = jwt.sign(user, this.options.secret);
         return token;
     }
 }

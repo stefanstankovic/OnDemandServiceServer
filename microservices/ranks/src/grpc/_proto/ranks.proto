@@ -4,9 +4,10 @@ package ranks;
 
 message RankData {
     string userId = 1;
-    string type = 2;
-    int32 stars = 3;
-    string comment = 4;
+    string rankedById = 2;
+    string type = 3;
+    int32 stars = 4;
+    string comment = 5;
 }
 
 message Response {
@@ -17,11 +18,12 @@ message Response {
 
 message Query {
     string userId = 1;
-    string type =2;
-    int32 stars = 3;
-    string commentPattren = 4;
-    int32 skip = 5;
-    int32 take = 6;
+    string rangerId = 2;
+    string type =3;
+    int32 stars = 4;
+    string commentPattren = 5;
+    int32 skip = 6;
+    int32 take = 7;
 }
 
 message RanksResponse {
