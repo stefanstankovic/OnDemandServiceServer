@@ -1,6 +1,6 @@
 import { Services } from '../services/service.registry';
 import { EventEmitter } from 'events';
-import { Events } from './event.types';
+import { Events } from './event.types/event.types';
 
 export class UserHook {
     private _evensBus : EventEmitter;

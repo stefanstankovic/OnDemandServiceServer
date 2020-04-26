@@ -1,0 +1,6 @@
+Invoke-Expression "tsc"
+Invoke-Expression "docker rm -f users-service"
+Invoke-Expression "docker rmi users-service"
+#Invoke-Expression "docker image prune"
+#Invoke-Expression "docker volume prune"
+Invoke-Expression "docker build -t users-service ."

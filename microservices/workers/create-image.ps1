@@ -1,0 +1,5 @@
+Invoke-Expression "docker rm -f workers-service"
+Invoke-Expression "docker rmi workers-service"
+#Invoke-Expression "docker image prune"
+#Invoke-Expression "docker volume prune"
+Invoke-Expression "docker build -t workers-service ."

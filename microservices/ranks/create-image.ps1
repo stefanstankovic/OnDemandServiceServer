@@ -1,0 +1,6 @@
+Invoke-Expression "tsc"
+Invoke-Expression "docker rm -f notifications-service"
+Invoke-Expression "docker rmi notifications-service"
+#Invoke-Expression "docker image prune"
+#Invoke-Expression "docker volume prune"
+Invoke-Expression "docker build -t notifications-service ."

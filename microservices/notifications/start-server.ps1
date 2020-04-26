@@ -1,0 +1,1 @@
+Invoke-Expression "docker run -d -p 5002:5002 --name notifications-service notifications-service"

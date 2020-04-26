@@ -7,6 +7,7 @@ import userRoutes from './routes/user.route';
 import { errorMiddleware } from './middlewares/error.middleware';
 import { HooksRegistry } from './hooks/hooks.registry';
 import { ServiceRegistry } from './services/service.registry';
+import { createServer, Server } from 'http';
 
 import * as socketio from 'socket.io';
 
@@ -14,7 +15,9 @@ const app = express();
 const port : string           = process.env.PORT || "3000";
 const socketPingTimeout : number    = process.env.SOCKET_PING_INTERVAL as number | undefined || 18000;
 const socketPingInterval : number   = process.env.SOCKET_PING_TIMEOUT as number | undefined ||  5000;
-const io : socketio.Server          = socketio(app,
+
+const server : Server               = createServer(app);
+const io : socketio.Server          = socketio(server,
                                     {
                                         pingTimeout : socketPingTimeout,
                                         pingInterval : socketPingInterval
@@ -30,6 +33,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Register events
-new HooksRegistry(ServiceRegistry.getInstance().services);
+new HooksRegistry(ServiceRegistry.getInstance().services, io);
 
-app.listen(port);
+server.listen(port);

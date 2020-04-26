@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
-    "start": "nodemon .\\dist\\app.js"
+    "start": "nodemon .\\dist\\server.js"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
@@ -35,6 +35,7 @@
     "express-session": "^1.17.0",
     "google-protobuf": "^3.11.4",
     "grpc": "^1.24.2",
+    "http": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "socket.io": "^2.3.0"

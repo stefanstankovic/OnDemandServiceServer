@@ -1,0 +1,6 @@
+Invoke-Expression "tsc"
+Invoke-Expression "docker rm -f ranks-service"
+Invoke-Expression "docker rmi ranks-service"
+#Invoke-Expression "docker image prune"
+#Invoke-Expression "docker volume prune"
+Invoke-Expression "docker build -t ranks-service ."

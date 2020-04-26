@@ -1,0 +1,1 @@
+Invoke-Expression "docker run -d -p 5004:5004 --name workers-service workers-service"

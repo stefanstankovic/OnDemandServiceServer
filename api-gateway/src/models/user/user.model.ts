@@ -2,6 +2,11 @@ import { UserData, AccessToken as GrpcAccessToken } from '../../grpc/_proto/user
 import { AccessToken } from './accessToken.model';
 import { isNull, isUndefined } from 'lodash';
 
+export enum UserRole {
+    User = "user",
+    Worker = "worker",
+    Admin = "admin"
+}
 
 export type UserType = {
     email: string;

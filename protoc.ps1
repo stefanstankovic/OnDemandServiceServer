@@ -35,10 +35,10 @@ function ProtoBuilder ($FOLDER)
         $file_name = $_.FullName
 
         Write-Output "Process file $file_name"
-        
+
         $ts_output_dir = $proto_folder + "\" + $_.Name.Split('.')[0]
         $js_output_dir = $ts_output_dir.Replace("\src\", "\dist\")
-        
+
         If(!(test-path $js_output_dir))
         {
             New-Item -ItemType Directory -Force -Path $js_output_dir

@@ -6,8 +6,8 @@
     "lib": ["es6"],
     "sourceMap": true,
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
+    //"noUnusedLocals": true,
+    //"noUnusedParameters": false,
     "noEmitOnError": true,
     "outDir": "./dist",
     "rootDir": "./src"

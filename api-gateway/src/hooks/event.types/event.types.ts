@@ -4,5 +4,6 @@ export enum Events {
     emitToUser = "socket.emit.to.user",
     userConnectedOnSocket = "socket.user.connected",
     userDisconnectedFromSocket = "socket.user.disconnected",
-    notifyUser = "socket.notify.user"
+    notifyUser = "socket.notify.user",
+    workerChangedLocation = "socket.worker.moved"
 }

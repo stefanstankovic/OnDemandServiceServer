@@ -1,17 +1,18 @@
-FROM node:12-alpine as build
+FROM node as build
 
-WORKDIR /usr
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 
-COPY .env.production ./
+WORKDIR /usr/local/users-svc
 
-WORKDIR /usr/local/users
+COPY package.json .env.production ./
 
-COPY dist package.json ./
+WORKDIR /usr/local/users-svc
 
-RUN npm install --production
+COPY dist/ ./dist
 
-FROM node:12-alpine
+RUN npm install
 
 EXPOSE 5001
 
-CMD ["node", "server.js"]
+CMD ["node", "/usr/local/users-svc/dist/server.js"]

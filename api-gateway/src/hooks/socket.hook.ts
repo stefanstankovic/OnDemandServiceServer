@@ -2,10 +2,10 @@ import { Server, Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
 import { isNil, isEmpty } from 'lodash';
 import { UnauthorizedError } from '../models/errors/unauthorized.error';
-import { UserType } from '../models/user/user.model';
+import { UserType, UserRole } from '../models/user/user.model';
 import { Services } from '../services/service.registry';
-import { Events } from './event.types';
-import { SocketEvents } from './socket.event.types';
+import { Events } from './event.types/event.types';
+import { SocketEvents } from './event.types/socket.event.types';
 import { EventEmitter } from 'events';
 
 export class SocketHook {
@@ -59,9 +59,8 @@ export class SocketHook {
 
             const user = socket.handshake.query.user as UserType;
             this._socketsList[user.id!] = socket;
-
-            this._services.eventsBus.emit(Events.userConnectedOnSocket, user, socket);
             this.subscribe(socket);
+            this._services.eventsBus.emit(Events.userConnectedOnSocket, user, socket);
         });
 
         this._evensBus.on(Events.emitToUser, (...args: any[]): void => {
@@ -84,6 +83,12 @@ export class SocketHook {
 
             this._services.eventsBus.emit(Events.userDisconnectedFromSocket, user, socket);
         });
+
+        if (socket.handshake.query.user.role === UserRole.Worker) {
+            socket.on(SocketEvents.locationChanged, (...args) => {
+                this._evensBus.emit(Events.workerChangedLocation, args);
+            });
+        }
     }
 
     private emitToUser(event: string, userId: string, ...data: any[]) : void {

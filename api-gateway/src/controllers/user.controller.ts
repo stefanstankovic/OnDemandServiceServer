@@ -6,7 +6,7 @@ import { User, UserType } from '../models/user/user.model';
 import { Response, UserDataResponse } from '../grpc/_proto/user/user_pb';
 
 import { ServiceRegistry } from '../services/service.registry';
-import { Events } from '../hooks/event.types';
+import { Events } from '../hooks/event.types/event.types';
 import { JwtAuth } from '../utils/auth';
 
 import { isUndefined } from 'lodash';

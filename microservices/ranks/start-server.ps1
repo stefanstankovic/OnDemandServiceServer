@@ -1,0 +1,1 @@
+Invoke-Expression "docker run -d -p 5003:5003 --name ranks-service ranks-service"
