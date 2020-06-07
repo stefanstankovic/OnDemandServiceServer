@@ -1,15 +1,15 @@
-import Rank, { IRank } from '../models/Rank.model';
+import Rank, { IRank } from '../models/rank.model';
 import { Response, RanksResponse, RankData, Query } from '../grpc/_proto/ranks/ranks_pb';
 import { set, isNil } from 'lodash';
 
 export class RanksHelper {
-    constructor() {}
+    constructor() { }
 
-    public async AddRank(rankData: RankData) : Promise<Response> {
+    public async AddRank(rankData: RankData): Promise<Response> {
         const response = new Response();
 
         try {
-            const rank :IRank = new Rank ({
+            const rank: IRank = new Rank({
                 userId: rankData.getUserid(),
                 rankedById: rankData.getRankedbyid(),
                 type: rankData.getType(),
@@ -30,32 +30,32 @@ export class RanksHelper {
         return response;
     }
 
-    public async GetRanks(query: Query) : Promise<RanksResponse> {
+    public async GetRanks(query: Query): Promise<RanksResponse> {
         const response = new RanksResponse();
         try {
-        const documentQuery = Rank.find(this.BuildMongoQuery(query), {}, {skip: query.getSkip(), limit: query.getTake()});
-        const result = await documentQuery.exec();
+            const documentQuery = Rank.find(this.BuildMongoQuery(query), {}, { skip: query.getSkip(), limit: query.getTake() });
+            const result = await documentQuery.exec();
 
-        response.setSuccess(true);
-        response.setRanksList(result.map( (value) => {
-            const data = new RankData();
-            data.setUserid(value.userId);
-            data.setRankedbyid(value.rankedById);
-            data.setType(value.type);
-            data.setStars(value.stars);
-            data.setComment(value.comment);
-            
-            return data;
-        }));
+            response.setSuccess(true);
+            response.setRanksList(result.map((value: IRank) => {
+                const data = new RankData();
+                data.setUserid(value.userId);
+                data.setRankedbyid(value.rankedById);
+                data.setType(value.type);
+                data.setStars(value.stars);
+                data.setComment(value.comment);
+
+                return data;
+            }));
         } catch (ex) {
-            const err =  ex as Error;
+            const err = ex as Error;
             response.setSuccess(false);
             response.setMessage(err.message);
         }
         return response;
     }
 
-    private BuildMongoQuery(query: Query) : Object {
+    private BuildMongoQuery(query: Query): Object {
         const mongoQuery = new Object();
 
         if (!isNil(query.getUserid())) {

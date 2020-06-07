@@ -10,10 +10,10 @@ import { EventEmitter } from 'events';
 
 export class SocketHook {
 
-    private _evensBus : EventEmitter;
-    private _socketsList: {[key: string]: Socket};
+    private _evensBus: EventEmitter;
+    private _socketsList: { [key: string]: Socket };
 
-    constructor(private _services: Services, private _io :Server) {
+    constructor(private _services: Services, private _io: Server) {
         this._evensBus = this._services.eventsBus;
         this._socketsList = {};
 
@@ -29,13 +29,16 @@ export class SocketHook {
          *   }
          *});
         */
+
         this._io.use((socket, next) => {
-            let jwtToken = socket.handshake.headers['token'];
+            console.log(`user connect, token: ${socket.handshake.query.token}`);
+            let jwtToken = socket.handshake.query;
             if (isNil(jwtToken) || isEmpty(jwtToken)) {
+                console.log(`error `);
                 return next(new UnauthorizedError('credentials_required', 'No authorization token was found'));
             }
 
-            let decoded : object | string;
+            let decoded: object | string;
 
             try {
                 decoded = jwt.verify(jwtToken, process.env.JWT_SECRET!);
@@ -52,6 +55,7 @@ export class SocketHook {
 
         this._io.on("connection", (socket: Socket) => {
 
+            console.log("user is connected");
             if (isNil(socket.handshake.query.user)) {
                 socket.disconnect();
                 return;
@@ -89,9 +93,11 @@ export class SocketHook {
                 this._evensBus.emit(Events.workerChangedLocation, args);
             });
         }
+
+        socket.on('test', (...args) => { console.log("test"); });
     }
 
-    private emitToUser(event: string, userId: string, ...data: any[]) : void {
+    private emitToUser(event: string, userId: string, ...data: any[]): void {
         if (isNil(this._socketsList[userId])) {
             throw new Error(`User with id: ${userId} isn't connected on socket.`)
         }
