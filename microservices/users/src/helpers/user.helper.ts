@@ -9,16 +9,16 @@ import {
 } from '../grpc/_proto/user/user_pb';
 import User, { IUser, AccessToken } from '../models/user.model';
 import { isString, isObject, isBoolean } from 'lodash';
-import { hash, compare} from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 
 class UserHelper {
-    private readonly _saltRound :number = 10;
+    private readonly _saltRound: number = 10;
 
-    constructor(){}
+    constructor() { }
 
-    public async AddUser(userData : UserData): Promise<Response> {
+    public async AddUser(userData: UserData): Promise<Response> {
         let passwordHash = await hash(userData.getPassword(), this._saltRound);
-        let newUser : IUser = new User({
+        let newUser: IUser = new User({
             email: userData.getEmail(),
             mobile: userData.getMobile(),
             password: passwordHash,
@@ -26,7 +26,7 @@ class UserHelper {
             accessToken: userData.getAccesstoken()
         });
 
-        let result =  new Response();
+        let result = new Response();
 
         try {
             var user = await newUser.save();
@@ -40,7 +40,7 @@ class UserHelper {
         return result;
     }
 
-    public async UpdateUser(userRequestData: UpdateUserRequest) : Promise<UserDataResponse> {
+    public async UpdateUser(userRequestData: UpdateUserRequest): Promise<UserDataResponse> {
         let user = await User.findById(userRequestData.getId());
 
         let result = new UserDataResponse();
@@ -70,7 +70,7 @@ class UserHelper {
         return result;
     }
 
-    public async FindUserById(idData: Id) : Promise<UserDataResponse> {
+    public async FindUserById(idData: Id): Promise<UserDataResponse> {
         let result = new UserDataResponse();
         let user = await User.findById(idData.getId());
 
@@ -85,13 +85,13 @@ class UserHelper {
         return result;
     }
 
-    public async ValidateLogin(loginData : Login) : Promise<UserDataResponse> {
-        let result =  new UserDataResponse();
+    public async ValidateLogin(loginData: Login): Promise<UserDataResponse> {
+        let result = new UserDataResponse();
 
         try {
-            let user = await User.findOne({email : loginData.getEmail()});
+            let user = await User.findOne({ email: loginData.getEmail() });
             if (!user) {
-                throw new Error (`User with email ${loginData.getEmail()} doesn't exist`);
+                throw new Error(`User with email ${loginData.getEmail()} doesn't exist`);
             }
 
             let samePassword = await compare(loginData.getPassword(), user.password);
@@ -106,7 +106,7 @@ class UserHelper {
             result.setMessage("Wrong password!");
             return result;
         } catch (ex) {
-            const err  = ex as Error;
+            const err = ex as Error;
 
             result.setSuccess(false);
             result.setMessage(err.message);
@@ -114,48 +114,42 @@ class UserHelper {
         }
     }
 
-    private UpdateUserProperties(user: IUser, userRequestData: UpdateUserRequest) : IUser {
+    private UpdateUserProperties(user: IUser, userRequestData: UpdateUserRequest): IUser {
 
-        const userData : UserData | undefined = userRequestData.getData();
+        const userData: UserData | undefined = userRequestData.getData();
 
         if (!userData) {
             throw new Error("User data doesn't exist");
         }
 
-        if (isString(userData.getEmail()))
-        {
+        if (isString(userData.getEmail())) {
             user.email = userData?.getEmail() as string;
         }
 
-        if (isString(userData.getMobile()))
-        {
+        if (isString(userData.getMobile())) {
             user.mobile = userData.getMobile() as string;
         }
 
-        if (isString(userData.getPassword()))
-        {
+        if (isString(userData.getPassword())) {
             user.password = userData.getPassword() as string;
         }
 
-        if (isString(userData.getRole()))
-        {
+        if (isString(userData.getRole())) {
             user.role = userData.getRole() as string;
         }
 
-        const grpcAcessToken : GrpcAccessToken | undefined = userData.getAccesstoken();
-        if (grpcAcessToken && isObject(userData.getAccesstoken()))
-        {
-            let accessToken : AccessToken = user.accessToken;
-            if (grpcAcessToken.getExpiration() && isString(grpcAcessToken.getExpiration()))
-            {
+        const grpcAcessToken: GrpcAccessToken | undefined = userData.getAccesstoken();
+        if (grpcAcessToken && isObject(userData.getAccesstoken())) {
+            let accessToken: AccessToken = user.accessToken;
+            if (grpcAcessToken.getExpiration() && isString(grpcAcessToken.getExpiration())) {
                 accessToken.expiration = grpcAcessToken.getExpiration();
             }
 
-            if (grpcAcessToken.getExpired() && isBoolean(grpcAcessToken.getExpired())){
+            if (grpcAcessToken.getExpired() && isBoolean(grpcAcessToken.getExpired())) {
                 accessToken.expired = grpcAcessToken.getExpired();
             }
 
-            if (grpcAcessToken.getToken() && isString(grpcAcessToken.getToken())){
+            if (grpcAcessToken.getToken() && isString(grpcAcessToken.getToken())) {
                 accessToken.token = grpcAcessToken.getToken();
             }
 
@@ -165,16 +159,16 @@ class UserHelper {
         return user;
     }
 
-    private UserDataFromDbUser(user: IUser) : UserData {
+    private UserDataFromDbUser(user: IUser): UserData {
         let userData = new UserData();
-        userData.setId(user._id);
+        userData.setId(user.id);
         userData.setEmail(user.email);
         userData.setPassword(user.password);
         userData.setRole(user.role);
         userData.setCreateat(user.createAt);
         userData.setUpdateat(user.updateAt);
 
-        const grpcAccessToken : GrpcAccessToken = new GrpcAccessToken();
+        const grpcAccessToken: GrpcAccessToken = new GrpcAccessToken();
         grpcAccessToken.setExpiration(user?.accessToken?.expiration);
         grpcAccessToken.setExpired(user?.accessToken?.expired);
         grpcAccessToken.setToken(user?.accessToken?.token);

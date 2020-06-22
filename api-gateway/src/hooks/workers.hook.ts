@@ -7,9 +7,9 @@ import { isUndefined } from 'lodash';
 import { LocationType, Location } from '../models/workers/location.model';
 
 export class WorkersHook {
-    private _evensBus : EventEmitter;
+    private _evensBus: EventEmitter;
 
-    constructor (private _services: Services) {
+    constructor(private _services: Services) {
         this._evensBus = this._services.eventsBus;
 
         this._evensBus.on(Events.userConnectedOnSocket, this.userConnected);
@@ -28,7 +28,7 @@ export class WorkersHook {
             return;
         }
 
-        const worker: Worker = new Worker (
+        const worker: Worker = new Worker(
             user.id,
             false,
             true,
@@ -50,7 +50,7 @@ export class WorkersHook {
             return;
         }
 
-        const worker: Worker = new Worker (
+        const worker: Worker = new Worker(
             user.id,
             false,
             false,
