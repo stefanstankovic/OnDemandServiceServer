@@ -20,19 +20,14 @@ export class SocketHook {
         /**
          * require identification form client side
          * const socket = io({
-         *  transportOptions: {
-         *      polling: {
-         *       extraHeaders: {
-         *               'token': token
-         *           }
-         *       }
-         *   }
+         * query: {
+         *     'token': token
+         * }
          *});
         */
 
         this._io.use((socket, next) => {
-            console.log(`user connect, token: ${socket.handshake.query.token}`);
-            let jwtToken = socket.handshake.query;
+            let jwtToken = socket.handshake.query.token;
             if (isNil(jwtToken) || isEmpty(jwtToken)) {
                 console.log(`error `);
                 return next(new UnauthorizedError('credentials_required', 'No authorization token was found'));
@@ -51,15 +46,18 @@ export class SocketHook {
             }
 
             socket.handshake.query.user = typeof decoded === 'string' ? JSON.parse(decoded) as UserType : decoded as UserType;
+            return next();
         });
 
         this._io.on("connection", (socket: Socket) => {
-
-            console.log("user is connected");
-            if (isNil(socket.handshake.query.user)) {
+            if (isNil(socket)
+                || isNil(socket.handshake)
+                || isNil(socket.handshake.query)
+                || isNil(socket.handshake.query.user)) {
                 socket.disconnect();
                 return;
             }
+
 
             const user = socket.handshake.query.user as UserType;
             this._socketsList[user.id!] = socket;
@@ -77,10 +75,12 @@ export class SocketHook {
     }
 
     private subscribe(socket: Socket) {
+
+        if (isNil(socket)) {
+            return;
+        }
+
         socket.on('disconnect', () => {
-            if (isNil(socket.handshake.query.user)) {
-                return;
-            }
 
             const user = socket.handshake.query.user as UserType;
             delete this._socketsList[user.id!];
@@ -94,7 +94,11 @@ export class SocketHook {
             });
         }
 
-        socket.on('test', (...args) => { console.log("test"); });
+        socket.on('test', (...args) => {
+            const user = socket.handshake.query.user as UserType;
+            console.log(JSON.stringify(user));
+            console.log("test");
+        });
     }
 
     private emitToUser(event: string, userId: string, ...data: any[]): void {
