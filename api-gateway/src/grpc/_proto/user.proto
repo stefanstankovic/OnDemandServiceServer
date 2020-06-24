@@ -50,6 +50,12 @@ message UserDetailsResponse {
 	UserDetails data = 3;
 }
 
+message FindUsersResponse {
+	bool success = 1;
+	string message = 2;
+	repeated UserDetails data = 3;
+}
+
 message Login {
     string email = 1;
     string password = 2;
@@ -97,7 +103,7 @@ service User {
     rpc AddUser (UserData) returns (Response);
     rpc UpdateUser (UpdateUserRequest) returns (UserDataResponse);
     rpc FindUserById (Id) returns (UserDataResponse);
-    rpc FindUser (Query) returns (UserDataResponse);
+    rpc FindUsers (Query) returns (FindUsersResponse);
     rpc AddUserDetails (UserDetails) returns (Response);
     rpc UpdateUserDetails (UpdateUserDetailsRequest) returns (UserDetailsResponse);
     rpc FindUserDetailsByUserId (Id) returns (UserDetailsResponse);

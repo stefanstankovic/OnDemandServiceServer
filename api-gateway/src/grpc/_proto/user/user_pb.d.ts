@@ -255,6 +255,37 @@ export namespace UserDetailsResponse {
     }
 }
 
+export class FindUsersResponse extends jspb.Message { 
+    getSuccess(): boolean;
+    setSuccess(value: boolean): void;
+
+    getMessage(): string;
+    setMessage(value: string): void;
+
+    clearDataList(): void;
+    getDataList(): Array<UserDetails>;
+    setDataList(value: Array<UserDetails>): void;
+    addData(value?: UserDetails, index?: number): UserDetails;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): FindUsersResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: FindUsersResponse): FindUsersResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: FindUsersResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): FindUsersResponse;
+    static deserializeBinaryFromReader(message: FindUsersResponse, reader: jspb.BinaryReader): FindUsersResponse;
+}
+
+export namespace FindUsersResponse {
+    export type AsObject = {
+        success: boolean,
+        message: string,
+        dataList: Array<UserDetails.AsObject>,
+    }
+}
+
 export class Login extends jspb.Message { 
     getEmail(): string;
     setEmail(value: string): void;

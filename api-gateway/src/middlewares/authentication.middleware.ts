@@ -1,23 +1,28 @@
-import { JwtAuth, JwtAuthOptions} from '../utils/auth';
-import { RequestHandler} from 'express';
-import { isUndefined } from 'lodash';
+import { JwtAuth, JwtAuthOptions } from "../utils/auth";
+import { RequestHandler } from "express";
+import { isUndefined } from "lodash";
 
 // TODO include middleware in app
-export const authenticationMiddleware : RequestHandler = (req, res, next) => {
-    const jwtAuthOptions : JwtAuthOptions = {
-        secret : !isUndefined(process.env.JWT_SECRET) ? process.env.JWT_SECRET : "aaaabbbbccc123",
-        getToken : (req) : string | null => {
-            // @ts-ignore
-            var token = req.session.access_token || req.cookies.access_token || req.headers['x-access-token'] ;
-              if (token) {
-                return token;
-              }
-              return null;
-        },
-        authRequest: false
-    }
+export const authenticationMiddleware: RequestHandler = (req, res, next) => {
+  const jwtAuthOptions: JwtAuthOptions = {
+    secret: !isUndefined(process.env.JWT_SECRET)
+      ? process.env.JWT_SECRET
+      : "aaaabbbbccc123",
+    getToken: (req): string | null => {
+      // @ts-ignore
+      var token =
+        req?.session?.access_token ||
+        req?.cookies?.access_token ||
+        req?.headers["x-access-token"];
+      if (token) {
+        return token;
+      }
+      return null;
+    },
+    authRequest: false,
+  };
 
-    const jwtAuth = new JwtAuth(jwtAuthOptions);
+  const jwtAuth = new JwtAuth(jwtAuthOptions);
 
-    jwtAuth.authorize(req, res, next);
-}
+  jwtAuth.authorize(req, res, next);
+};

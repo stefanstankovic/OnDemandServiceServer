@@ -1,10 +1,10 @@
-import { model, Schema, Document } from 'mongoose';
+import { model, Schema, Document } from "mongoose";
 
 export type AccessToken = {
-    token: string,
-    expired: boolean,
-    expiration: string
-}
+  token: string;
+  expired: boolean;
+  expiration: string;
+};
 
 export interface IUser extends Document {
   email: string;
@@ -16,45 +16,48 @@ export interface IUser extends Document {
   updateAt: string;
 }
 
-const UserSchema: Schema = new Schema({
+const UserSchema: Schema = new Schema(
+  {
     email: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     mobile: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     password: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     role: {
-        type: String,
-        default: "user",
-        enum: ["user", "worker", "admin"]
+      type: String,
+      default: "user",
+      enum: ["user", "worker", "admin"],
     },
     accessToken: {
-        token: {
-            type: String,
-            required: false
-        },
-        expired: {
-            type: Boolean,
-            required: false
-        },
-        expiration: {
-            type: Date,
-            required: false
-        }
-    }
-}, {
+      token: {
+        type: String,
+        required: false,
+      },
+      expired: {
+        type: Boolean,
+        required: false,
+      },
+      expiration: {
+        type: Date,
+        required: false,
+      },
+    },
+  },
+  {
     timestamps: {
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
-    }
-});
+      createdAt: "createdAt",
+      updatedAt: "createdAt",
+    },
+  }
+);
 
 // Export the model and return your IUser interface
-export default  model<IUser>('User', UserSchema);
+export default model<IUser>("User", UserSchema);

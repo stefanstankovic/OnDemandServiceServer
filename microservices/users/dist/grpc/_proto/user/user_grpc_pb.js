@@ -4,6 +4,17 @@
 var grpc = require('grpc');
 var user_pb = require('./user_pb.js');
 
+function serialize_user_FindUsersResponse(arg) {
+  if (!(arg instanceof user_pb.FindUsersResponse)) {
+    throw new Error('Expected argument of type user.FindUsersResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_user_FindUsersResponse(buffer_arg) {
+  return user_pb.FindUsersResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_user_Id(arg) {
   if (!(arg instanceof user_pb.Id)) {
     throw new Error('Expected argument of type user.Id');
@@ -182,16 +193,16 @@ var UserService = exports.UserService = {
     responseSerialize: serialize_user_UserDataResponse,
     responseDeserialize: deserialize_user_UserDataResponse,
   },
-  findUser: {
-    path: '/user.User/FindUser',
+  findUsers: {
+    path: '/user.User/FindUsers',
     requestStream: false,
     responseStream: false,
     requestType: user_pb.Query,
-    responseType: user_pb.UserDataResponse,
+    responseType: user_pb.FindUsersResponse,
     requestSerialize: serialize_user_Query,
     requestDeserialize: deserialize_user_Query,
-    responseSerialize: serialize_user_UserDataResponse,
-    responseDeserialize: deserialize_user_UserDataResponse,
+    responseSerialize: serialize_user_FindUsersResponse,
+    responseDeserialize: deserialize_user_FindUsersResponse,
   },
   addUserDetails: {
     path: '/user.User/AddUserDetails',

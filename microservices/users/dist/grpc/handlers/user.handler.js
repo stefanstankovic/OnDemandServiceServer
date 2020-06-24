@@ -6,30 +6,26 @@ const user_grpc_pb_1 = require("../_proto/user/user_grpc_pb");
 class UserHandler {
     constructor() {
         this.addUser = (call, callback) => {
-            user_helper_1.default.AddUser(call.request)
-                .then((response) => {
+            user_helper_1.default.AddUser(call.request).then((response) => {
                 callback(null, response);
             });
         };
         this.updateUser = (call, callback) => {
-            user_helper_1.default.UpdateUser(call.request)
-                .then((response) => {
+            user_helper_1.default.UpdateUser(call.request).then((response) => {
                 callback(null, response);
             });
         };
         this.findUserById = (call, callback) => {
-            user_helper_1.default.FindUserById(call.request)
-                .then((response) => {
+            user_helper_1.default.FindUserById(call.request).then((response) => {
                 callback(null, response);
             });
         };
-        this.findUser = (call, callback) => {
+        this.findUsers = (call, callback) => {
             // TODO implement find user function
             callback(null, null);
         };
         this.addUserDetails = (call, callback) => {
-            userDetails_helper_1.default.AddUserDetails(call.request)
-                .then((response) => {
+            userDetails_helper_1.default.AddUserDetails(call.request).then((response) => {
                 callback(null, response);
             });
         };
@@ -53,7 +49,9 @@ class UserHandler {
             callback(null, null);
         };
         this.validateLogin = (call, callback) => {
-            user_helper_1.default.ValidateLogin(call.request).then((response) => {
+            user_helper_1.default
+                .ValidateLogin(call.request)
+                .then((response) => {
                 callback(null, response);
             });
         };
@@ -61,6 +59,6 @@ class UserHandler {
 }
 exports.default = {
     server: user_grpc_pb_1.UserService,
-    handler: new UserHandler()
+    handler: new UserHandler(),
 };
 //# sourceMappingURL=user.handler.js.map
