@@ -10,15 +10,13 @@ import {
   AccessToken as GrpcAccessToken,
 } from "../grpc/_proto/user/user_pb";
 import User, { IUser, AccessToken } from "../models/user.model";
-import { isString, isObject, isBoolean } from "lodash";
+import { isString, isObject, isBoolean, isEmpty, set } from "lodash";
 import { hash, compare } from "bcrypt";
-
-import { Types } from "mongoose";
 
 class UserHelper {
   private readonly _saltRound: number = 10;
 
-  constructor() {}
+  constructor() { }
 
   public async AddUser(userData: UserData): Promise<Response> {
     let passwordHash = await hash(userData.getPassword(), this._saltRound);
@@ -47,9 +45,7 @@ class UserHelper {
   public async UpdateUser(
     userRequestData: UpdateUserRequest
   ): Promise<UserDataResponse> {
-    const userId = new Types.ObjectId(userRequestData.getId());
-    let user = await User.findById(userId);
-
+    let user = await User.findById(userRequestData.getId());
     let result = new UserDataResponse();
 
     if (!user) {
@@ -65,8 +61,8 @@ class UserHelper {
     }
 
     try {
-      user = this.UpdateUserProperties(user, userRequestData);
-      await user.update(user._id).exec();
+      let updateProperties = await this.UpdateUserProperties(user, userRequestData);
+      await User.updateOne({ _id: user.id }, updateProperties);
       result.setSuccess(true);
       result.setData(this.UserDataFromDbUser(user));
     } catch (ex) {
@@ -143,30 +139,40 @@ class UserHelper {
     }
   }
 
-  private UpdateUserProperties(
+  private async UpdateUserProperties(
     user: IUser,
     userRequestData: UpdateUserRequest
-  ): IUser {
+  ): Promise<object> {
     const userData: UserData | undefined = userRequestData.getData();
 
     if (!userData) {
       throw new Error("User data doesn't exist");
     }
 
-    if (isString(userData.getEmail())) {
-      user.email = userData?.getEmail() as string;
+    let propertiesForUpdate = {}
+
+    if (isString(userData.getEmail())
+      && !isEmpty(userData.getEmail())
+      && userData.getEmail() !== user.email) {
+      set(propertiesForUpdate, 'email', userData?.getEmail() as string);
     }
 
-    if (isString(userData.getMobile())) {
-      user.mobile = userData.getMobile() as string;
+    if (isString(userData.getMobile())
+      && !isEmpty(userData.getMobile())
+      && userData.getMobile() !== user.mobile) {
+      set(propertiesForUpdate, 'mobile', user.mobile = userData.getMobile() as string);
     }
 
-    if (isString(userData.getPassword())) {
-      user.password = userData.getPassword() as string;
+    if (isString(userData.getPassword())
+      && !isEmpty(userData.getPassword())) {
+      let passwordHash = await hash(userData.getPassword(), this._saltRound);
+      set(propertiesForUpdate, 'password', passwordHash);
     }
 
-    if (isString(userData.getRole())) {
-      user.role = userData.getRole() as string;
+    if (isString(userData.getRole())
+      && !isEmpty(userData.getRole())
+      && userData.getRole() !== user.role) {
+      set(propertiesForUpdate, 'password', user.role = userData.getRole() as string);
     }
 
     const grpcAcessToken:
@@ -174,34 +180,47 @@ class UserHelper {
       | undefined = userData.getAccesstoken();
     if (grpcAcessToken && isObject(userData.getAccesstoken())) {
       let accessToken: AccessToken = user.accessToken;
+      let accessTokenForUpdate = {};
+      let tokenUpdated = false
       if (
-        grpcAcessToken.getExpiration() &&
-        isString(grpcAcessToken.getExpiration())
+        grpcAcessToken.getExpiration()
+        && isString(grpcAcessToken.getExpiration())
+        && !isEmpty(grpcAcessToken.getExpiration())
+        && grpcAcessToken.getExpiration() != accessToken.expiration
       ) {
-        accessToken.expiration = grpcAcessToken.getExpiration();
+        set(accessTokenForUpdate, 'expiration', grpcAcessToken.getExpiration());
+        tokenUpdated = true;
       }
 
       if (
         grpcAcessToken.getExpired() &&
         isBoolean(grpcAcessToken.getExpired())
       ) {
-        accessToken.expired = grpcAcessToken.getExpired();
+        set(accessTokenForUpdate, 'expiration', grpcAcessToken.getExpired());
+        tokenUpdated = true;
       }
 
-      if (grpcAcessToken.getToken() && isString(grpcAcessToken.getToken())) {
-        accessToken.token = grpcAcessToken.getToken();
+      if (grpcAcessToken.getToken()
+        && isString(grpcAcessToken.getToken())
+        && !isEmpty(grpcAcessToken.getToken())
+        && grpcAcessToken.getToken() != accessToken.token) {
+        set(accessTokenForUpdate, 'expiration', grpcAcessToken.getToken());
+        tokenUpdated = true;
       }
 
-      user.accessToken = accessToken;
+      if (tokenUpdated) {
+        set(propertiesForUpdate, 'accessToken', accessToken);
+      }
     }
 
-    return user;
+    return propertiesForUpdate;
   }
 
   private UserDataFromDbUser(user: IUser): UserData {
     let userData = new UserData();
     userData.setId(user.id);
     userData.setEmail(user.email);
+    userData.setMobile(user.mobile);
     userData.setPassword(user.password);
     userData.setRole(user.role);
     userData.setCreateat(user.createAt);

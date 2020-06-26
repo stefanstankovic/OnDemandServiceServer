@@ -11,7 +11,7 @@ import UserHelper from "./user.helper";
 import { isString } from "util";
 
 class UserDetailsHelper {
-  constructor() {}
+  constructor() { }
 
   public async AddUserDetails(
     userDetailsData: GrpcUserDetails
@@ -145,7 +145,9 @@ class UserDetailsHelper {
     userId.setId(userDetails.id);
 
     let userResponse = await UserHelper.FindUserById(userId);
-    userDetailsData.setUser(userResponse.getData());
+    if (userResponse.getSuccess()) {
+      userDetailsData.setUser(userResponse.getData());
+    }
 
     return userDetailsData;
   }
