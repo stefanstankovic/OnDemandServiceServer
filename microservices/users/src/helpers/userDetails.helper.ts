@@ -8,7 +8,7 @@ import {
 import UserDetails, { IUserDetails } from "../models/userDetails.model";
 import User from "../models/user.model";
 import UserHelper from "./user.helper";
-import { isString } from "util";
+import { isString, set, merge } from "lodash";
 
 class UserDetailsHelper {
   constructor() { }
@@ -71,14 +71,14 @@ class UserDetailsHelper {
       return result;
     }
 
-    userDetails = this.UpdateUserDetailsProperties(
+    const propertiesToUpdate = this.UpdateUserDetailsProperties(
       userDetails,
       userDetailsData
     );
     try {
-      await userDetails.update(userDetails._id).exec();
+      await UserDetails.updateOne({ _id: userDetails.id }, propertiesToUpdate);
       result.setSuccess(true);
-      result.setData(await this.UserDetailsFromDbUserDetails(userDetails));
+      result.setData(await this.UserDetailsFromDbUserDetails(merge(userDetails, propertiesToUpdate)));
     } catch (ex) {
       result.setSuccess(false);
       result.setMessage((ex as Error).message);
@@ -112,29 +112,35 @@ class UserDetailsHelper {
   private UpdateUserDetailsProperties(
     userDetails: IUserDetails,
     userDetailsDeta: UpdateUserDetailsRequest
-  ): IUserDetails {
-    if (isString(userDetailsDeta.getData()?.getFirstname())) {
-      userDetails.firstName = userDetailsDeta
+  ): Object {
+
+    let propertiesToUpdate = {};
+
+    if (isString(userDetailsDeta.getData()?.getFirstname())
+      && userDetails.firstName !== userDetailsDeta.getData()?.getFirstname()) {
+      set(propertiesToUpdate, 'firstName', userDetailsDeta
         .getData()
-        ?.getFirstname() as string;
+        ?.getFirstname() as string);
     }
 
-    if (isString(userDetailsDeta.getData()?.getLastname())) {
-      userDetails.lastName = userDetailsDeta.getData()?.getLastname() as string;
+    if (isString(userDetailsDeta.getData()?.getLastname())
+      && userDetails.lastName !== userDetailsDeta.getData()?.getLastname()) {
+      set(propertiesToUpdate, 'lastName', userDetailsDeta.getData()?.getLastname() as string);
     }
 
-    if (isString(userDetailsDeta.getData()?.getBirthday())) {
-      userDetails.birthday = userDetailsDeta.getData()?.getBirthday() as string;
+    if (isString(userDetailsDeta.getData()?.getBirthday())
+      && userDetails.birthday !== userDetailsDeta.getData()?.getBirthday()) {
+      set(propertiesToUpdate, 'birthday', userDetailsDeta.getData()?.getBirthday() as string);
     }
 
-    return userDetails;
+    return propertiesToUpdate;
   }
 
   private async UserDetailsFromDbUserDetails(
     userDetails: IUserDetails
   ): Promise<GrpcUserDetails> {
     let userDetailsData = new GrpcUserDetails();
-    userDetailsData.setId(userDetails._id);
+    userDetailsData.setId(userDetails.id);
     userDetailsData.setFirstname(userDetails.firstName);
     userDetailsData.setLastname(userDetails.lastName);
     userDetailsData.setBirthday(userDetails.birthday);
