@@ -17,14 +17,15 @@ message Location {
 message LocationResult {
     bool success = 1;
     string message = 2;
-    Location location = 3;
+    repeated Location location = 3;
 }
 
 message WorkerData {
     string workerId = 1;
     bool busy = 2;
     bool active = 3;
-    Location location = 4;
+    bool archived = 4;
+    string employerId = 5;
 }
 
 message WorkerId {
@@ -59,6 +60,48 @@ message Status {
     string workerId = 1;
     bool active = 2;
     bool busy = 3;
+    bool archived = 4;
+}
+
+message HireWorkerRequest {
+    string workerId = 1;
+    string employerId = 2;
+}
+
+message EmployerId {
+    string id = 1;
+}
+
+message HiredWorker {
+    WorkerData data = 1;
+    repeated Location location = 2;
+}
+
+message AllWorkersForEmployerResponse {
+    bool success = 1;
+    string message = 2;
+    string employerId = 3;
+    repeated HiredWorker workers = 4;
+}
+
+message HireRequest {
+    string id = 1;
+    string workerId = 2;
+    string employerId = 3;
+    string status = 4;
+    string requestMessage = 5;
+}
+
+message HireRequestQuery {
+    string workerId = 1;
+    string employerId = 2;
+    string status = 3;
+}
+
+message HireRequestResponse {
+    bool success = 1;
+    string message = 2;
+    repeated HireRequest requests = 3;
 }
 
 service Workers {
@@ -69,4 +112,9 @@ service Workers {
     rpc UpdateWorkerStatus (Status) returns (Response);
     rpc UpdateWorkerLocation (Location) returns (Response);
     rpc GetWorkerLocation (WorkerId) returns (LocationResult);
+    rpc HireWorker(HireWorkerRequest) returns (Response);
+    rpc AllWorkersForEmployer(EmployerId) returns (AllWorkersForEmployerResponse);
+    rpc AddHireRequest(HireRequest) returns (Response);
+    rpc GetHireRequests (HireRequestQuery) returns (HireRequestResponse);
+    rpc UpdateHireRequest (HireRequest) returns (Response);
 }

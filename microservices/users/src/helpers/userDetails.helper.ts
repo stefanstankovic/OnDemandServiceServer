@@ -11,7 +11,7 @@ import UserHelper from "./user.helper";
 import { isString, set, merge } from "lodash";
 
 class UserDetailsHelper {
-  constructor() { }
+  constructor() {}
 
   public async AddUserDetails(
     userDetailsData: GrpcUserDetails
@@ -103,7 +103,10 @@ class UserDetailsHelper {
       return result;
     }
 
-    result.setData(await this.UserDetailsFromDbUserDetails(userDetails));
+    const grpcUserDetails = await this.UserDetailsFromDbUserDetails(
+      userDetails
+    );
+    result.setData(grpcUserDetails);
     result.setSuccess(true);
 
     return result;

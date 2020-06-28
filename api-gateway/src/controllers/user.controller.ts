@@ -2,6 +2,7 @@ import { RequestHandler, Request } from "express";
 
 import { Login, LoginType } from "../models/user/login.model";
 import { User, UserType } from "../models/user/user.model";
+import { UserDetails } from "../models/user/userDetails.model";
 
 import { Response, UserDataResponse } from "../grpc/_proto/user/user_pb";
 
@@ -9,7 +10,10 @@ import { ServiceRegistry } from "../services/service.registry";
 import { Events } from "../hooks/event.types/event.types";
 import { JwtAuth } from "../utils/auth";
 
+import { parse as parseUrl } from "url";
+
 import { isUndefined } from "lodash";
+import { parse } from "querystring";
 
 const jwtAuth = new JwtAuth({
   secret: !isUndefined(process.env.JWT_SECRET)
@@ -60,6 +64,21 @@ export const singUp: RequestHandler = async (req, res, next) => {
     return next();
   }
 
+  try {
+    const userDetails = new UserDetails("", "", "", "", user);
+    var responseDetail: Response = await ServiceRegistry.getInstance().services.userClient.addUserDetails(
+      userDetails.grpcUserDetails
+    );
+
+    if (!responseDetail.getSuccess()) {
+      throw new Error(response.getMessage());
+    }
+  } catch (ex) {
+    const err = ex as Error;
+    res.status(400).json({ success: false, message: err.message });
+    return next();
+  }
+
   // fire the user sign up event
   ServiceRegistry.getInstance().services.eventsBus.emit(
     Events.userSignUp,
@@ -103,4 +122,34 @@ export const login: RequestHandler = async (req, res, next) => {
   );
 
   res.status(201).json({ success: true, user: user.userObject, token: token });
+};
+
+export const updateUser: RequestHandler = async (req, res, next) => {
+  const { id } = req.params;
+  const userBody: UserType = req.body as UserType;
+
+  if (isUndefined(id)) {
+    res.status(400).json({ success: false, message: "User ID is required!" });
+    return next();
+  }
+
+  const user = new User();
+  user.userObject = userBody;
+
+  var userResponse: UserDataResponse = await ServiceRegistry.getInstance().services.userClient.updateUser(
+    id,
+    user.grpcUserData
+  );
+
+  if (!userResponse.getSuccess()) {
+    res
+      .status(400)
+      .json({ success: false, message: userResponse.getMessage() });
+    return next();
+  }
+
+  var updatedUser = new User();
+  updatedUser.grpcUserData = userResponse.getData()!;
+
+  res.status(201).json({ success: true, user: updatedUser.userObject });
 };

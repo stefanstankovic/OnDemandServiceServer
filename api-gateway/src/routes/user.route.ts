@@ -1,15 +1,17 @@
-import { Router } from 'express';
-import { login, singUp } from '../controllers/user.controller';
+import { Router } from "express";
+import { login, singUp, updateUser } from "../controllers/user.controller";
+import { authenticationMiddleware } from "../middlewares/authentication.middleware";
 
 const routes = Router();
 
-routes.post('/login', login);
+routes.post("/login", login);
 
-routes.post('/signup', singUp);
+routes.post("/signup", singUp);
 
-routes.get('/:id');
+routes.put("/:id", authenticationMiddleware, updateUser);
 
-routes.patch('/:id');
+routes.get("/:id");
 
+routes.patch("/:id");
 
 export default routes;

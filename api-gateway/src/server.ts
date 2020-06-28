@@ -4,6 +4,7 @@ import { json } from "body-parser";
 import { Request, Response, NextFunction } from "express";
 import userRoutes from "./routes/user.route";
 import workerRoutes from "./routes/worker.route";
+import userDetailsRoutes from "./routes/userDetails.route";
 import { authenticationMiddleware } from "./middlewares/authentication.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { HooksRegistry } from "./hooks/hooks.registry";
@@ -27,6 +28,7 @@ app.use(errorMiddleware);
 app.use(json());
 app.use("/user", userRoutes);
 app.use("/worker", authenticationMiddleware, workerRoutes);
+app.use("/userdetails", authenticationMiddleware, userDetailsRoutes);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ message: err.message });

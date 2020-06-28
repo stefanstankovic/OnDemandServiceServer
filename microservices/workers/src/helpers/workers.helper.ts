@@ -1,290 +1,462 @@
-
 import {
-    WorkerData,
-    WorkerId,
-    WorkerStatus,
-    WorkersResponse,
-    Response,
-    Radius,
-    Location,
-    Status,
-    Paging,
-    LocationResult
-} from '../grpc/_proto/workers/workers_pb';
-import Worker, { IWorker } from '../models/worker.model';
-import { isNull, isUndefined, set, toNumber } from 'lodash';
-import { isPointWithinRadius } from 'geolib';
+  WorkerData,
+  WorkerId,
+  WorkerStatus,
+  WorkersResponse,
+  Response,
+  Radius,
+  Location as GrpcLocation,
+  Status,
+  Paging,
+  LocationResult,
+  HireWorkerRequest,
+  EmployerId,
+  AllWorkersForEmployerResponse,
+  HiredWorker,
+} from "../grpc/_proto/workers/workers_pb";
+import Worker, { IWorker } from "../models/worker.model";
+
+import Location, { ILocation } from "../models/location.model";
+import { isNull, isUndefined, set, isBoolean, isString } from "lodash";
+//import { isPointWithinRadius } from "geolib";
 
 export class WorkersHelper {
-    constructor(){}
+  constructor() {}
 
-    public async addOrUpdateWorker(workerData: WorkerData): Promise<Response> {
-        const result = new Response();
-        try {
-            let workerExists: boolean = true;
-            let worker : IWorker | null;
-            worker = await Worker.findOne({workerId : workerData.getWorkerid()});
+  public async addOrUpdateWorker(workerData: WorkerData): Promise<Response> {
+    const result = new Response();
+    try {
+      let workerExists: boolean = true;
+      let worker: IWorker | null;
+      worker = await Worker.findOne({ workerId: workerData.getWorkerid() });
 
-            if (isNull(worker)) {
-                workerExists = false;
-                worker = new Worker();
-                worker.workerId = workerData.getWorkerid();
-            }
+      if (isNull(worker)) {
+        workerExists = false;
+        worker = new Worker();
+        worker.workerId = workerData.getWorkerid();
+      }
 
-            worker.busy = workerData.getBusy();
-            worker.active = workerData.getActive();
-            const location: Location | undefined = workerData.getLocation();
+      let dbWorker: IWorker;
 
-            if (!isUndefined(location)) {
-                worker.latitude = location.getLatitude();
-                worker.longitude = location.getLongitude();
-            }
+      if (workerExists) {
+        const propertiesForUpdate = this.UpdateWorkerProperties(
+          worker,
+          workerData
+        );
+        dbWorker = await Worker.updateOne(
+          { _id: worker.id },
+          propertiesForUpdate
+        ).exec();
+      } else {
+        dbWorker = await worker.save();
+      }
 
-            let dbWorker: IWorker;
-
-            if (workerExists) {
-                dbWorker = await worker.update(worker._id).exec();
-            } else {
-                dbWorker = await worker.save();
-            }
-
-            result.setSuccess(true);
-            result.setId(dbWorker._id);
-        } catch (ex) {
-            var err = ex as Error;
-            result.setSuccess(false);
-            result.setMessage(err.message);
-        }
-
-        return result;
+      result.setSuccess(true);
+      result.setId(dbWorker._id);
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
     }
 
-    public async removeWorker(workerIdData: WorkerId): Promise<Response> {
-        const result = new Response();
-        try {
-            const worker = Worker.findOne({workerId : workerIdData.getWorkerid()});
+    return result;
+  }
 
-            if (isNull(worker)) {
-                throw new Error("Worker doesn't exist");
-            }
+  public async removeWorker(workerIdData: WorkerId): Promise<Response> {
+    const result = new Response();
+    try {
+      const worker = Worker.findOne({ workerId: workerIdData.getWorkerid() });
 
-            await worker.remove();
+      if (isNull(worker)) {
+        throw new Error("Worker doesn't exist");
+      }
 
-            result.setSuccess(true);
-            result.setMessage("Worker is deleted successfully.");
-        } catch (ex) {
-            var err = ex as Error;
-            result.setSuccess(false);
-            result.setMessage(err.message);
-        }
+      await worker.remove();
 
-        return result;
+      result.setSuccess(true);
+      result.setMessage("Worker is deleted successfully.");
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
     }
 
-    public async getWorkers(workerStatusData: WorkerStatus): Promise<WorkersResponse> {
-        const result = new WorkersResponse();
+    return result;
+  }
 
-        try {
-            const pagingData : Paging | undefined = workerStatusData.getPaging();
-            let query: Object = {};
-            let paging: Object = {};
+  public async getWorkers(
+    workerStatusData: WorkerStatus
+  ): Promise<WorkersResponse> {
+    const result = new WorkersResponse();
 
-            if (!isUndefined(workerStatusData.getBusy())) {
-                set(query, "busy", workerStatusData.getBusy());
-            }
+    try {
+      const pagingData: Paging | undefined = workerStatusData.getPaging();
+      let query: Object = {};
+      let paging: Object = {};
 
-            if (!isUndefined(workerStatusData.getActive())) {
-                set(query, "active", workerStatusData.getActive());
-            }
+      if (isBoolean(workerStatusData.getBusy())) {
+        set(query, "busy", workerStatusData.getBusy());
+      }
 
-            if (!isUndefined(pagingData)) {
-                if (!isUndefined(pagingData.getSkip())) {
-                    set(paging, "skip", pagingData.getSkip());
-                }
+      if (isBoolean(workerStatusData.getActive())) {
+        set(query, "active", workerStatusData.getActive());
+      }
 
-                if (!isUndefined(pagingData.getTake())) {
-                    set(paging, "limit", pagingData.getTake());
-                }
-
-                if (!isUndefined(pagingData.getOrderby())) {
-                    set(paging, "sort", pagingData.getOrderby());
-                }
-            }
-
-            const workers = await Worker.find(query, {}, paging).exec();
-
-            result.setSuccess(true);
-            result.setWorkersList(
-                workers.map((worker) => {
-                    return this.DbWorkerToWorkerData(worker);
-                })
-            );
-
-        } catch (ex) {
-            var err = ex as Error;
-            result.setSuccess(false);
-            result.setMessage(err.message);
+      if (!isUndefined(pagingData)) {
+        if (!isUndefined(pagingData.getSkip())) {
+          set(paging, "skip", pagingData.getSkip());
         }
 
-        return result;
+        if (!isUndefined(pagingData.getTake())) {
+          set(paging, "limit", pagingData.getTake());
+        }
+
+        if (!isUndefined(pagingData.getOrderby())) {
+          set(paging, "sort", pagingData.getOrderby());
+        }
+      }
+
+      const workers = await Worker.find(query, {}, paging).exec();
+
+      result.setSuccess(true);
+      result.setWorkersList(
+        workers.map((worker) => {
+          return this.DbWorkerToWorkerData(worker);
+        })
+      );
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
     }
 
-    public async freeWorkersInRadius(radiusData: Radius): Promise<WorkersResponse> {
-        const result = new WorkersResponse();
+    return result;
+  }
 
-        try {
-            const location :Location | undefined = radiusData.getLocation();
+  public async freeWorkersInRadius(
+    radiusData: Radius
+  ): Promise<WorkersResponse> {
+    const result = new WorkersResponse();
 
-            if (isUndefined(location)) {
-                throw new Error("Location is missing.");
-            }
+    try {
+      const location: GrpcLocation | undefined = radiusData.getLocation();
 
-            let workers: IWorker[] | undefined = await Worker.find({busy: false, active: true}).exec();
-            workers = workers.filter((worker) => {
-                return isPointWithinRadius(
-                    {
-                        latitude: toNumber(worker.latitude),
-                        longitude: toNumber(worker.longitude)
-                    },
-                    {
-                        latitude: toNumber(location.getLatitude()),
-                        longitude: toNumber(location.getLongitude())
-                    },
-                    radiusData.getRadius()
-                );
-            });
+      if (isUndefined(location)) {
+        throw new Error("Location is missing.");
+      }
 
-            const pagingData: Paging | undefined= radiusData.getPaging();
+      let workers: IWorker[] | undefined = await Worker.find({
+        busy: false,
+        active: true,
+      }).exec();
 
-            if (!isUndefined(pagingData)) {
-                // TODO : Fix sorting workers
-                /*if (!isUndefined(pagingData.getOrderby())) {
+      // TODO : Fix filtering by location
+      /*
+      workers = workers.filter((worker) => {
+        return isPointWithinRadius(
+          {
+            latitude: toNumber(worker.latitude),
+            longitude: toNumber(worker.longitude),
+          },
+          {
+            latitude: toNumber(location.getLatitude()),
+            longitude: toNumber(location.getLongitude()),
+          },
+          radiusData.getRadius()
+        );
+      });
+      */
+
+      const pagingData: Paging | undefined = radiusData.getPaging();
+
+      if (!isUndefined(pagingData)) {
+        // TODO : Fix sorting workers
+        /*if (!isUndefined(pagingData.getOrderby())) {
                     workers = workers.sort((worker1, worker2) => {
                         return 1;
                     })
                 }*/
-    
-                if (!isUndefined(pagingData.getSkip()) && !isUndefined(pagingData.getTake())) {
-                    workers = workers.splice(pagingData.getSkip(), pagingData.getSkip() + pagingData.getTake());
-                }
+
+        if (
+          !isUndefined(pagingData.getSkip()) &&
+          !isUndefined(pagingData.getTake())
+        ) {
+          workers = workers.splice(
+            pagingData.getSkip(),
+            pagingData.getSkip() + pagingData.getTake()
+          );
+        }
+      }
+
+      result.setSuccess(true);
+      result.setWorkersList(
+        workers.map((worker) => {
+          return this.DbWorkerToWorkerData(worker);
+        })
+      );
+
+      return result;
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
+    }
+
+    return result;
+  }
+
+  public async updateWorkerStatus(statusData: Status): Promise<Response> {
+    const result = new Response();
+
+    try {
+      const worker = await Worker.findOne({
+        workerId: statusData.getWorkerid(),
+      }).exec();
+      if (isNull(worker)) {
+        throw new Error(
+          `Worker with id ${statusData.getWorkerid()} doesn't exist`
+        );
+      }
+
+      let propertiesForUpdate = {};
+
+      if (isBoolean(statusData.getBusy())) {
+        set(propertiesForUpdate, "busy", statusData.getBusy());
+      }
+
+      if (isBoolean(statusData.getActive())) {
+        set(propertiesForUpdate, "active", statusData.getActive());
+      }
+
+      if (isBoolean(statusData.getArchived())) {
+        set(propertiesForUpdate, "archived", statusData.getArchived());
+      }
+
+      await Worker.updateOne({ _id: worker.id }, propertiesForUpdate).exec();
+
+      result.setSuccess(true);
+      result.setId(worker.workerId);
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
+    }
+
+    return result;
+  }
+
+  public async updateWorkerLocation(
+    locationData: GrpcLocation
+  ): Promise<Response> {
+    const result = new Response();
+
+    try {
+      const worker = await Worker.findOne({
+        workerId: locationData.getWorkerid(),
+        archived: false,
+      }).exec();
+      if (isNull(worker)) {
+        throw new Error(
+          `Worker with id ${locationData.getWorkerid()} doesn't exist`
+        );
+      }
+
+      if (
+        !isUndefined(locationData.getLatitude()) &&
+        !isUndefined(locationData.getLongitude())
+      ) {
+        if (worker.busy) {
+          let newLocation: ILocation = new Location();
+          newLocation.workerId = worker.id;
+          newLocation.latitude = locationData.getLatitude();
+          newLocation.longitude = locationData.getLongitude();
+
+          await newLocation.save();
+        } else {
+          let location = await Location.findOne({ workerId: worker.id }).exec();
+          await Location.updateOne(
+            { _id: location?.id },
+            {
+              latitude: locationData.getLatitude(),
+              longitude: locationData.getLongitude(),
             }
-
-            result.setSuccess(true);
-                result.setWorkersList(
-                    workers.map((worker) => {
-                        return this.DbWorkerToWorkerData(worker);
-                    })
-                );
-
-            return result;
-
-        } catch (ex) {
-            var err = ex as Error;
-            result.setSuccess(false);
-            result.setMessage(err.message);
+          ).exec();
         }
 
+        result.setSuccess(true);
         return result;
+      }
+
+      throw new Error(`Latitude or Longitude isn't defined.`);
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
     }
 
-    public async updateWorkerStatus(statusData: Status): Promise<Response> {
-        const result = new Response();
+    return result;
+  }
 
-        try {
-            const worker = await Worker.findOne({ workerId: statusData.getWorkerid()}).exec();
-            if (isNull(worker)) {
-                throw new Error(`Worker with id ${statusData.getWorkerid()} doesn't exist`);
-            }
+  public async getWorkerLocation(
+    workerIdData: WorkerId
+  ): Promise<LocationResult> {
+    const result = new LocationResult();
 
-            if (!isUndefined(statusData.getBusy())) {
-                worker.busy = statusData.getBusy();
-            }
+    try {
+      const worker = await Worker.findOne({
+        workerId: workerIdData.getWorkerid(),
+      }).exec();
+      if (isNull(worker)) {
+        throw new Error(
+          `Worker with id ${workerIdData.getWorkerid()} doesn't exist`
+        );
+      }
+      const location = await Location.find({ workerId: worker.id })
+        .sort({ createAt: -1 })
+        .exec();
+      const grpcLocationArray = location.map((loc, index) => {
+        return this.DbLocationToLocationData(worker, loc);
+      });
 
-            if (!isUndefined(statusData.getActive())) {
-                worker.active = statusData.getActive();
-            }
+      result.setSuccess(true);
+      result.setLocationList(grpcLocationArray);
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
+    }
 
-            await worker.update(worker._id).exec();
+    return result;
+  }
 
-            result.setSuccess(true);
-            result.setId(worker.workerId);
-        } catch (ex) {
-            var err = ex as Error;
-            result.setSuccess(false);
-            result.setMessage(err.message);
+  public async hireWorker(hireWorker: HireWorkerRequest): Promise<Response> {
+    const result = new Response();
+    try {
+      const worker = await Worker.findOne({
+        workerId: hireWorker.getWorkerid(),
+        archived: false,
+        busy: false,
+        active: true,
+      });
+
+      if (isNull(worker)) {
+        throw new Error("Worker doesn't exist");
+      }
+
+      await Worker.updateOne(
+        { _id: worker.id },
+        {
+          employer: hireWorker.getEmployerid(),
+          busy: true,
+        }
+      ).exec();
+
+      result.setSuccess(true);
+      result.setMessage("Worker is deleted successfully.");
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
+    }
+
+    return result;
+  }
+
+  public async allWorkersForEmployer(
+    employerId: EmployerId
+  ): Promise<AllWorkersForEmployerResponse> {
+    const result = new AllWorkersForEmployerResponse();
+    try {
+      const workers = await Worker.find({
+        employer: employerId.getId(),
+      });
+      const hiredWorkers: Array<HiredWorker> = new Array<HiredWorker>();
+
+      for (const worker of workers) {
+        const workerData = this.DbWorkerToWorkerData(worker);
+
+        const workerId = new WorkerId();
+        workerId.setWorkerid(worker.id);
+        const locationResult = await this.getWorkerLocation(workerId);
+
+        if (!locationResult.getSuccess()) {
+          throw new Error(locationResult.getMessage());
         }
 
-        return result;
+        const hiredWorker: HiredWorker = new HiredWorker();
+        hiredWorker.setData(workerData);
+        hiredWorker.setLocationList(locationResult.getLocationList());
+
+        hiredWorkers.push(hiredWorker);
+      }
+
+      result.setSuccess(true);
+      result.setEmployerid(employerId.getId());
+      result.setWorkersList(hiredWorkers);
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
     }
 
-    public async updateWorkerLocation(locationData: Location): Promise<Response> {
-        const result = new Response();
+    return result;
+  }
 
-        try {
-            const worker = await Worker.findOne({ workerId: locationData.getWorkerid()}).exec();
-            if (isNull(worker)) {
-                throw new Error(`Worker with id ${locationData.getWorkerid()} doesn't exist`);
-            }
+  private DbWorkerToWorkerData(worker: IWorker): WorkerData {
+    const workerData: WorkerData = new WorkerData();
+    workerData.setWorkerid(worker.workerId);
+    workerData.setActive(worker.active);
+    workerData.setBusy(worker.busy);
+    workerData.setEmployerid(worker.employer);
 
-            if (!isUndefined(locationData.getLatitude()) && !isUndefined(locationData.getLongitude())) {
-                worker.latitude = locationData.getLatitude();
-                worker.longitude = locationData.getLongitude();
+    return workerData;
+  }
 
-                await worker.update(worker._id).exec();
+  private UpdateWorkerProperties(
+    worker: IWorker,
+    workerData: WorkerData
+  ): Object {
+    let propertiesForUpdate = {};
 
-                result.setSuccess(true);
-                return result;
-            }
-
-            throw new Error(`Latitude or Longitude isn't defined.`);
-
-        } catch (ex) {
-            var err = ex as Error;
-            result.setSuccess(false);
-            result.setMessage(err.message);
-        }
-
-        return result;
+    if (
+      isBoolean(workerData.getBusy()) &&
+      worker.busy !== workerData.getBusy()
+    ) {
+      set(propertiesForUpdate, "busy", workerData.getBusy());
     }
 
-    public async getWorkerLocation(workerIdData: WorkerId): Promise<LocationResult> {
-        const result = new LocationResult();
-
-        try {
-            const worker = await Worker.findOne({ workerId: workerIdData.getWorkerid()}).exec();
-            if (isNull(worker)) {
-                throw new Error(`Worker with id ${workerIdData.getWorkerid()} doesn't exist`);
-            }
-
-            const location : Location = new Location();
-            location.setWorkerid(worker.workerId);
-            location.setLongitude(worker.longitude);
-            location.setLatitude(worker.latitude);
-
-            result.setSuccess(true);
-            result.setLocation(location);
-
-        } catch (ex) {
-            var err = ex as Error;
-            result.setSuccess(false);
-            result.setMessage(err.message);
-        }
-
-        return result;
+    if (
+      isBoolean(workerData.getActive()) &&
+      worker.active !== workerData.getActive()
+    ) {
+      set(propertiesForUpdate, "active", workerData.getActive());
     }
 
-    private DbWorkerToWorkerData(worker: IWorker): WorkerData {
-        const workerData: WorkerData = new WorkerData();
-        workerData.setWorkerid(worker.workerId);
-        workerData.setActive(worker.active);
-
-        const location: Location = new Location();
-        location.setLatitude(worker.latitude);
-        location.setLongitude(worker.longitude);
-        location.setWorkerid(worker.workerId);
-
-        workerData.setLocation(location);
-
-        return workerData;
+    if (
+      isBoolean(workerData.getActive()) &&
+      worker.archived !== workerData.getActive()
+    ) {
+      set(propertiesForUpdate, "archived", workerData.getActive());
     }
+
+    if (
+      isString(workerData.getEmployerid()) &&
+      worker.employer !== workerData.getEmployerid()
+    ) {
+      set(propertiesForUpdate, "employer", workerData.getEmployerid());
+    }
+
+    return propertiesForUpdate;
+  }
+
+  private DbLocationToLocationData(
+    worker: IWorker,
+    location: ILocation
+  ): GrpcLocation {
+    const grpcLocation: GrpcLocation = new GrpcLocation();
+    grpcLocation.setWorkerid(worker.workerId);
+    grpcLocation.setLongitude(location.longitude);
+    grpcLocation.setLatitude(location.latitude);
+    return grpcLocation;
+  }
 }

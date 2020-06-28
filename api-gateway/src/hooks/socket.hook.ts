@@ -85,6 +85,10 @@ export class SocketHook {
     });
   }
 
+  get connectedUsers() {
+    return this._socketsList;
+  }
+
   private subscribe(socket: Socket) {
     if (isNil(socket)) {
       return;

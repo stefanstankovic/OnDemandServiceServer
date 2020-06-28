@@ -71,11 +71,10 @@ export class LocationResult extends jspb.Message {
     getMessage(): string;
     setMessage(value: string): void;
 
-
-    hasLocation(): boolean;
-    clearLocation(): void;
-    getLocation(): Location | undefined;
-    setLocation(value?: Location): void;
+    clearLocationList(): void;
+    getLocationList(): Array<Location>;
+    setLocationList(value: Array<Location>): void;
+    addLocation(value?: Location, index?: number): Location;
 
 
     serializeBinary(): Uint8Array;
@@ -92,7 +91,7 @@ export namespace LocationResult {
     export type AsObject = {
         success: boolean,
         message: string,
-        location?: Location.AsObject,
+        locationList: Array<Location.AsObject>,
     }
 }
 
@@ -106,11 +105,11 @@ export class WorkerData extends jspb.Message {
     getActive(): boolean;
     setActive(value: boolean): void;
 
+    getArchived(): boolean;
+    setArchived(value: boolean): void;
 
-    hasLocation(): boolean;
-    clearLocation(): void;
-    getLocation(): Location | undefined;
-    setLocation(value?: Location): void;
+    getEmployerid(): string;
+    setEmployerid(value: string): void;
 
 
     serializeBinary(): Uint8Array;
@@ -128,7 +127,8 @@ export namespace WorkerData {
         workerid: string,
         busy: boolean,
         active: boolean,
-        location?: Location.AsObject,
+        archived: boolean,
+        employerid: string,
     }
 }
 
@@ -290,6 +290,9 @@ export class Status extends jspb.Message {
     getBusy(): boolean;
     setBusy(value: boolean): void;
 
+    getArchived(): boolean;
+    setArchived(value: boolean): void;
+
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Status.AsObject;
@@ -306,5 +309,214 @@ export namespace Status {
         workerid: string,
         active: boolean,
         busy: boolean,
+        archived: boolean,
+    }
+}
+
+export class HireWorkerRequest extends jspb.Message { 
+    getWorkerid(): string;
+    setWorkerid(value: string): void;
+
+    getEmployerid(): string;
+    setEmployerid(value: string): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): HireWorkerRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: HireWorkerRequest): HireWorkerRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: HireWorkerRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): HireWorkerRequest;
+    static deserializeBinaryFromReader(message: HireWorkerRequest, reader: jspb.BinaryReader): HireWorkerRequest;
+}
+
+export namespace HireWorkerRequest {
+    export type AsObject = {
+        workerid: string,
+        employerid: string,
+    }
+}
+
+export class EmployerId extends jspb.Message { 
+    getId(): string;
+    setId(value: string): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): EmployerId.AsObject;
+    static toObject(includeInstance: boolean, msg: EmployerId): EmployerId.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: EmployerId, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): EmployerId;
+    static deserializeBinaryFromReader(message: EmployerId, reader: jspb.BinaryReader): EmployerId;
+}
+
+export namespace EmployerId {
+    export type AsObject = {
+        id: string,
+    }
+}
+
+export class HiredWorker extends jspb.Message { 
+
+    hasData(): boolean;
+    clearData(): void;
+    getData(): WorkerData | undefined;
+    setData(value?: WorkerData): void;
+
+    clearLocationList(): void;
+    getLocationList(): Array<Location>;
+    setLocationList(value: Array<Location>): void;
+    addLocation(value?: Location, index?: number): Location;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): HiredWorker.AsObject;
+    static toObject(includeInstance: boolean, msg: HiredWorker): HiredWorker.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: HiredWorker, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): HiredWorker;
+    static deserializeBinaryFromReader(message: HiredWorker, reader: jspb.BinaryReader): HiredWorker;
+}
+
+export namespace HiredWorker {
+    export type AsObject = {
+        data?: WorkerData.AsObject,
+        locationList: Array<Location.AsObject>,
+    }
+}
+
+export class AllWorkersForEmployerResponse extends jspb.Message { 
+    getSuccess(): boolean;
+    setSuccess(value: boolean): void;
+
+    getMessage(): string;
+    setMessage(value: string): void;
+
+    getEmployerid(): string;
+    setEmployerid(value: string): void;
+
+    clearWorkersList(): void;
+    getWorkersList(): Array<HiredWorker>;
+    setWorkersList(value: Array<HiredWorker>): void;
+    addWorkers(value?: HiredWorker, index?: number): HiredWorker;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): AllWorkersForEmployerResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: AllWorkersForEmployerResponse): AllWorkersForEmployerResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: AllWorkersForEmployerResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): AllWorkersForEmployerResponse;
+    static deserializeBinaryFromReader(message: AllWorkersForEmployerResponse, reader: jspb.BinaryReader): AllWorkersForEmployerResponse;
+}
+
+export namespace AllWorkersForEmployerResponse {
+    export type AsObject = {
+        success: boolean,
+        message: string,
+        employerid: string,
+        workersList: Array<HiredWorker.AsObject>,
+    }
+}
+
+export class HireRequest extends jspb.Message { 
+    getId(): string;
+    setId(value: string): void;
+
+    getWorkerid(): string;
+    setWorkerid(value: string): void;
+
+    getEmployerid(): string;
+    setEmployerid(value: string): void;
+
+    getStatus(): string;
+    setStatus(value: string): void;
+
+    getRequestmessage(): string;
+    setRequestmessage(value: string): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): HireRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: HireRequest): HireRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: HireRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): HireRequest;
+    static deserializeBinaryFromReader(message: HireRequest, reader: jspb.BinaryReader): HireRequest;
+}
+
+export namespace HireRequest {
+    export type AsObject = {
+        id: string,
+        workerid: string,
+        employerid: string,
+        status: string,
+        requestmessage: string,
+    }
+}
+
+export class HireRequestQuery extends jspb.Message { 
+    getWorkerid(): string;
+    setWorkerid(value: string): void;
+
+    getEmployerid(): string;
+    setEmployerid(value: string): void;
+
+    getStatus(): string;
+    setStatus(value: string): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): HireRequestQuery.AsObject;
+    static toObject(includeInstance: boolean, msg: HireRequestQuery): HireRequestQuery.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: HireRequestQuery, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): HireRequestQuery;
+    static deserializeBinaryFromReader(message: HireRequestQuery, reader: jspb.BinaryReader): HireRequestQuery;
+}
+
+export namespace HireRequestQuery {
+    export type AsObject = {
+        workerid: string,
+        employerid: string,
+        status: string,
+    }
+}
+
+export class HireRequestResponse extends jspb.Message { 
+    getSuccess(): boolean;
+    setSuccess(value: boolean): void;
+
+    getMessage(): string;
+    setMessage(value: string): void;
+
+    clearRequestsList(): void;
+    getRequestsList(): Array<HireRequest>;
+    setRequestsList(value: Array<HireRequest>): void;
+    addRequests(value?: HireRequest, index?: number): HireRequest;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): HireRequestResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: HireRequestResponse): HireRequestResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: HireRequestResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): HireRequestResponse;
+    static deserializeBinaryFromReader(message: HireRequestResponse, reader: jspb.BinaryReader): HireRequestResponse;
+}
+
+export namespace HireRequestResponse {
+    export type AsObject = {
+        success: boolean,
+        message: string,
+        requestsList: Array<HireRequest.AsObject>,
     }
 }
