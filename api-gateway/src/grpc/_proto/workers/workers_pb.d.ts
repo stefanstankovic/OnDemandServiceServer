@@ -520,3 +520,24 @@ export namespace HireRequestResponse {
         requestsList: Array<HireRequest.AsObject>,
     }
 }
+
+export class HireRequestId extends jspb.Message { 
+    getId(): string;
+    setId(value: string): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): HireRequestId.AsObject;
+    static toObject(includeInstance: boolean, msg: HireRequestId): HireRequestId.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: HireRequestId, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): HireRequestId;
+    static deserializeBinaryFromReader(message: HireRequestId, reader: jspb.BinaryReader): HireRequestId;
+}
+
+export namespace HireRequestId {
+    export type AsObject = {
+        id: string,
+    }
+}

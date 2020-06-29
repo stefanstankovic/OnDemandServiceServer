@@ -3,8 +3,9 @@ import { EventEmitter } from "events";
 import { Events } from "./event.types/event.types";
 import { UserType, UserRole } from "../models/user/user.model";
 import { Worker } from "../models/workers/worker.model";
-import { isUndefined } from "lodash";
+import { isUndefined, isNil } from "lodash";
 import { LocationType, Location } from "../models/workers/location.model";
+import { HireRequestType } from "../models/workers/hireWorker.model";
 
 export class WorkersHook {
   public _evensBus: EventEmitter;
@@ -15,6 +16,9 @@ export class WorkersHook {
     this._evensBus.on(Events.userConnectedOnSocket, this.userConnected);
     this._evensBus.on(Events.userDisconnectedFromSocket, this.userDisconnected);
     this._evensBus.on(Events.workerChangedLocation, this.onChangeLocation);
+    this._evensBus.on(Events.workerHireRequest, this.hireRequest);
+    this._evensBus.on(Events.workerAcceptedHireRequest, this.onHireResponse);
+    this._evensBus.on(Events.workerRejectedHireRequest, this.onHireResponse);
   }
   /**
    * On connect event handler
@@ -67,10 +71,32 @@ export class WorkersHook {
     }
 
     const locationObject = new Location();
-    locationObject.locationObjet = location;
+    locationObject.locationObject = location;
 
     await ServiceRegistry.getInstance().services.workersClient.updateWorkerLocation(
       locationObject.grpcLocation
     );
   }
+
+  /**
+   * @param args array of params.
+   * @param args[0] hire request object. Expected type HireRequestType
+   */
+  private async hireRequest(...args: any[]) {
+    const hireRequest: HireRequestType = args[0] as HireRequestType;
+
+    if (isNil(hireRequest)) {
+      return;
+    }
+
+    console.log(JSON.stringify(hireRequest));
+  }
+
+  /**
+   * On change location event handler
+   * @param args array of params.
+   * @param args[0] hire request object. Expected type HireRequestType
+   * @param args[1] hire response object. Expected type HireResponseType
+   */
+  private async onHireResponse(...args: any[]) {}
 }

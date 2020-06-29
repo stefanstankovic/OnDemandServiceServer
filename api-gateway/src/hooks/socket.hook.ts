@@ -8,13 +8,15 @@ import { Events } from "./event.types/event.types";
 import { SocketEvents } from "./event.types/socket.event.types";
 import { EventEmitter } from "events";
 
+const socketList: { [key: string]: Socket } = {};
+
 export class SocketHook {
   private _evensBus: EventEmitter;
-  private _socketsList: { [key: string]: Socket };
+  //private _socketsList: { [key: string]: Socket };
 
   constructor(private _services: Services, private _io: Server) {
     this._evensBus = this._services.eventsBus;
-    this._socketsList = {};
+    //this._socketsList = {};
 
     /**
      * require identification form client side
@@ -71,7 +73,7 @@ export class SocketHook {
       }
 
       const user = socket.handshake.query.user as UserType;
-      this._socketsList[user.id!] = socket;
+      socketList[user.id!] = socket;
       this.subscribe(socket);
       this._services.eventsBus.emit(Events.userConnectedOnSocket, user, socket);
     });
@@ -85,10 +87,6 @@ export class SocketHook {
     });
   }
 
-  get connectedUsers() {
-    return this._socketsList;
-  }
-
   private subscribe(socket: Socket) {
     if (isNil(socket)) {
       return;
@@ -96,7 +94,7 @@ export class SocketHook {
 
     socket.on("disconnect", () => {
       const user = socket.handshake.query.user as UserType;
-      delete this._socketsList[user.id!];
+      delete socketList[user.id!];
 
       this._services.eventsBus.emit(
         Events.userDisconnectedFromSocket,
@@ -119,10 +117,10 @@ export class SocketHook {
   }
 
   private emitToUser(event: string, userId: string, ...data: any[]): void {
-    if (isNil(this._socketsList[userId])) {
+    if (isNil(socketList[userId])) {
       throw new Error(`User with id: ${userId} isn't connected on socket.`);
     }
 
-    this._socketsList[userId].emit(event, data);
+    socketList[userId].emit(event, data);
   }
 }

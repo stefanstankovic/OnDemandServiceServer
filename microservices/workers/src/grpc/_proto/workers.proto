@@ -104,6 +104,10 @@ message HireRequestResponse {
     repeated HireRequest requests = 3;
 }
 
+message HireRequestId {
+    string id = 1;
+}
+
 service Workers {
     rpc AddWorker (WorkerData) returns (Response);
     rpc RemoveWorker(WorkerId) returns (Response);
@@ -115,6 +119,7 @@ service Workers {
     rpc HireWorker(HireWorkerRequest) returns (Response);
     rpc AllWorkersForEmployer(EmployerId) returns (AllWorkersForEmployerResponse);
     rpc AddHireRequest(HireRequest) returns (Response);
+    rpc GetHireRequestById (HireRequestId) returns (HireRequestResponse);
     rpc GetHireRequests (HireRequestQuery) returns (HireRequestResponse);
     rpc UpdateHireRequest (HireRequest) returns (Response);
 }

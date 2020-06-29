@@ -22,6 +22,7 @@ import {
   HireRequest,
   HireRequestQuery,
   HireRequestResponse,
+  HireRequestId,
 } from "../../grpc/_proto/workers/workers_pb";
 
 export class WorkersClient extends ClientBase<IWorkersClient> {
@@ -214,6 +215,26 @@ export class WorkersClient extends ClientBase<IWorkersClient> {
       this._client!.updateHireRequest(
         request,
         (error: grpc.ServiceError | null, response: Response): void => {
+          if (error) {
+            reject(error);
+          }
+          resolve(response);
+        }
+      );
+    });
+  }
+
+  getHireRequestById(workerId: string): Promise<HireRequestResponse> {
+    const idData = new HireRequestId();
+    idData.setId(workerId);
+
+    return new Promise<HireRequestResponse>((resolve, reject) => {
+      this._client!.getHireRequestById(
+        idData,
+        (
+          error: grpc.ServiceError | null,
+          response: HireRequestResponse
+        ): void => {
           if (error) {
             reject(error);
           }

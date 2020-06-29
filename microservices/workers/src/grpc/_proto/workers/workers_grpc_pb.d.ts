@@ -18,6 +18,7 @@ interface IWorkersService extends grpc.ServiceDefinition<grpc.UntypedServiceImpl
     hireWorker: IWorkersService_IHireWorker;
     allWorkersForEmployer: IWorkersService_IAllWorkersForEmployer;
     addHireRequest: IWorkersService_IAddHireRequest;
+    getHireRequestById: IWorkersService_IGetHireRequestById;
     getHireRequests: IWorkersService_IGetHireRequests;
     updateHireRequest: IWorkersService_IUpdateHireRequest;
 }
@@ -112,6 +113,15 @@ interface IWorkersService_IAddHireRequest extends grpc.MethodDefinition<workers_
     responseSerialize: grpc.serialize<workers_pb.Response>;
     responseDeserialize: grpc.deserialize<workers_pb.Response>;
 }
+interface IWorkersService_IGetHireRequestById extends grpc.MethodDefinition<workers_pb.HireRequestId, workers_pb.HireRequestResponse> {
+    path: string; // "/workers.Workers/GetHireRequestById"
+    requestStream: boolean; // false
+    responseStream: boolean; // false
+    requestSerialize: grpc.serialize<workers_pb.HireRequestId>;
+    requestDeserialize: grpc.deserialize<workers_pb.HireRequestId>;
+    responseSerialize: grpc.serialize<workers_pb.HireRequestResponse>;
+    responseDeserialize: grpc.deserialize<workers_pb.HireRequestResponse>;
+}
 interface IWorkersService_IGetHireRequests extends grpc.MethodDefinition<workers_pb.HireRequestQuery, workers_pb.HireRequestResponse> {
     path: string; // "/workers.Workers/GetHireRequests"
     requestStream: boolean; // false
@@ -144,6 +154,7 @@ export interface IWorkersServer {
     hireWorker: grpc.handleUnaryCall<workers_pb.HireWorkerRequest, workers_pb.Response>;
     allWorkersForEmployer: grpc.handleUnaryCall<workers_pb.EmployerId, workers_pb.AllWorkersForEmployerResponse>;
     addHireRequest: grpc.handleUnaryCall<workers_pb.HireRequest, workers_pb.Response>;
+    getHireRequestById: grpc.handleUnaryCall<workers_pb.HireRequestId, workers_pb.HireRequestResponse>;
     getHireRequests: grpc.handleUnaryCall<workers_pb.HireRequestQuery, workers_pb.HireRequestResponse>;
     updateHireRequest: grpc.handleUnaryCall<workers_pb.HireRequest, workers_pb.Response>;
 }
@@ -179,6 +190,9 @@ export interface IWorkersClient {
     addHireRequest(request: workers_pb.HireRequest, callback: (error: grpc.ServiceError | null, response: workers_pb.Response) => void): grpc.ClientUnaryCall;
     addHireRequest(request: workers_pb.HireRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.Response) => void): grpc.ClientUnaryCall;
     addHireRequest(request: workers_pb.HireRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.Response) => void): grpc.ClientUnaryCall;
+    getHireRequestById(request: workers_pb.HireRequestId, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
+    getHireRequestById(request: workers_pb.HireRequestId, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
+    getHireRequestById(request: workers_pb.HireRequestId, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
     getHireRequests(request: workers_pb.HireRequestQuery, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
     getHireRequests(request: workers_pb.HireRequestQuery, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
     getHireRequests(request: workers_pb.HireRequestQuery, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
@@ -219,6 +233,9 @@ export class WorkersClient extends grpc.Client implements IWorkersClient {
     public addHireRequest(request: workers_pb.HireRequest, callback: (error: grpc.ServiceError | null, response: workers_pb.Response) => void): grpc.ClientUnaryCall;
     public addHireRequest(request: workers_pb.HireRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.Response) => void): grpc.ClientUnaryCall;
     public addHireRequest(request: workers_pb.HireRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.Response) => void): grpc.ClientUnaryCall;
+    public getHireRequestById(request: workers_pb.HireRequestId, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
+    public getHireRequestById(request: workers_pb.HireRequestId, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
+    public getHireRequestById(request: workers_pb.HireRequestId, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
     public getHireRequests(request: workers_pb.HireRequestQuery, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
     public getHireRequests(request: workers_pb.HireRequestQuery, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;
     public getHireRequests(request: workers_pb.HireRequestQuery, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.HireRequestResponse) => void): grpc.ClientUnaryCall;

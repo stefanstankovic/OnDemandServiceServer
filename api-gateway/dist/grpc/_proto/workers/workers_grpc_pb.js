@@ -37,6 +37,17 @@ function deserialize_workers_HireRequest(buffer_arg) {
   return workers_pb.HireRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_workers_HireRequestId(arg) {
+  if (!(arg instanceof workers_pb.HireRequestId)) {
+    throw new Error('Expected argument of type workers.HireRequestId');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_workers_HireRequestId(buffer_arg) {
+  return workers_pb.HireRequestId.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_workers_HireRequestQuery(arg) {
   if (!(arg instanceof workers_pb.HireRequestQuery)) {
     throw new Error('Expected argument of type workers.HireRequestQuery');
@@ -280,6 +291,17 @@ var WorkersService = exports.WorkersService = {
     requestDeserialize: deserialize_workers_HireRequest,
     responseSerialize: serialize_workers_Response,
     responseDeserialize: deserialize_workers_Response,
+  },
+  getHireRequestById: {
+    path: '/workers.Workers/GetHireRequestById',
+    requestStream: false,
+    responseStream: false,
+    requestType: workers_pb.HireRequestId,
+    responseType: workers_pb.HireRequestResponse,
+    requestSerialize: serialize_workers_HireRequestId,
+    requestDeserialize: deserialize_workers_HireRequestId,
+    responseSerialize: serialize_workers_HireRequestResponse,
+    responseDeserialize: deserialize_workers_HireRequestResponse,
   },
   getHireRequests: {
     path: '/workers.Workers/GetHireRequests',

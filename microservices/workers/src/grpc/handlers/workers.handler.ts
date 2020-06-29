@@ -16,6 +16,7 @@ import {
   HireRequest,
   HireRequestQuery,
   HireRequestResponse,
+  HireRequestId,
 } from "../_proto/workers/workers_pb";
 import {
   IWorkersServer,
@@ -138,6 +139,15 @@ class WorkersHandler implements IWorkersServer {
     callback: grpc.sendUnaryData<Response>
   ): void => {
     this._hireRequestHelper.updateHireRequest(call.request).then((result) => {
+      callback(null, result);
+    });
+  };
+
+  getHireRequestById = (
+    call: grpc.ServerUnaryCall<HireRequestId>,
+    callback: grpc.sendUnaryData<HireRequestResponse>
+  ): void => {
+    this._hireRequestHelper.getHireRequestById(call.request).then((result) => {
       callback(null, result);
     });
   };

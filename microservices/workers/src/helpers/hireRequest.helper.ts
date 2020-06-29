@@ -3,6 +3,7 @@ import {
   HireRequestQuery,
   HireRequestResponse,
   Response,
+  HireRequestId,
 } from "../grpc/_proto/workers/workers_pb";
 
 import HireRequest, { IHireRequest } from "../models/hireRequest.model";
@@ -30,6 +31,7 @@ export class HireRequestHelper {
     }
     return result;
   }
+
   public async getHireRequests(
     hireRequestQuery: HireRequestQuery
   ): Promise<HireRequestResponse> {
@@ -72,6 +74,44 @@ export class HireRequestHelper {
     }
     return result;
   }
+
+  public async getHireRequestById(
+    requestId: HireRequestId
+  ): Promise<HireRequestResponse> {
+    const result = new HireRequestResponse();
+    try {
+      if (isUndefined(requestId.getId())) {
+        throw new Error("Hire Request ID is missing!");
+      }
+
+      const hireRequest = await HireRequest.findById(requestId.getId()).exec();
+
+      if (isNil(hireRequest)) {
+        throw new Error(
+          `Hire Request with ID ${requestId.getId()} doesn't exist!`
+        );
+      }
+
+      let req: GrpcHireRequest = new GrpcHireRequest();
+      req.setId(hireRequest.id);
+      req.setWorkerid(hireRequest.workerId);
+      req.setEmployerid(hireRequest.employer);
+      req.setStatus(hireRequest.status);
+      req.setRequestmessage(hireRequest.requestMessage);
+
+      let requestList = new Array<GrpcHireRequest>();
+      requestList.push(req);
+
+      result.setRequestsList(requestList);
+      result.setSuccess(true);
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
+    }
+    return result;
+  }
+
   public async updateHireRequest(
     hireRequest: GrpcHireRequest
   ): Promise<Response> {
