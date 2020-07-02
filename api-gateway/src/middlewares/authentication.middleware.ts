@@ -18,7 +18,7 @@ export const authenticationMiddleware: RequestHandler = (req, res, next) => {
       }
       return null;
     },
-    authRequest: false,
+    authRequest: true,
   };
 
   const jwtAuth = new JwtAuth(jwtAuthOptions);

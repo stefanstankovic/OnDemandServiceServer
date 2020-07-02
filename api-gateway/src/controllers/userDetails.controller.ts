@@ -1,4 +1,4 @@
-import { RequestHandler, Request, response } from "express";
+import { RequestHandler } from "express";
 
 import { UserDetails, UserDetailType } from "../models/user/userDetails.model";
 

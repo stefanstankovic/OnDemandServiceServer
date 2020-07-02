@@ -143,10 +143,10 @@ export class WorkersClient extends ClientBase<IWorkersClient> {
     });
   }
 
-  hireWorker(status: HireWorkerRequest): Promise<Response> {
+  hireWorker(workerRequest: HireWorkerRequest): Promise<Response> {
     return new Promise<Response>((resolve, reject) => {
       this._client!.hireWorker(
-        status,
+        workerRequest,
         (error: grpc.ServiceError | null, response: Response): void => {
           if (error) {
             reject(error);

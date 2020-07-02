@@ -10,10 +10,7 @@ import { ServiceRegistry } from "../services/service.registry";
 import { Events } from "../hooks/event.types/event.types";
 import { JwtAuth } from "../utils/auth";
 
-import { parse as parseUrl } from "url";
-
 import { isUndefined } from "lodash";
-import { parse } from "querystring";
 
 const jwtAuth = new JwtAuth({
   secret: !isUndefined(process.env.JWT_SECRET)

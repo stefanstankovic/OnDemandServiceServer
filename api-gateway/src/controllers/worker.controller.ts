@@ -42,12 +42,32 @@ export const allWorkers: RequestHandler = async (req, res, next) => {
           return undefined;
         }
 
-        var userData = user.getData();
+        let userData = user.getData();
+
+        var userDetailsResponse = await ServiceRegistry.getInstance().services.userClient.findUserDetailsByUserId(
+          value.getWorkerid()
+        );
+
+        if (!userDetailsResponse.getSuccess()) {
+          return {
+            id: value.getWorkerid(),
+            active: value.getActive(),
+            busy: value.getBusy(),
+            email: userData?.getEmail(),
+            mobile: userData?.getMobile(),
+            name: "Worker",
+          };
+        }
+
+        let userDetails = userDetailsResponse.getData();
 
         return {
+          id: value.getWorkerid(),
           active: value.getActive(),
           busy: value.getBusy(),
           email: userData?.getEmail(),
+          mobile: userData?.getMobile(),
+          name: `${userDetails?.getFirstname()} ${userDetails?.getLastname()}`,
         };
       }
     )
@@ -59,10 +79,13 @@ export const allWorkers: RequestHandler = async (req, res, next) => {
 
 export const hireWorker: RequestHandler = async (req, res, next) => {
   let hireRequestBody: HireRequestType = req.body as HireRequestType;
+  // @ts-ignore
+  hireRequestBody.employerId = req.user.id;
+  hireRequestBody.status = "pending";
   const hireRequest: HireRequest = new HireRequest();
   hireRequest.hireRequestObject = hireRequestBody;
 
-  const response = await ServiceRegistry.getInstance().services.workersClient.hireWorker(
+  const response = await ServiceRegistry.getInstance().services.workersClient.addHireRequest(
     hireRequest.grpcHireRequest
   );
 

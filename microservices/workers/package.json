@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@grpc/proto-loader": "^0.5.4",
+    "@types/mongodb": "^3.5.25",
     "dotenv": "^8.2.0",
     "geolib": "^3.3.1",
     "google-protobuf": "^3.12.2",
