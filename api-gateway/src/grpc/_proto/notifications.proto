@@ -3,10 +3,11 @@ syntax = "proto3";
 package notifications;
 
 message NotificationData {
-    string userId = 1;
-    string type = 2;
-    string messageData = 3;
-    bool delivered = 4;
+    string id = 1;
+    string userId = 2;
+    string type = 3;
+    string messageData = 4;
+    bool delivered = 5;
 }
 
 message EmailData {
@@ -45,15 +46,17 @@ message Emails {
 message Query {
     string userId = 1;
     string email = 2;
-    string partiallyConenten = 3;
+    bool delivered = 3;
+    string partiallyContenten = 4;
 }
 
 service Notifications {
-    rpc SendPushNotification (NotificationData) returns (Response);
     rpc SendEmail (EmailData) returns (Response);
-    rpc GetPushNotificationsForUser (UserId) returns (PushNotifications);
     rpc GetEmailsForEmailAddress (EmailAddress) returns (Emails);
-    rpc FindPushNotificationsForUserByContent (Query) returns (PushNotifications);
     rpc FindEmailsForEmailByContent (Query) returns (Emails);
+    rpc SendPushNotification (NotificationData) returns (Response);
+    rpc GetPushNotificationsForUser (UserId) returns (PushNotifications);
+    rpc FindPushNotificationsForUser (Query) returns (PushNotifications);
     rpc GetUndeliveredNotificationsForUser (UserId) returns (PushNotifications);
+    rpc UpdatePushNotification (NotificationData) returns (Response);
 }

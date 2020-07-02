@@ -7,6 +7,9 @@
 import * as jspb from "google-protobuf";
 
 export class NotificationData extends jspb.Message { 
+    getId(): string;
+    setId(value: string): void;
+
     getUserid(): string;
     setUserid(value: string): void;
 
@@ -32,6 +35,7 @@ export class NotificationData extends jspb.Message {
 
 export namespace NotificationData {
     export type AsObject = {
+        id: string,
         userid: string,
         type: string,
         messagedata: string,
@@ -212,8 +216,11 @@ export class Query extends jspb.Message {
     getEmail(): string;
     setEmail(value: string): void;
 
-    getPartiallyconenten(): string;
-    setPartiallyconenten(value: string): void;
+    getDelivered(): boolean;
+    setDelivered(value: boolean): void;
+
+    getPartiallycontenten(): string;
+    setPartiallycontenten(value: string): void;
 
 
     serializeBinary(): Uint8Array;
@@ -230,6 +237,7 @@ export namespace Query {
     export type AsObject = {
         userid: string,
         email: string,
-        partiallyconenten: string,
+        delivered: boolean,
+        partiallycontenten: string,
     }
 }

@@ -6,43 +6,55 @@ const notifications_helper_1 = require("../../helpers/notifications.helper");
 class NotificationsHandler {
     constructor() {
         this.sendPushNotification = (call, callback) => {
-            this._notificationHelper.SendPushNotification(call.request)
+            this._notificationHelper
+                .SendPushNotification(call.request)
                 .then((response) => {
                 callback(null, response);
             });
         };
         this.sendEmail = (call, callback) => {
-            this._emailHelper.SendEmail(call.request)
-                .then((response) => {
+            this._emailHelper.SendEmail(call.request).then((response) => {
                 callback(null, response);
             });
         };
         this.getPushNotificationsForUser = (call, callback) => {
-            this._notificationHelper.GetPushNotificationForUser(call.request)
+            this._notificationHelper
+                .GetPushNotificationForUser(call.request)
                 .then((response) => {
                 callback(null, response);
             });
         };
         this.getEmailsForEmailAddress = (call, callback) => {
-            this._emailHelper.GetEmailsForEmailAddress(call.request)
+            this._emailHelper
+                .GetEmailsForEmailAddress(call.request)
                 .then((response) => {
                 callback(null, response);
             });
         };
-        this.findPushNotificationsForUserByContent = (call, callback) => {
-            this._notificationHelper.FindPushNotificationsForUserByContent(call.request)
+        this.findPushNotificationsForUser = (call, callback) => {
+            this._notificationHelper
+                .FindPushNotificationsForUser(call.request)
                 .then((response) => {
                 callback(null, response);
             });
         };
         this.findEmailsForEmailByContent = (call, callback) => {
-            this._emailHelper.FindEmailsForEmailByContent(call.request)
+            this._emailHelper
+                .FindEmailsForEmailByContent(call.request)
                 .then((response) => {
                 callback(null, response);
             });
         };
         this.getUndeliveredNotificationsForUser = (call, callback) => {
-            this._notificationHelper.GetUndeliveredNotificationsForUser(call.request)
+            this._notificationHelper
+                .GetUndeliveredNotificationsForUser(call.request)
+                .then((response) => {
+                callback(null, response);
+            });
+        };
+        this.updatePushNotification = (call, callback) => {
+            this._notificationHelper
+                .updatePushNotification(call.request)
                 .then((response) => {
                 callback(null, response);
             });
@@ -53,6 +65,6 @@ class NotificationsHandler {
 }
 exports.default = {
     server: notifications_grpc_pb_1.NotificationsService,
-    handler: new NotificationsHandler()
+    handler: new NotificationsHandler(),
 };
 //# sourceMappingURL=notifications.handler.js.map
