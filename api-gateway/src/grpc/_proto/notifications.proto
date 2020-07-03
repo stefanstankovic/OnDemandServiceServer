@@ -50,10 +50,21 @@ message Query {
     string partiallyContenten = 4;
 }
 
+message NotificationId {
+    string id = 1;
+}
+
+message NotificationDataResponse {
+    bool success = 1;
+    string message = 2;
+    NotificationData data = 3;
+}
+
 service Notifications {
     rpc SendEmail (EmailData) returns (Response);
     rpc GetEmailsForEmailAddress (EmailAddress) returns (Emails);
     rpc FindEmailsForEmailByContent (Query) returns (Emails);
+    rpc GetPushNotificationById (NotificationId) returns (NotificationDataResponse);
     rpc SendPushNotification (NotificationData) returns (Response);
     rpc GetPushNotificationsForUser (UserId) returns (PushNotifications);
     rpc FindPushNotificationsForUser (Query) returns (PushNotifications);

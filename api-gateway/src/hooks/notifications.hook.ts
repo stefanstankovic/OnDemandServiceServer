@@ -65,10 +65,15 @@ export class NotificationsHook {
     }
 
     const pushNotification: NotificationData = new NotificationData();
+    let message = {
+      userId: hireRequest.employerId,
+      message: hireRequest.requestMessage,
+      itemId: hireRequest.id,
+    };
     pushNotification.setDelivered(false);
-    pushNotification.setMessagedata(JSON.stringify(hireRequest.requestMessage));
+    pushNotification.setMessagedata(JSON.stringify(message));
     pushNotification.setType("hire");
-    pushNotification.setUserid(hireRequest.employerId);
+    pushNotification.setUserid(hireRequest.workerId);
 
     const response = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
       pushNotification

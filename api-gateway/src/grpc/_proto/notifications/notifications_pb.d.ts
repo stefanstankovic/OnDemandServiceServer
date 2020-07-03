@@ -241,3 +241,56 @@ export namespace Query {
         partiallycontenten: string,
     }
 }
+
+export class NotificationId extends jspb.Message { 
+    getId(): string;
+    setId(value: string): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): NotificationId.AsObject;
+    static toObject(includeInstance: boolean, msg: NotificationId): NotificationId.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: NotificationId, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): NotificationId;
+    static deserializeBinaryFromReader(message: NotificationId, reader: jspb.BinaryReader): NotificationId;
+}
+
+export namespace NotificationId {
+    export type AsObject = {
+        id: string,
+    }
+}
+
+export class NotificationDataResponse extends jspb.Message { 
+    getSuccess(): boolean;
+    setSuccess(value: boolean): void;
+
+    getMessage(): string;
+    setMessage(value: string): void;
+
+
+    hasData(): boolean;
+    clearData(): void;
+    getData(): NotificationData | undefined;
+    setData(value?: NotificationData): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): NotificationDataResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: NotificationDataResponse): NotificationDataResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: NotificationDataResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): NotificationDataResponse;
+    static deserializeBinaryFromReader(message: NotificationDataResponse, reader: jspb.BinaryReader): NotificationDataResponse;
+}
+
+export namespace NotificationDataResponse {
+    export type AsObject = {
+        success: boolean,
+        message: string,
+        data?: NotificationData.AsObject,
+    }
+}

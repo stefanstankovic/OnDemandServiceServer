@@ -5,6 +5,8 @@ import {
   Response,
   Query,
   UserId,
+  NotificationId,
+  NotificationDataResponse,
 } from "../grpc/_proto/notifications/notifications_pb";
 import { isString, set, isBoolean, isNil, isNull } from "lodash";
 
@@ -45,6 +47,7 @@ export class NotificationsHelper {
       response.setNotificationsList(
         this.DbNotificationsToNotificationsData(notifications)
       );
+      response.setSuccess(true);
     } catch (ex) {
       const err = ex as Error;
       response.setSuccess(false);
@@ -110,7 +113,7 @@ export class NotificationsHelper {
     return response;
   }
 
-  public async updatePushNotification(
+  public async UpdatePushNotification(
     notificationData: NotificationData
   ): Promise<Response> {
     const response = new Response();
@@ -149,6 +152,37 @@ export class NotificationsHelper {
     return response;
   }
 
+  public async GetPushNotificationById(
+    notificationId: NotificationId
+  ): Promise<NotificationDataResponse> {
+    let response = new NotificationDataResponse();
+
+    try {
+      if (isNil(notificationId?.getId())) {
+        throw new Error("Notification Id is missing");
+      }
+
+      let notification = await Notification.findById(
+        notificationId.getId()
+      ).exec();
+
+      if (isNil(notification)) {
+        throw new Error(
+          `Notification with id ${notificationId.getId()} doesn't exist`
+        );
+      }
+
+      response.setSuccess(true);
+      response.setData(this.DbNotificationToNotificationData(notification));
+    } catch (ex) {
+      const err = ex as Error;
+      response.setSuccess(false);
+      response.setMessage(err.message);
+    }
+
+    return response;
+  }
+
   private UpdateNotificationProperties(
     notification: INotification,
     notificationData: NotificationData
@@ -171,14 +205,20 @@ export class NotificationsHelper {
     notifications: INotification[]
   ): Array<NotificationData> {
     return notifications.map<NotificationData>((value: INotification) => {
-      const notificationData = new NotificationData();
-      notificationData.setId(value.id);
-      notificationData.setUserid(value.userId);
-      notificationData.setType(value.type);
-      notificationData.setMessagedata(value.stringData);
-      notificationData.setDelivered(value.delivered);
-
-      return notificationData;
+      return this.DbNotificationToNotificationData(value);
     });
+  }
+
+  private DbNotificationToNotificationData(
+    notification: INotification
+  ): NotificationData {
+    const notificationData = new NotificationData();
+    notificationData.setId(notification.id);
+    notificationData.setUserid(notification.userId);
+    notificationData.setType(notification.type);
+    notificationData.setMessagedata(notification.stringData);
+    notificationData.setDelivered(notification.delivered);
+
+    return notificationData;
   }
 }

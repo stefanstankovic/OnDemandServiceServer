@@ -94,6 +94,9 @@ export const hireWorker: RequestHandler = async (req, res, next) => {
     return next();
   }
 
+  hireRequestBody.id = response.getId();
+  hireRequest.hireRequestObject = hireRequestBody;
+
   ServiceRegistry.getInstance().services.eventsBus.emit(
     Events.workerHireRequest,
     hireRequest.hireRequestObject

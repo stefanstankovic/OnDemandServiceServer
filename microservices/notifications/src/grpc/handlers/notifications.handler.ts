@@ -13,6 +13,8 @@ import {
   PushNotifications,
   Emails,
   EmailAddress,
+  NotificationId,
+  NotificationDataResponse,
 } from "../_proto/notifications/notifications_pb";
 
 import { EmailHelper } from "../../helpers/email.helper";
@@ -107,7 +109,18 @@ class NotificationsHandler implements INotificationsServer {
     callback: grpc.sendUnaryData<Response>
   ): void => {
     this._notificationHelper
-      .updatePushNotification(call.request)
+      .UpdatePushNotification(call.request)
+      .then((response) => {
+        callback(null, response);
+      });
+  };
+
+  getPushNotificationById = (
+    call: grpc.ServerUnaryCall<NotificationId>,
+    callback: grpc.sendUnaryData<NotificationDataResponse>
+  ): void => {
+    this._notificationHelper
+      .GetPushNotificationById(call.request)
       .then((response) => {
         callback(null, response);
       });

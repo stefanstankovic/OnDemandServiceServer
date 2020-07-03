@@ -48,6 +48,28 @@ function deserialize_notifications_NotificationData(buffer_arg) {
   return notifications_pb.NotificationData.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_notifications_NotificationDataResponse(arg) {
+  if (!(arg instanceof notifications_pb.NotificationDataResponse)) {
+    throw new Error('Expected argument of type notifications.NotificationDataResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_notifications_NotificationDataResponse(buffer_arg) {
+  return notifications_pb.NotificationDataResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_notifications_NotificationId(arg) {
+  if (!(arg instanceof notifications_pb.NotificationId)) {
+    throw new Error('Expected argument of type notifications.NotificationId');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_notifications_NotificationId(buffer_arg) {
+  return notifications_pb.NotificationId.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_notifications_PushNotifications(arg) {
   if (!(arg instanceof notifications_pb.PushNotifications)) {
     throw new Error('Expected argument of type notifications.PushNotifications');
@@ -126,6 +148,17 @@ var NotificationsService = exports.NotificationsService = {
     requestDeserialize: deserialize_notifications_Query,
     responseSerialize: serialize_notifications_Emails,
     responseDeserialize: deserialize_notifications_Emails,
+  },
+  getPushNotificationById: {
+    path: '/notifications.Notifications/GetPushNotificationById',
+    requestStream: false,
+    responseStream: false,
+    requestType: notifications_pb.NotificationId,
+    responseType: notifications_pb.NotificationDataResponse,
+    requestSerialize: serialize_notifications_NotificationId,
+    requestDeserialize: deserialize_notifications_NotificationId,
+    responseSerialize: serialize_notifications_NotificationDataResponse,
+    responseDeserialize: deserialize_notifications_NotificationDataResponse,
   },
   sendPushNotification: {
     path: '/notifications.Notifications/SendPushNotification',

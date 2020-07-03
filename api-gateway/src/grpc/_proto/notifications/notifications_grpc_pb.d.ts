@@ -11,6 +11,7 @@ interface INotificationsService extends grpc.ServiceDefinition<grpc.UntypedServi
     sendEmail: INotificationsService_ISendEmail;
     getEmailsForEmailAddress: INotificationsService_IGetEmailsForEmailAddress;
     findEmailsForEmailByContent: INotificationsService_IFindEmailsForEmailByContent;
+    getPushNotificationById: INotificationsService_IGetPushNotificationById;
     sendPushNotification: INotificationsService_ISendPushNotification;
     getPushNotificationsForUser: INotificationsService_IGetPushNotificationsForUser;
     findPushNotificationsForUser: INotificationsService_IFindPushNotificationsForUser;
@@ -44,6 +45,15 @@ interface INotificationsService_IFindEmailsForEmailByContent extends grpc.Method
     requestDeserialize: grpc.deserialize<notifications_pb.Query>;
     responseSerialize: grpc.serialize<notifications_pb.Emails>;
     responseDeserialize: grpc.deserialize<notifications_pb.Emails>;
+}
+interface INotificationsService_IGetPushNotificationById extends grpc.MethodDefinition<notifications_pb.NotificationId, notifications_pb.NotificationDataResponse> {
+    path: string; // "/notifications.Notifications/GetPushNotificationById"
+    requestStream: boolean; // false
+    responseStream: boolean; // false
+    requestSerialize: grpc.serialize<notifications_pb.NotificationId>;
+    requestDeserialize: grpc.deserialize<notifications_pb.NotificationId>;
+    responseSerialize: grpc.serialize<notifications_pb.NotificationDataResponse>;
+    responseDeserialize: grpc.deserialize<notifications_pb.NotificationDataResponse>;
 }
 interface INotificationsService_ISendPushNotification extends grpc.MethodDefinition<notifications_pb.NotificationData, notifications_pb.Response> {
     path: string; // "/notifications.Notifications/SendPushNotification"
@@ -97,6 +107,7 @@ export interface INotificationsServer {
     sendEmail: grpc.handleUnaryCall<notifications_pb.EmailData, notifications_pb.Response>;
     getEmailsForEmailAddress: grpc.handleUnaryCall<notifications_pb.EmailAddress, notifications_pb.Emails>;
     findEmailsForEmailByContent: grpc.handleUnaryCall<notifications_pb.Query, notifications_pb.Emails>;
+    getPushNotificationById: grpc.handleUnaryCall<notifications_pb.NotificationId, notifications_pb.NotificationDataResponse>;
     sendPushNotification: grpc.handleUnaryCall<notifications_pb.NotificationData, notifications_pb.Response>;
     getPushNotificationsForUser: grpc.handleUnaryCall<notifications_pb.UserId, notifications_pb.PushNotifications>;
     findPushNotificationsForUser: grpc.handleUnaryCall<notifications_pb.Query, notifications_pb.PushNotifications>;
@@ -114,6 +125,9 @@ export interface INotificationsClient {
     findEmailsForEmailByContent(request: notifications_pb.Query, callback: (error: grpc.ServiceError | null, response: notifications_pb.Emails) => void): grpc.ClientUnaryCall;
     findEmailsForEmailByContent(request: notifications_pb.Query, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: notifications_pb.Emails) => void): grpc.ClientUnaryCall;
     findEmailsForEmailByContent(request: notifications_pb.Query, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: notifications_pb.Emails) => void): grpc.ClientUnaryCall;
+    getPushNotificationById(request: notifications_pb.NotificationId, callback: (error: grpc.ServiceError | null, response: notifications_pb.NotificationDataResponse) => void): grpc.ClientUnaryCall;
+    getPushNotificationById(request: notifications_pb.NotificationId, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: notifications_pb.NotificationDataResponse) => void): grpc.ClientUnaryCall;
+    getPushNotificationById(request: notifications_pb.NotificationId, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: notifications_pb.NotificationDataResponse) => void): grpc.ClientUnaryCall;
     sendPushNotification(request: notifications_pb.NotificationData, callback: (error: grpc.ServiceError | null, response: notifications_pb.Response) => void): grpc.ClientUnaryCall;
     sendPushNotification(request: notifications_pb.NotificationData, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: notifications_pb.Response) => void): grpc.ClientUnaryCall;
     sendPushNotification(request: notifications_pb.NotificationData, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: notifications_pb.Response) => void): grpc.ClientUnaryCall;
@@ -142,6 +156,9 @@ export class NotificationsClient extends grpc.Client implements INotificationsCl
     public findEmailsForEmailByContent(request: notifications_pb.Query, callback: (error: grpc.ServiceError | null, response: notifications_pb.Emails) => void): grpc.ClientUnaryCall;
     public findEmailsForEmailByContent(request: notifications_pb.Query, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: notifications_pb.Emails) => void): grpc.ClientUnaryCall;
     public findEmailsForEmailByContent(request: notifications_pb.Query, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: notifications_pb.Emails) => void): grpc.ClientUnaryCall;
+    public getPushNotificationById(request: notifications_pb.NotificationId, callback: (error: grpc.ServiceError | null, response: notifications_pb.NotificationDataResponse) => void): grpc.ClientUnaryCall;
+    public getPushNotificationById(request: notifications_pb.NotificationId, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: notifications_pb.NotificationDataResponse) => void): grpc.ClientUnaryCall;
+    public getPushNotificationById(request: notifications_pb.NotificationId, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: notifications_pb.NotificationDataResponse) => void): grpc.ClientUnaryCall;
     public sendPushNotification(request: notifications_pb.NotificationData, callback: (error: grpc.ServiceError | null, response: notifications_pb.Response) => void): grpc.ClientUnaryCall;
     public sendPushNotification(request: notifications_pb.NotificationData, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: notifications_pb.Response) => void): grpc.ClientUnaryCall;
     public sendPushNotification(request: notifications_pb.NotificationData, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: notifications_pb.Response) => void): grpc.ClientUnaryCall;

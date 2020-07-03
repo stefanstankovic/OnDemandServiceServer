@@ -14,6 +14,8 @@ import {
   UserId,
   EmailAddress,
   Query,
+  NotificationDataResponse,
+  NotificationId,
 } from "../../grpc/_proto/notifications/notifications_pb";
 
 export class NotificationClient extends ClientBase<INotificationsClient> {
@@ -167,6 +169,25 @@ export class NotificationClient extends ClientBase<INotificationsClient> {
       this._client!.updatePushNotification(
         notificationData,
         (error: grpc.ServiceError | null, response: Response): void => {
+          if (error) {
+            reject(error);
+          }
+          resolve(response);
+        }
+      );
+    });
+  }
+
+  getPushNotificationById(id: string): Promise<NotificationDataResponse> {
+    const notificationId = new NotificationId();
+    notificationId.setId(id);
+    return new Promise<NotificationDataResponse>((resolve, reject) => {
+      this._client!.getPushNotificationById(
+        notificationId,
+        (
+          error: grpc.ServiceError | null,
+          response: NotificationDataResponse
+        ): void => {
           if (error) {
             reject(error);
           }
