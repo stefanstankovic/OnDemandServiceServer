@@ -1,8 +1,12 @@
 import { Router } from "express";
-import { allNotifications } from "../controllers/notification.controller";
+import {
+  allNotifications,
+  getNotificationData,
+} from "../controllers/notification.controller";
 
 const routes = Router();
 
 routes.get("/", allNotifications);
+routes.get("/:id", getNotificationData);
 
 export default routes;

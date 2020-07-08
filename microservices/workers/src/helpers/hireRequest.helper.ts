@@ -56,8 +56,8 @@ export class HireRequestHelper {
         (val, index) => {
           let req: GrpcHireRequest = new GrpcHireRequest();
           req.setId(val.id);
-          req.setWorkerid(val.workerId);
-          req.setEmployerid(val.employer);
+          req.setWorkerid(val.workerId.toString());
+          req.setEmployerid(val.employer.toString());
           req.setStatus(val.status);
           req.setRequestmessage(val.requestMessage);
 
@@ -94,8 +94,8 @@ export class HireRequestHelper {
 
       let req: GrpcHireRequest = new GrpcHireRequest();
       req.setId(hireRequest.id);
-      req.setWorkerid(hireRequest.workerId);
-      req.setEmployerid(hireRequest.employer);
+      req.setWorkerid(hireRequest.workerId.toString());
+      req.setEmployerid(hireRequest.employer.toString());
       req.setStatus(hireRequest.status);
       req.setRequestmessage(hireRequest.requestMessage);
 

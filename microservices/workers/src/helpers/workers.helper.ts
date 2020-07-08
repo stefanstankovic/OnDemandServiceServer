@@ -28,7 +28,10 @@ export class WorkersHelper {
     try {
       let workerExists: boolean = true;
       let worker: IWorker | null;
-      worker = await Worker.findOne({ workerId: workerData.getWorkerid() });
+      worker = await Worker.findOne({
+        workerId: workerData.getWorkerid(),
+        archived: false,
+      });
 
       if (isNull(worker)) {
         workerExists = false;
@@ -267,7 +270,7 @@ export class WorkersHelper {
       ) {
         if (worker.busy) {
           let newLocation: ILocation = new Location();
-          newLocation.workerId = worker.id;
+          newLocation.workerId = worker.id.toString();
           newLocation.latitude = locationData.getLatitude();
           newLocation.longitude = locationData.getLongitude();
 
@@ -407,7 +410,7 @@ export class WorkersHelper {
     workerData.setWorkerid(worker.workerId);
     workerData.setActive(worker.active);
     workerData.setBusy(worker.busy);
-    workerData.setEmployerid(worker.employer);
+    workerData.setEmployerid(worker.employer.toString());
 
     return workerData;
   }

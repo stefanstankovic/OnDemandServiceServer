@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import {
   WorkerStatus,
   WorkersResponse,
+  Status,
 } from "../grpc/_proto/workers/workers_pb";
 
 import { ServiceRegistry } from "../services/service.registry";
@@ -14,6 +15,7 @@ import {
   HireResponseType,
   HireResponse,
 } from "../models/workers/hireResponse.model";
+import { JobConfirmationData } from "../models/workers/types/jobConfirmation.type";
 
 export const allWorkers: RequestHandler = async (req, res, next) => {
   const workerStatus: WorkerStatus = new WorkerStatus();
@@ -122,7 +124,7 @@ export const hireResponse: RequestHandler = async (req, res, next) => {
   let hireRequest: HireRequest = new HireRequest();
   hireRequest.grpcHireRequest = hireRequestResponse.getRequestsList()[0];
 
-  if (!hireResponseBody.accepted) {
+  if (hireResponseBody.accepted) {
     ServiceRegistry.getInstance().services.eventsBus.emit(
       Events.workerAcceptedHireRequest,
       hireRequest.hireRequestObject,
@@ -137,4 +139,47 @@ export const hireResponse: RequestHandler = async (req, res, next) => {
   }
 
   return next();
+};
+
+export const jobConfirmation: RequestHandler = async (req, res, next) => {
+  const jobConfirmationBody: JobConfirmationData = req.body as JobConfirmationData;
+
+  const hireRequestResponse = await ServiceRegistry.getInstance().services.workersClient.getHireRequestById(
+    jobConfirmationBody.hireRequestId
+  );
+
+  if (!hireRequestResponse.getSuccess()) {
+    res
+      .status(400)
+      .json({ success: false, message: hireRequestResponse.getMessage() });
+    return next();
+  }
+
+  const hireRequest = hireRequestResponse.getRequestsList()[0];
+  if (hireRequest.getStatus() !== "accepted") {
+    res.status(400).json({
+      success: false,
+      message: `Request ${jobConfirmationBody.hireRequestId} isn't accepted!`,
+    });
+    return next();
+  }
+
+  //@ts-ignore
+  if (hireRequest.getEmployerid() !== req.user.id) {
+    res.status(400).json({
+      success: false,
+      //@ts-ignore
+      message: `User ${req.user.id} can't confirm this job!`,
+    });
+    return next();
+  }
+
+  let hireRequestData: HireRequest = new HireRequest();
+  hireRequestData.grpcHireRequest;
+
+  ServiceRegistry.getInstance().services.eventsBus.emit(
+    Events.jobConfirmed,
+    hireRequestData.hireRequestObject,
+    jobConfirmationBody
+  );
 };

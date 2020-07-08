@@ -14,8 +14,7 @@ export class Worker {
     private _workerId: string | null = null,
     private _busy: boolean | null = null,
     private _active: boolean | null = null,
-    private _archived: boolean | null = null,
-    private _location: LocationType | null = null
+    private _archived: boolean | null = null
   ) {}
 
   get grpsWorker(): WorkerData {

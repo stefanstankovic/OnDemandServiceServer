@@ -9,4 +9,7 @@ export enum Events {
   workerHireRequest = "worker.hire.request",
   workerAcceptedHireRequest = "worker.accepted.hire.request",
   workerRejectedHireRequest = "worker.rejected.hire.request",
+  newNotificationAdded = "new.notification.added",
+  notificationOpened = "notification.opened",
+  jobConfirmed = "job.confirmed",
 }
