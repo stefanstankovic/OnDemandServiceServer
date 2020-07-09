@@ -42,9 +42,18 @@ export class WorkersHook {
 
     const worker: Worker = new Worker(user.id, false, true, null);
 
-    await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+    const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
       worker.grpsWorker
     );
+
+    if (!response.getSuccess()) {
+      console.log({
+        action: Events.userConnectedOnSocket,
+        success: false,
+        message: response.getMessage(),
+      });
+      return;
+    }
   }
 
   /**

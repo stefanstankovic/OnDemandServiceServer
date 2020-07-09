@@ -34,7 +34,7 @@ const WorkerSchema: Schema = new Schema(
     },
     employer: {
       required: false,
-      type: Schema.Types.ObjectId,
+      type: String,
     },
     location: [
       {

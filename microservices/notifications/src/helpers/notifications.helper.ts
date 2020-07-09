@@ -8,7 +8,7 @@ import {
   NotificationId,
   NotificationDataResponse,
 } from "../grpc/_proto/notifications/notifications_pb";
-import { isString, set, isBoolean, isNil, isNull } from "lodash";
+import { isString, set, isBoolean, isNil, isNull, isEmpty } from "lodash";
 
 export class NotificationsHelper {
   constructor() {}
@@ -196,7 +196,10 @@ export class NotificationsHelper {
       set(propertiesToUpdate, "delivered", notificationData.getDelivered());
     }
 
-    if (isString(notificationData.getMessagedata())) {
+    if (
+      isString(notificationData.getMessagedata()) &&
+      !isEmpty(notificationData.getMessagedata())
+    ) {
       set(propertiesToUpdate, "stringData", notificationData.getMessagedata());
     }
 

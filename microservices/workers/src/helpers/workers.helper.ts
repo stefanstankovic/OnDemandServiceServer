@@ -410,7 +410,7 @@ export class WorkersHelper {
     workerData.setWorkerid(worker.workerId);
     workerData.setActive(worker.active);
     workerData.setBusy(worker.busy);
-    workerData.setEmployerid(worker.employer.toString());
+    workerData.setEmployerid(worker.employer);
 
     return workerData;
   }
