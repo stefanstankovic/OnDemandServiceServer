@@ -138,6 +138,7 @@ export const hireResponse: RequestHandler = async (req, res, next) => {
     );
   }
 
+  res.status(201).json({ success: true });
   return next();
 };
 
@@ -175,11 +176,14 @@ export const jobConfirmation: RequestHandler = async (req, res, next) => {
   }
 
   let hireRequestData: HireRequest = new HireRequest();
-  hireRequestData.grpcHireRequest;
+  hireRequestData.grpcHireRequest = hireRequest;
 
   ServiceRegistry.getInstance().services.eventsBus.emit(
     Events.jobConfirmed,
     hireRequestData.hireRequestObject,
     jobConfirmationBody
   );
+
+  res.status(201).json({ success: true });
+  return next();
 };

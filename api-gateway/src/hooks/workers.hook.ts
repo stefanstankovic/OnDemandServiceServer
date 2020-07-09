@@ -181,6 +181,7 @@ export class WorkersHook {
    * @param args[1] job confirmation object. Expected type JobConfirmationData
    */
   private async onJobConfirmed(...args: any[]) {
+    const hireRequest: HireRequestType = args[0] as HireRequestType;
     const jobConfirmed: JobConfirmationData = args[1] as JobConfirmationData;
 
     const workerStatus = new Status();
@@ -201,6 +202,14 @@ export class WorkersHook {
 
     await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
       worker.grpsWorker
+    );
+
+    const hireRequestData = new HireRequest();
+    hireRequest.status = "confirmed";
+    hireRequestData.hireRequestObject = hireRequest;
+
+    await ServiceRegistry.getInstance().services.workersClient.updateHireRequest(
+      hireRequestData.grpcHireRequest
     );
   }
 }

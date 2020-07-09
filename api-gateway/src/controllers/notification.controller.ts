@@ -12,6 +12,7 @@ import { isUndefined, isNil } from "lodash";
 import { HireRequestData } from "../models/notification/message_data/hireRequest.data";
 import { Events } from "../hooks/event.types/event.types";
 import { HireResponseData } from "../models/notification/message_data/hireResponse.data";
+import { JobConfirmedData } from "../models/notification/message_data/jobConfirmed.data";
 
 export const allNotifications: RequestHandler = async (req, res, next) => {
   // @ts-ignore
@@ -49,8 +50,12 @@ export const updateNotifications: RequestHandler = async (req, res, next) => {
     res.status(400).json({ success: false, message: "Id is undefined" });
     return next();
   }
+
+  const notificationData = new NotificationData();
+  notificationData.setId(id);
+  notificationData.setDelivered(true);
   let response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
-    id
+    notificationData
   );
 
   if (!response.getSuccess()) {
@@ -70,9 +75,6 @@ export const getNotificationData: RequestHandler = async (req, res, next) => {
   );
 
   if (!notificationResponse.getSuccess()) {
-    await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
-      id
-    );
     res
       .status(400)
       .json({ success: false, message: notificationResponse.getMessage() });
@@ -123,7 +125,7 @@ async function getNotificationAdditionalInfo(
 
       const userData = userResponse.getData();
 
-      let userDetailsResponse = await ServiceRegistry.getInstance().services.userClient.findUserDetailsByUserId(
+      const userDetailsResponse = await ServiceRegistry.getInstance().services.userClient.findUserDetailsByUserId(
         data.userId
       );
 
@@ -132,6 +134,16 @@ async function getNotificationAdditionalInfo(
       }
 
       const userDetailsData = userDetailsResponse.getData();
+
+      const hireRequestData = await ServiceRegistry.getInstance().services.workersClient.getHireRequestById(
+        data.itemId
+      );
+
+      if (!hireRequestData.getSuccess()) {
+        return null;
+      }
+
+      const hireRequest = hireRequestData.getRequestsList()[0];
 
       let messageData = data.message.split("|");
 
@@ -148,6 +160,7 @@ async function getNotificationAdditionalInfo(
           comment: messageData[2],
         },
         itemId: data.itemId,
+        itemStatus: hireRequest.getStatus(),
       };
     }
     case "hireAccepted":
@@ -177,6 +190,16 @@ async function getNotificationAdditionalInfo(
 
       const userDetailsData = userDetailsResponse.getData();
 
+      const hireRequestData = await ServiceRegistry.getInstance().services.workersClient.getHireRequestById(
+        data.itemId
+      );
+
+      if (!hireRequestData.getSuccess()) {
+        return null;
+      }
+
+      const hireRequest = hireRequestData.getRequestsList()[0];
+
       return {
         user: {
           email: userData?.getEmail(),
@@ -186,6 +209,47 @@ async function getNotificationAdditionalInfo(
         },
         message: data.message,
         itemId: data.itemId,
+        workerId: data.workerId,
+        itemStatus: hireRequest.getStatus(),
+      };
+    }
+    case "jobConfirmed": {
+      if (isNil(notification.getMessagedata())) {
+        return null;
+      }
+
+      let data = JSON.parse(notification.getMessagedata()) as JobConfirmedData;
+      let userResponse = await ServiceRegistry.getInstance().services.userClient.findUserById(
+        data.userId
+      );
+
+      if (!userResponse.getSuccess()) {
+        return null;
+      }
+
+      const userData = userResponse.getData();
+
+      let userDetailsResponse = await ServiceRegistry.getInstance().services.userClient.findUserDetailsByUserId(
+        data.userId
+      );
+
+      if (!userDetailsResponse.getSuccess()) {
+        return null;
+      }
+
+      const userDetailsData = userDetailsResponse.getData();
+
+      return {
+        user: {
+          email: userData?.getEmail(),
+          mobile: userData?.getMobile(),
+          firstName: userDetailsData?.getFirstname(),
+          lastName: userDetailsData?.getLastname(),
+        },
+        message: data.message,
+        itemId: data.itemId,
+        userId: data.userId,
+        ranked: data.ranked,
       };
     }
     default:

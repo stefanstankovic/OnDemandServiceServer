@@ -54,7 +54,14 @@ class NotificationsHandler {
         };
         this.updatePushNotification = (call, callback) => {
             this._notificationHelper
-                .updatePushNotification(call.request)
+                .UpdatePushNotification(call.request)
+                .then((response) => {
+                callback(null, response);
+            });
+        };
+        this.getPushNotificationById = (call, callback) => {
+            this._notificationHelper
+                .GetPushNotificationById(call.request)
                 .then((response) => {
                 callback(null, response);
             });

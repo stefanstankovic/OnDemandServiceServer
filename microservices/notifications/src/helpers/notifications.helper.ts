@@ -194,8 +194,10 @@ export class NotificationsHelper {
       notification.delivered != notificationData.getDelivered()
     ) {
       set(propertiesToUpdate, "delivered", notificationData.getDelivered());
-    } else {
-      throw new Error("You can update only delivered property!");
+    }
+
+    if (isString(notificationData.getMessagedata())) {
+      set(propertiesToUpdate, "stringData", notificationData.getMessagedata());
     }
 
     return propertiesToUpdate;

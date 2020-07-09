@@ -161,10 +161,9 @@ export class NotificationClient extends ClientBase<INotificationsClient> {
     });
   }
 
-  updatePushNotification(id: string): Promise<Response> {
-    const notificationData = new NotificationData();
-    notificationData.setId(id);
-    notificationData.setDelivered(true);
+  updatePushNotification(
+    notificationData: NotificationData
+  ): Promise<Response> {
     return new Promise<Response>((resolve, reject) => {
       this._client!.updatePushNotification(
         notificationData,

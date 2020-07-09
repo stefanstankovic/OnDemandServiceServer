@@ -13,6 +13,7 @@ import {
   NotificationType,
   Notification,
 } from "../models/notification/notification.model";
+import { JobConfirmedData } from "../models/notification/message_data/jobConfirmed.data";
 
 export class NotificationsHook {
   private _evensBus: EventEmitter;
@@ -26,6 +27,7 @@ export class NotificationsHook {
     this._evensBus.on(Events.notificationOpened, this.onGetNotification);
     this._evensBus.on(Events.newNotificationAdded, this.newNotificationAdded);
     this._evensBus.on(Events.jobConfirmed, this.onJobConfirmed);
+    this._evensBus.on(Events.newRankSubmitted, this.onRankSubmitted);
   }
 
   /**
@@ -115,7 +117,7 @@ export class NotificationsHook {
   }
 
   /**
-   * On change location event handler
+   * On on hire request event handler
    * @param args array of params.
    * @param args[0] hire request object. Expected type HireRequestType
    * @param args[1] hire response object. Expected type HireResponseType
@@ -162,14 +164,19 @@ export class NotificationsHook {
   }
 
   /**
-   * On change location event handler
+   * On get notification event handler
    * @param args array of params.
    * @param args[0] Notification ID
    */
   private async onGetNotification(...args: any[]) {
     let notificationId = args[0];
+
+    const notificationData = new NotificationData();
+    notificationData.setId(notificationId);
+    notificationData.setDelivered(true);
+
     let response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
-      notificationId
+      notificationData
     );
 
     if (!response.getSuccess()) {
@@ -178,11 +185,12 @@ export class NotificationsHook {
         success: false,
         message: response.getMessage(),
       });
+      return;
     }
   }
 
   /**
-   * On change location event handler
+   * On job confirm event handler
    * @param args array of params.
    * @param args[0] hire request object. Expected type HireRequestType
    * @param args[1] job confirmation object. Expected type JobConfirmationData
@@ -195,6 +203,7 @@ export class NotificationsHook {
       userId: hireRequest.employerId,
       message: hireRequest.requestMessage,
       itemId: hireRequest.id,
+      ranked: false,
     };
     notifyWorker.setDelivered(false);
     notifyWorker.setMessagedata(JSON.stringify(workerMessage));
@@ -213,6 +222,7 @@ export class NotificationsHook {
         success: false,
         message: workerNotificationResponse.getMessage(),
       });
+      return;
     }
 
     notifyWorker.setId(workerNotificationResponse.getId());
@@ -230,13 +240,14 @@ export class NotificationsHook {
       userId: hireRequest.employerId,
       message: hireRequest.requestMessage,
       itemId: hireRequest.id,
+      ranked: false,
     };
     notifyEmployer.setDelivered(false);
     notifyEmployer.setMessagedata(JSON.stringify(message));
 
     // #TODO : move constant in separate file
     notifyEmployer.setType("jobConfirmed");
-    notifyEmployer.setUserid(hireRequest.workerId);
+    notifyEmployer.setUserid(hireRequest.employerId);
 
     const employerNotificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
       notifyEmployer
@@ -258,5 +269,57 @@ export class NotificationsHook {
       Events.newNotificationAdded,
       newNotification.notificationObject
     );
+  }
+
+  /**
+   * On rank submitted
+   * @param args array of params.
+   * @param args[0] rank object. Expected type RankType
+   * @param args[1] notification id
+   */
+  private async onRankSubmitted(...args: any[]) {
+    const notificationId = args[1] as string;
+
+    const notificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.getPushNotificationById(
+      notificationId
+    );
+
+    if (!notificationResponse.getSuccess()) {
+      console.log({
+        action: Events.notificationOpened,
+        success: false,
+        message: notificationResponse.getMessage(),
+      });
+      return;
+    }
+
+    const notification = notificationResponse.getData();
+
+    if (
+      isUndefined(notification) ||
+      isUndefined(notification.getMessagedata())
+    ) {
+      return;
+    }
+
+    let notificationData = JSON.parse(
+      notification.getMessagedata()
+    ) as JobConfirmedData;
+
+    notificationData.ranked = true;
+
+    notification.setMessagedata(JSON.stringify(notificationData));
+
+    const response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
+      notification
+    );
+    if (!response.getSuccess()) {
+      console.log({
+        action: Events.notificationOpened,
+        success: false,
+        message: response.getMessage(),
+      });
+      return;
+    }
   }
 }
