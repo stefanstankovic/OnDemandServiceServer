@@ -173,7 +173,7 @@ export class NotificationsHook {
 
     const notificationData = new NotificationData();
     notificationData.setId(notificationId);
-    notificationData.setDelivered(true);
+    notificationData.setOpened(true);
 
     let response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
       notificationData

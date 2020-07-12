@@ -268,7 +268,8 @@ proto.notifications.NotificationData.toObject = function(includeInstance, msg) {
     userid: jspb.Message.getFieldWithDefault(msg, 2, ""),
     type: jspb.Message.getFieldWithDefault(msg, 3, ""),
     messagedata: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    delivered: jspb.Message.getBooleanFieldWithDefault(msg, 5, false)
+    delivered: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
+    opened: jspb.Message.getBooleanFieldWithDefault(msg, 6, false)
   };
 
   if (includeInstance) {
@@ -324,6 +325,10 @@ proto.notifications.NotificationData.deserializeBinaryFromReader = function(msg,
     case 5:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setDelivered(value);
+      break;
+    case 6:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setOpened(value);
       break;
     default:
       reader.skipField();
@@ -386,6 +391,13 @@ proto.notifications.NotificationData.serializeBinaryToWriter = function(message,
   if (f) {
     writer.writeBool(
       5,
+      f
+    );
+  }
+  f = message.getOpened();
+  if (f) {
+    writer.writeBool(
+      6,
       f
     );
   }
@@ -479,6 +491,24 @@ proto.notifications.NotificationData.prototype.getDelivered = function() {
  */
 proto.notifications.NotificationData.prototype.setDelivered = function(value) {
   return jspb.Message.setProto3BooleanField(this, 5, value);
+};
+
+
+/**
+ * optional bool opened = 6;
+ * @return {boolean}
+ */
+proto.notifications.NotificationData.prototype.getOpened = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 6, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.notifications.NotificationData} returns this
+ */
+proto.notifications.NotificationData.prototype.setOpened = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 6, value);
 };
 
 
@@ -1627,7 +1657,8 @@ proto.notifications.Query.toObject = function(includeInstance, msg) {
     userid: jspb.Message.getFieldWithDefault(msg, 1, ""),
     email: jspb.Message.getFieldWithDefault(msg, 2, ""),
     delivered: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
-    partiallycontenten: jspb.Message.getFieldWithDefault(msg, 4, "")
+    opened: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
+    partiallycontenten: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -1677,6 +1708,10 @@ proto.notifications.Query.deserializeBinaryFromReader = function(msg, reader) {
       msg.setDelivered(value);
       break;
     case 4:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setOpened(value);
+      break;
+    case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setPartiallycontenten(value);
       break;
@@ -1730,10 +1765,17 @@ proto.notifications.Query.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getOpened();
+  if (f) {
+    writer.writeBool(
+      4,
+      f
+    );
+  }
   f = message.getPartiallycontenten();
   if (f.length > 0) {
     writer.writeString(
-      4,
+      5,
       f
     );
   }
@@ -1795,11 +1837,29 @@ proto.notifications.Query.prototype.setDelivered = function(value) {
 
 
 /**
- * optional string partiallyContenten = 4;
+ * optional bool opened = 4;
+ * @return {boolean}
+ */
+proto.notifications.Query.prototype.getOpened = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 4, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.notifications.Query} returns this
+ */
+proto.notifications.Query.prototype.setOpened = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 4, value);
+};
+
+
+/**
+ * optional string partiallyContenten = 5;
  * @return {string}
  */
 proto.notifications.Query.prototype.getPartiallycontenten = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
@@ -1808,7 +1868,7 @@ proto.notifications.Query.prototype.getPartiallycontenten = function() {
  * @return {!proto.notifications.Query} returns this
  */
 proto.notifications.Query.prototype.setPartiallycontenten = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 

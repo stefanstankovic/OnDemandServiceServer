@@ -72,15 +72,33 @@ export class NotificationsHelper {
     try {
       let searchQuery = {};
 
-      if (isString(queryData.getUserid())) {
+      if (
+        !isUndefined(queryData.getUserid) &&
+        isString(queryData.getUserid()) &&
+        !isEmpty(queryData.getUserid())
+      ) {
         set(searchQuery, "userId", queryData.getUserid());
       }
 
-      if (isBoolean(queryData.getDelivered())) {
+      if (
+        !isUndefined(queryData.getDelivered) &&
+        isBoolean(queryData.getDelivered())
+      ) {
         set(searchQuery, "delivered", queryData.getDelivered());
       }
 
-      if (isString(queryData.getPartiallycontenten())) {
+      if (
+        !isUndefined(queryData.getOpened) &&
+        isBoolean(queryData.getOpened())
+      ) {
+        set(searchQuery, "opened", queryData.getOpened());
+      }
+
+      if (
+        !isUndefined(queryData.getPartiallycontenten) &&
+        isString(queryData.getPartiallycontenten()) &&
+        !isEmpty(queryData.getPartiallycontenten())
+      ) {
         set(searchQuery, "stringData", {
           $regex: ".*" + queryData.getPartiallycontenten() + ".*",
         });
@@ -198,10 +216,19 @@ export class NotificationsHelper {
     let propertiesToUpdate = {};
 
     if (
+      !isUndefined(notificationData.getDelivered()) &&
       isBoolean(notificationData.getDelivered()) &&
       notification.delivered != notificationData.getDelivered()
     ) {
       set(propertiesToUpdate, "delivered", notificationData.getDelivered());
+    }
+
+    if (
+      !isUndefined(notificationData.getOpened()) &&
+      isBoolean(notificationData.getOpened()) &&
+      notification.opened != notificationData.getOpened()
+    ) {
+      set(propertiesToUpdate, "opened", notificationData.getOpened());
     }
 
     if (
@@ -233,6 +260,7 @@ export class NotificationsHelper {
     notificationData.setType(notification.type);
     notificationData.setMessagedata(notification.stringData);
     notificationData.setDelivered(notification.delivered);
+    notificationData.setOpened(notification.opened);
 
     return notificationData;
   }

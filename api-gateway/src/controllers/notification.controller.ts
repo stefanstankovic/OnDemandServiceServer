@@ -43,7 +43,7 @@ export const allNotifications: RequestHandler = async (req, res, next) => {
   return next();
 };
 
-export const updateNotifications: RequestHandler = async (req, res, next) => {
+export const ackNotification: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
 
   if (isUndefined(id)) {

@@ -97,7 +97,34 @@ export class WorkersHook {
     );
 
     if (isUndefined(workers[location.workerId])) {
-      //const workerResponse = await ServiceRegistry.getInstance().services.workersClient.
+      const workerResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+        location.workerId
+      );
+
+      if (!workerResponse.getSuccess()) {
+        console.log({
+          action: Events.workerChangedLocation,
+          success: false,
+          message: workerResponse.getMessage(),
+        });
+        return;
+      }
+
+      const workerData = workerResponse.getWorkersList()[0];
+      workers[location.workerId] = workerData.getEmployerid();
+    }
+
+    if (!isUndefined(workers[location.workerId])) {
+      try {
+        ServiceRegistry.getInstance().services.eventsBus.emit(
+          Events.notifyUser,
+          workers[location.workerId],
+          location
+        );
+      } catch (ex) {
+        const err = ex as Error;
+        console.log(err.message);
+      }
     }
   }
 

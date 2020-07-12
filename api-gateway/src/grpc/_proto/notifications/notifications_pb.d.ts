@@ -22,6 +22,9 @@ export class NotificationData extends jspb.Message {
     getDelivered(): boolean;
     setDelivered(value: boolean): void;
 
+    getOpened(): boolean;
+    setOpened(value: boolean): void;
+
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): NotificationData.AsObject;
@@ -40,6 +43,7 @@ export namespace NotificationData {
         type: string,
         messagedata: string,
         delivered: boolean,
+        opened: boolean,
     }
 }
 
@@ -219,6 +223,9 @@ export class Query extends jspb.Message {
     getDelivered(): boolean;
     setDelivered(value: boolean): void;
 
+    getOpened(): boolean;
+    setOpened(value: boolean): void;
+
     getPartiallycontenten(): string;
     setPartiallycontenten(value: string): void;
 
@@ -238,6 +245,7 @@ export namespace Query {
         userid: string,
         email: string,
         delivered: boolean,
+        opened: boolean,
         partiallycontenten: string,
     }
 }

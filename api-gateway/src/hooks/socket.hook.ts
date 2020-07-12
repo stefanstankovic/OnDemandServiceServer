@@ -79,11 +79,25 @@ export class SocketHook {
     });
 
     this._evensBus.on(Events.emitToUser, (...args: any[]): void => {
-      this.emitToUser(args[0], args[1], ...args[3]);
+      const userId = args[0];
+      const data = args[1];
+
+      if (isNil(socketList[userId])) {
+        throw new Error(`User with id: ${userId} isn't connected on socket.`);
+      }
+
+      socketList[userId].emit(Events.emitToUser, data);
     });
 
     this._evensBus.on(Events.notifyUser, (...args: any[]): void => {
-      this.emitToUser(SocketEvents.newNotification, args[0], ...args[1]);
+      const userId = args[0];
+      const data = args[1];
+
+      if (isNil(socketList[userId])) {
+        throw new Error(`User with id: ${userId} isn't connected on socket.`);
+      }
+
+      socketList[userId].emit(Events.notifyUser, data);
     });
   }
 
@@ -116,11 +130,5 @@ export class SocketHook {
     });
   }
 
-  private emitToUser(event: string, userId: string, ...data: any[]): void {
-    if (isNil(socketList[userId])) {
-      throw new Error(`User with id: ${userId} isn't connected on socket.`);
-    }
-
-    socketList[userId].emit(event, data);
-  }
+  private emitToUser(event: string, userId: string, ...data: any[]): void {}
 }

@@ -8,6 +8,7 @@ message NotificationData {
     string type = 3;
     string messageData = 4;
     bool delivered = 5;
+    bool opened = 6;
 }
 
 message EmailData {
@@ -47,7 +48,8 @@ message Query {
     string userId = 1;
     string email = 2;
     bool delivered = 3;
-    string partiallyContenten = 4;
+    bool opened = 4;
+    string partiallyContenten = 5;
 }
 
 message NotificationId {

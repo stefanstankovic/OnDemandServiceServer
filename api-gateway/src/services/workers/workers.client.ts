@@ -84,6 +84,23 @@ export class WorkersClient extends ClientBase<IWorkersClient> {
     });
   }
 
+  getWorkerById(id: string): Promise<WorkersResponse> {
+    const workerId: WorkerId = new WorkerId();
+    workerId.setWorkerid(id);
+
+    return new Promise<WorkersResponse>((resolve, reject) => {
+      this._client!.getWorkerById(
+        workerId,
+        (error: grpc.ServiceError | null, response: WorkersResponse): void => {
+          if (error) {
+            reject(error);
+          }
+          resolve(response);
+        }
+      );
+    });
+  }
+
   getFreeWorkersInRadius(radius: Radius): Promise<WorkersResponse> {
     return new Promise<WorkersResponse>((resolve, reject) => {
       this._client!.freeWorkersInRadius(

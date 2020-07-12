@@ -7,6 +7,7 @@ export type NotificationType = {
   type: string;
   messageData: string;
   delivered: boolean;
+  opened: boolean;
 };
 
 export class Notification {
@@ -15,7 +16,8 @@ export class Notification {
     private _userId: string | null = null,
     private _type: string | null = null,
     private _messageData: string | null = null,
-    private _delivered: boolean | null = null
+    private _delivered: boolean | null = null,
+    private _opened: boolean | null = null
   ) {}
 
   get grpcNotificationData(): GrpcNotificationData {
@@ -27,16 +29,18 @@ export class Notification {
     notification.setType(this._type!);
     notification.setMessagedata(this._messageData!);
     notification.setDelivered(this._delivered!);
+    notification.setOpened(this._opened!);
 
     return notification;
   }
 
-  set grpcNotificationData(rank: GrpcNotificationData) {
-    this._id = rank.getId();
-    this._userId = rank.getUserid();
-    this._type = rank.getType();
-    this._messageData = rank.getMessagedata();
-    this._delivered = rank.getDelivered();
+  set grpcNotificationData(notification: GrpcNotificationData) {
+    this._id = notification.getId();
+    this._userId = notification.getUserid();
+    this._type = notification.getType();
+    this._messageData = notification.getMessagedata();
+    this._delivered = notification.getDelivered();
+    this._opened = notification.getOpened();
   }
 
   get notificationObject(): NotificationType {
@@ -46,6 +50,7 @@ export class Notification {
       type: this._type!,
       messageData: this._messageData!,
       delivered: this._delivered!,
+      opened: this._opened!,
     };
   }
 
@@ -55,5 +60,6 @@ export class Notification {
     this._type = notification.type;
     this._messageData = notification.messageData;
     this._delivered = notification.delivered;
+    this._opened = notification.opened;
   }
 }
