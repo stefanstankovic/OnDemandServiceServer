@@ -11,6 +11,7 @@ interface IWorkersService extends grpc.ServiceDefinition<grpc.UntypedServiceImpl
     addWorker: IWorkersService_IAddWorker;
     removeWorker: IWorkersService_IRemoveWorker;
     getWorkers: IWorkersService_IGetWorkers;
+    getWorkerById: IWorkersService_IGetWorkerById;
     freeWorkersInRadius: IWorkersService_IFreeWorkersInRadius;
     updateWorkerStatus: IWorkersService_IUpdateWorkerStatus;
     updateWorkerLocation: IWorkersService_IUpdateWorkerLocation;
@@ -47,6 +48,15 @@ interface IWorkersService_IGetWorkers extends grpc.MethodDefinition<workers_pb.W
     responseStream: boolean; // false
     requestSerialize: grpc.serialize<workers_pb.WorkerStatus>;
     requestDeserialize: grpc.deserialize<workers_pb.WorkerStatus>;
+    responseSerialize: grpc.serialize<workers_pb.WorkersResponse>;
+    responseDeserialize: grpc.deserialize<workers_pb.WorkersResponse>;
+}
+interface IWorkersService_IGetWorkerById extends grpc.MethodDefinition<workers_pb.WorkerId, workers_pb.WorkersResponse> {
+    path: string; // "/workers.Workers/GetWorkerById"
+    requestStream: boolean; // false
+    responseStream: boolean; // false
+    requestSerialize: grpc.serialize<workers_pb.WorkerId>;
+    requestDeserialize: grpc.deserialize<workers_pb.WorkerId>;
     responseSerialize: grpc.serialize<workers_pb.WorkersResponse>;
     responseDeserialize: grpc.deserialize<workers_pb.WorkersResponse>;
 }
@@ -147,6 +157,7 @@ export interface IWorkersServer {
     addWorker: grpc.handleUnaryCall<workers_pb.WorkerData, workers_pb.Response>;
     removeWorker: grpc.handleUnaryCall<workers_pb.WorkerId, workers_pb.Response>;
     getWorkers: grpc.handleUnaryCall<workers_pb.WorkerStatus, workers_pb.WorkersResponse>;
+    getWorkerById: grpc.handleUnaryCall<workers_pb.WorkerId, workers_pb.WorkersResponse>;
     freeWorkersInRadius: grpc.handleUnaryCall<workers_pb.Radius, workers_pb.WorkersResponse>;
     updateWorkerStatus: grpc.handleUnaryCall<workers_pb.Status, workers_pb.Response>;
     updateWorkerLocation: grpc.handleUnaryCall<workers_pb.Location, workers_pb.Response>;
@@ -169,6 +180,9 @@ export interface IWorkersClient {
     getWorkers(request: workers_pb.WorkerStatus, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     getWorkers(request: workers_pb.WorkerStatus, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     getWorkers(request: workers_pb.WorkerStatus, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
+    getWorkerById(request: workers_pb.WorkerId, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
+    getWorkerById(request: workers_pb.WorkerId, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
+    getWorkerById(request: workers_pb.WorkerId, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     freeWorkersInRadius(request: workers_pb.Radius, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     freeWorkersInRadius(request: workers_pb.Radius, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     freeWorkersInRadius(request: workers_pb.Radius, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
@@ -212,6 +226,9 @@ export class WorkersClient extends grpc.Client implements IWorkersClient {
     public getWorkers(request: workers_pb.WorkerStatus, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     public getWorkers(request: workers_pb.WorkerStatus, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     public getWorkers(request: workers_pb.WorkerStatus, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
+    public getWorkerById(request: workers_pb.WorkerId, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
+    public getWorkerById(request: workers_pb.WorkerId, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
+    public getWorkerById(request: workers_pb.WorkerId, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     public freeWorkersInRadius(request: workers_pb.Radius, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     public freeWorkersInRadius(request: workers_pb.Radius, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;
     public freeWorkersInRadius(request: workers_pb.Radius, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: workers_pb.WorkersResponse) => void): grpc.ClientUnaryCall;

@@ -10,7 +10,8 @@ export const getRanks: RequestHandler = async (req, res, next) => {
 
   const rankQuery: Query = new Query();
   rankQuery.setUserid(workerId);
-
+  rankQuery.setSkip(0);
+  rankQuery.setTake(1000);
   const ranksResponse: RanksResponse = await ServiceRegistry.getInstance().services.ranksClient.getRanks(
     rankQuery
   );

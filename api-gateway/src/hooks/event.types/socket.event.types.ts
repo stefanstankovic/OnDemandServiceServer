@@ -1,4 +1,4 @@
 export enum SocketEvents {
-    newNotification = "new.notification",
-    locationChanged = "location.changes"
+  newNotification = "new.notification",
+  locationChanged = "location.changed",
 }

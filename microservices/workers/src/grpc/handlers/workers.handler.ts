@@ -53,6 +53,15 @@ class WorkersHandler implements IWorkersServer {
     });
   };
 
+  getWorkerById = (
+    call: grpc.ServerUnaryCall<WorkerId>,
+    callback: grpc.sendUnaryData<WorkersResponse>
+  ): void => {
+    this._workersHelper.getWorkerById(call.request).then((result) => {
+      callback(null, result);
+    });
+  };
+
   getWorkers = (
     call: grpc.ServerUnaryCall<WorkerStatus>,
     callback: grpc.sendUnaryData<WorkersResponse>

@@ -215,6 +215,17 @@ var WorkersService = exports.WorkersService = {
     responseSerialize: serialize_workers_WorkersResponse,
     responseDeserialize: deserialize_workers_WorkersResponse,
   },
+  getWorkerById: {
+    path: '/workers.Workers/GetWorkerById',
+    requestStream: false,
+    responseStream: false,
+    requestType: workers_pb.WorkerId,
+    responseType: workers_pb.WorkersResponse,
+    requestSerialize: serialize_workers_WorkerId,
+    requestDeserialize: deserialize_workers_WorkerId,
+    responseSerialize: serialize_workers_WorkersResponse,
+    responseDeserialize: deserialize_workers_WorkersResponse,
+  },
   freeWorkersInRadius: {
     path: '/workers.Workers/FreeWorkersInRadius',
     requestStream: false,

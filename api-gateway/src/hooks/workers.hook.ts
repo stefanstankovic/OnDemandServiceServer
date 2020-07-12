@@ -12,7 +12,9 @@ import {
 import { HireResponseType } from "../models/workers/hireResponse.model";
 import { HireWorkerRequest, Status } from "../grpc/_proto/workers/workers_pb";
 import { JobConfirmationData } from "../models/workers/types/jobConfirmation.type";
-import { jobConfirmation } from "../controllers/worker.controller";
+
+//mapping workers => employee
+const workers: { [key: string]: string } = {};
 
 export class WorkersHook {
   public _evensBus: EventEmitter;
@@ -40,7 +42,7 @@ export class WorkersHook {
       return;
     }
 
-    const worker: Worker = new Worker(user.id, false, true, null);
+    const worker: Worker = new Worker(user.id, false, true, false);
 
     const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
       worker.grpsWorker
@@ -93,6 +95,10 @@ export class WorkersHook {
     await ServiceRegistry.getInstance().services.workersClient.updateWorkerLocation(
       locationObject.grpcLocation
     );
+
+    if (isUndefined(workers[location.workerId])) {
+      //const workerResponse = await ServiceRegistry.getInstance().services.workersClient.
+    }
   }
 
   /**
@@ -164,6 +170,8 @@ export class WorkersHook {
         );
         return;
       }
+
+      workers[hireRequest.workerId] = hireRequest.employerId;
     } else {
       hireRequest.status = "declined";
 
@@ -220,5 +228,7 @@ export class WorkersHook {
     await ServiceRegistry.getInstance().services.workersClient.updateHireRequest(
       hireRequestData.grpcHireRequest
     );
+
+    delete workers[jobConfirmed.workerId];
   }
 }

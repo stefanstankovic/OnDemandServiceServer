@@ -112,6 +112,7 @@ service Workers {
     rpc AddWorker (WorkerData) returns (Response);
     rpc RemoveWorker(WorkerId) returns (Response);
     rpc GetWorkers (WorkerStatus) returns (WorkersResponse);
+    rpc GetWorkerById (WorkerId) returns (WorkersResponse);
     rpc FreeWorkersInRadius (Radius) returns (WorkersResponse);
     rpc UpdateWorkerStatus (Status) returns (Response);
     rpc UpdateWorkerLocation (Location) returns (Response);

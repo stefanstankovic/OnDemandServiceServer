@@ -17,11 +17,37 @@ import {
 import Worker, { IWorker } from "../models/worker.model";
 
 import Location, { ILocation } from "../models/location.model";
-import { isNull, isUndefined, set, isBoolean, isString } from "lodash";
+import { isNull, isUndefined, set, isBoolean, isString, isNil } from "lodash";
 //import { isPointWithinRadius } from "geolib";
 
 export class WorkersHelper {
   constructor() {}
+
+  public async getWorkerById(workerId: WorkerId): Promise<WorkersResponse> {
+    const result = new WorkersResponse();
+    try {
+      let worker: IWorker | null;
+      worker = await Worker.findOne({
+        workerId: workerId.getWorkerid(),
+        archived: false,
+      });
+
+      if (isNil(worker)) {
+        throw new Error("Worker doesn't exist");
+      }
+
+      const workersArray: Array<WorkerData> = new Array();
+      workersArray.push(this.DbWorkerToWorkerData(worker));
+
+      result.setSuccess(true);
+      result.setWorkersList(workersArray);
+    } catch (ex) {
+      var err = ex as Error;
+      result.setSuccess(false);
+      result.setMessage(err.message);
+    }
+    return result;
+  }
 
   public async addOrUpdateWorker(workerData: WorkerData): Promise<Response> {
     const result = new Response();
@@ -33,7 +59,7 @@ export class WorkersHelper {
         archived: false,
       });
 
-      if (isNull(worker)) {
+      if (isNil(worker)) {
         workerExists = false;
         worker = new Worker();
         worker.workerId = workerData.getWorkerid();
@@ -68,13 +94,16 @@ export class WorkersHelper {
   public async removeWorker(workerIdData: WorkerId): Promise<Response> {
     const result = new Response();
     try {
-      const worker = Worker.findOne({ workerId: workerIdData.getWorkerid() });
+      const worker = await Worker.findOne({
+        workerId: workerIdData.getWorkerid(),
+        archived: false,
+      });
 
-      if (isNull(worker)) {
+      if (isNil(worker)) {
         throw new Error("Worker doesn't exist");
       }
 
-      await worker.remove();
+      await Worker.updateOne({ _id: worker.id }, { archived: true }).exec();
 
       result.setSuccess(true);
       result.setMessage("Worker is deleted successfully.");

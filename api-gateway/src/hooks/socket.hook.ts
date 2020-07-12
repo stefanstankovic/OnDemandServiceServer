@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import * as jwt from "jsonwebtoken";
-import { isNil, isEmpty } from "lodash";
+import { isNil, isEmpty, isUndefined } from "lodash";
 import { UnauthorizedError } from "../models/errors/unauthorized.error";
 import { UserType, UserRole } from "../models/user/user.model";
 import { Services } from "../services/service.registry";

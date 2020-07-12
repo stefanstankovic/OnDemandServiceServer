@@ -237,7 +237,7 @@ export class NotificationsHook {
 
     const notifyEmployer: NotificationData = new NotificationData();
     let message = {
-      userId: hireRequest.employerId,
+      userId: hireRequest.workerId,
       message: hireRequest.requestMessage,
       itemId: hireRequest.id,
       ranked: false,
