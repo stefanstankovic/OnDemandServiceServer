@@ -1,4 +1,4 @@
-import { UserDeviceData } from "../../grpc/_proto/notifications/notifications_pb";
+import { UserDeviceData as GrpcUserDeviceData } from "../../grpc/_proto/notifications/notifications_pb";
 import { isNil } from "lodash";
 
 export type UserDeviceType = {
@@ -14,8 +14,8 @@ export class UserDevice {
     private _deviceId: string | null = null
   ) {}
 
-  get grpcNotificationData(): UserDeviceData {
-    const deviceData = new UserDeviceData();
+  get grpcUserDeviceData(): GrpcUserDeviceData {
+    const deviceData = new GrpcUserDeviceData();
     if (!isNil(this._id)) {
       deviceData.setId(this._id);
     }
@@ -25,13 +25,13 @@ export class UserDevice {
     return deviceData;
   }
 
-  set grpcNotificationData(userDeviceData: UserDeviceData) {
+  set grpcUserDeviceData(userDeviceData: GrpcUserDeviceData) {
     this._id = userDeviceData.getId();
     this._userId = userDeviceData.getUserid();
     this._deviceId = userDeviceData.getUserdevice();
   }
 
-  get notificationObject(): UserDeviceType {
+  get userDeviceObject(): UserDeviceType {
     return {
       id: this._id,
       userId: this._userId!,
@@ -39,7 +39,7 @@ export class UserDevice {
     };
   }
 
-  set notificationObject(userDevice: UserDeviceType) {
+  set userDeviceObject(userDevice: UserDeviceType) {
     this._id = userDevice.id;
     this._userId = userDevice.userId;
     this._deviceId = userDevice.deviceId;

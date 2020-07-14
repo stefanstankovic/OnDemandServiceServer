@@ -4,37 +4,15 @@
 var grpc = require('grpc');
 var notifications_pb = require('./notifications_pb.js');
 
-function serialize_notifications_EmailAddress(arg) {
-  if (!(arg instanceof notifications_pb.EmailAddress)) {
-    throw new Error('Expected argument of type notifications.EmailAddress');
+function serialize_notifications_DeviceId(arg) {
+  if (!(arg instanceof notifications_pb.DeviceId)) {
+    throw new Error('Expected argument of type notifications.DeviceId');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_notifications_EmailAddress(buffer_arg) {
-  return notifications_pb.EmailAddress.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_notifications_EmailData(arg) {
-  if (!(arg instanceof notifications_pb.EmailData)) {
-    throw new Error('Expected argument of type notifications.EmailData');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_notifications_EmailData(buffer_arg) {
-  return notifications_pb.EmailData.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_notifications_Emails(arg) {
-  if (!(arg instanceof notifications_pb.Emails)) {
-    throw new Error('Expected argument of type notifications.Emails');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_notifications_Emails(buffer_arg) {
-  return notifications_pb.Emails.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_notifications_DeviceId(buffer_arg) {
+  return notifications_pb.DeviceId.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_notifications_NotificationData(arg) {
@@ -103,6 +81,28 @@ function deserialize_notifications_Response(buffer_arg) {
   return notifications_pb.Response.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_notifications_UserDeviceData(arg) {
+  if (!(arg instanceof notifications_pb.UserDeviceData)) {
+    throw new Error('Expected argument of type notifications.UserDeviceData');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_notifications_UserDeviceData(buffer_arg) {
+  return notifications_pb.UserDeviceData.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_notifications_UserDevicesData(arg) {
+  if (!(arg instanceof notifications_pb.UserDevicesData)) {
+    throw new Error('Expected argument of type notifications.UserDevicesData');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_notifications_UserDevicesData(buffer_arg) {
+  return notifications_pb.UserDevicesData.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_notifications_UserId(arg) {
   if (!(arg instanceof notifications_pb.UserId)) {
     throw new Error('Expected argument of type notifications.UserId');
@@ -116,38 +116,38 @@ function deserialize_notifications_UserId(buffer_arg) {
 
 
 var NotificationsService = exports.NotificationsService = {
-  sendEmail: {
-    path: '/notifications.Notifications/SendEmail',
+  addUserDevice: {
+    path: '/notifications.Notifications/AddUserDevice',
     requestStream: false,
     responseStream: false,
-    requestType: notifications_pb.EmailData,
+    requestType: notifications_pb.UserDeviceData,
     responseType: notifications_pb.Response,
-    requestSerialize: serialize_notifications_EmailData,
-    requestDeserialize: deserialize_notifications_EmailData,
+    requestSerialize: serialize_notifications_UserDeviceData,
+    requestDeserialize: deserialize_notifications_UserDeviceData,
     responseSerialize: serialize_notifications_Response,
     responseDeserialize: deserialize_notifications_Response,
   },
-  getEmailsForEmailAddress: {
-    path: '/notifications.Notifications/GetEmailsForEmailAddress',
+  getUserDevices: {
+    path: '/notifications.Notifications/GetUserDevices',
     requestStream: false,
     responseStream: false,
-    requestType: notifications_pb.EmailAddress,
-    responseType: notifications_pb.Emails,
-    requestSerialize: serialize_notifications_EmailAddress,
-    requestDeserialize: deserialize_notifications_EmailAddress,
-    responseSerialize: serialize_notifications_Emails,
-    responseDeserialize: deserialize_notifications_Emails,
+    requestType: notifications_pb.UserId,
+    responseType: notifications_pb.UserDevicesData,
+    requestSerialize: serialize_notifications_UserId,
+    requestDeserialize: deserialize_notifications_UserId,
+    responseSerialize: serialize_notifications_UserDevicesData,
+    responseDeserialize: deserialize_notifications_UserDevicesData,
   },
-  findEmailsForEmailByContent: {
-    path: '/notifications.Notifications/FindEmailsForEmailByContent',
+  removeUserDevice: {
+    path: '/notifications.Notifications/RemoveUserDevice',
     requestStream: false,
     responseStream: false,
-    requestType: notifications_pb.Query,
-    responseType: notifications_pb.Emails,
-    requestSerialize: serialize_notifications_Query,
-    requestDeserialize: deserialize_notifications_Query,
-    responseSerialize: serialize_notifications_Emails,
-    responseDeserialize: deserialize_notifications_Emails,
+    requestType: notifications_pb.DeviceId,
+    responseType: notifications_pb.Response,
+    requestSerialize: serialize_notifications_DeviceId,
+    requestDeserialize: deserialize_notifications_DeviceId,
+    responseSerialize: serialize_notifications_Response,
+    responseDeserialize: deserialize_notifications_Response,
   },
   getPushNotificationById: {
     path: '/notifications.Notifications/GetPushNotificationById',

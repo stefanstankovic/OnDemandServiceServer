@@ -119,14 +119,14 @@ export const registerDevice: RequestHandler = async (req, res, next) => {
   const userId = req.user.id;
 
   const userDevice = new UserDevice();
-  userDevice.notificationObject = {
+  userDevice.userDeviceObject = {
     id: null,
     userId: userId,
     deviceId: deviceId,
   };
 
   const response = await ServiceRegistry.getInstance().services.notificationsClient.addUserDevice(
-    userDevice.grpcNotificationData
+    userDevice.grpcUserDeviceData
   );
 
   if (!response.getSuccess()) {

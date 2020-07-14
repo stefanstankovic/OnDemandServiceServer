@@ -47,7 +47,7 @@ function ProtoBuilder ($FOLDER) {
         }
 
         Write-Output "Crating js file."
-        Write-Output "$GRPC_TOOLS_NODE_PROTOC --js_out=import_style=commonjs,binary:$js_output_dir --grpc_out=$js_output_dir --plugin=protoc-gen-grpc=$GRPC_TOOLS_NODE_PROTOC_PLUGIN -I $proto_folder $file_name"
+        cmd.exe /c "$GRPC_TOOLS_NODE_PROTOC --js_out=import_style=commonjs,binary:$js_output_dir --grpc_out=$js_output_dir --plugin=protoc-gen-grpc=$GRPC_TOOLS_NODE_PROTOC_PLUGIN -I $proto_folder $file_name"
 
         Write-Output "Crating ts file."
         cmd.exe /c "$GRPC_TOOLS_NODE_PROTOC --plugin=protoc-gen-ts=$PROTOC_GEN_TS_PATH --ts_out=$ts_output_dir -I $proto_folder $file_name"
