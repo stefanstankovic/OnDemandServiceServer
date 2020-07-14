@@ -1,10 +1,9 @@
 
-function ProtoBuilder ($FOLDER)
-{
+function ProtoBuilder ($FOLDER) {
     $node_modules_directory = $FOLDER + "\node_modules"
 
     if (![System.IO.Directory]::Exists($node_modules_directory)) {
-        Get-ChildItem $FOLDER | ?{ $_.PSIsContainer } | Foreach-Object {
+        Get-ChildItem $FOLDER | ? { $_.PSIsContainer } | Foreach-Object {
             ProtoBuilder $_.FullName
         }
 
@@ -17,8 +16,8 @@ function ProtoBuilder ($FOLDER)
 
     if (![System.IO.File]::Exists($PROTOC_GEN_TS_PATH) -Or 
         ![System.IO.File]::Exists($GRPC_TOOLS_NODE_PROTOC_PLUGIN)) {
-            Write-Output "protoc-gen-ts.cmd, grpc_node_plugin.exe or grpc_tools_node_proto doesn't exist"
-            return;
+        Write-Output "protoc-gen-ts.cmd, grpc_node_plugin.exe or grpc_tools_node_proto doesn't exist"
+        return;
     }
 
     $proto_folder = $FOLDER + "\src\grpc\_proto";
@@ -39,24 +38,22 @@ function ProtoBuilder ($FOLDER)
         $ts_output_dir = $proto_folder + "\" + $_.Name.Split('.')[0]
         $js_output_dir = $ts_output_dir.Replace("\src\", "\dist\")
 
-        If(!(test-path $js_output_dir))
-        {
+        If (!(test-path $js_output_dir)) {
             New-Item -ItemType Directory -Force -Path $js_output_dir
         }
 
-        If(!(test-path $ts_output_dir))
-        {
+        If (!(test-path $ts_output_dir)) {
             New-Item -ItemType Directory -Force -Path $ts_output_dir
         }
 
         Write-Output "Crating js file."
-        cmd.exe /c "$GRPC_TOOLS_NODE_PROTOC --js_out=import_style=commonjs,binary:$js_output_dir --grpc_out=$js_output_dir --plugin=protoc-gen-grpc=$GRPC_TOOLS_NODE_PROTOC_PLUGIN -I $proto_folder $file_name"
+        Write-Output "$GRPC_TOOLS_NODE_PROTOC --js_out=import_style=commonjs,binary:$js_output_dir --grpc_out=$js_output_dir --plugin=protoc-gen-grpc=$GRPC_TOOLS_NODE_PROTOC_PLUGIN -I $proto_folder $file_name"
 
         Write-Output "Crating ts file."
         cmd.exe /c "$GRPC_TOOLS_NODE_PROTOC --plugin=protoc-gen-ts=$PROTOC_GEN_TS_PATH --ts_out=$ts_output_dir -I $proto_folder $file_name"
     }
 }
 
-Get-ChildItem | ?{ $_.PSIsContainer } | Foreach-Object {
+Get-ChildItem | ? { $_.PSIsContainer } | Foreach-Object {
     ProtoBuilder $_.FullName
 }

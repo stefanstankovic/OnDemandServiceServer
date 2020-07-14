@@ -1,20 +1,16 @@
 FROM node as build
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+WORKDIR /app
 
-WORKDIR /usr/local/notifications-svc
-
-COPY package.json ./
-
-COPY .env.production ./
-
-WORKDIR /usr/local/notifications-svc
-
-COPY dist/ ./dist
-
-RUN npm install 
+COPY . .
+RUN npm clean-install
+RUN npm build
+RUN /app/node_modules/.bin/grpc_tools_node_protoc \
+    --js_out=import_style=commonjs,binary:"/app/dist/grpc/_proto/notifications" \
+    --grpc_out="/app/dist/grpc/_proto/notifications" \
+    --plugin=protoc-gen-grpc="/app/node_modules/.bin/grpc_tools_node_protoc_plugin" \
+    -I "/app/src/grpc/_proto/" \
+    "/app/src/grpc/_proto/notifications.proto"
 
 EXPOSE 5002
-
-CMD ["node", "/usr/local/notifications-svc/dist/server.js"]
+CMD ["node", "/app/dist/server.js"]

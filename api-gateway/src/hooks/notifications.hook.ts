@@ -88,6 +88,7 @@ export class NotificationsHook {
       itemId: hireRequest.id,
     };
     pushNotification.setDelivered(false);
+    pushNotification.setOpened(false);
     pushNotification.setMessagedata(JSON.stringify(message));
 
     // #TODO : move constant in separate file
@@ -133,6 +134,7 @@ export class NotificationsHook {
       itemId: hireRequest.id,
     };
     pushNotification.setDelivered(false);
+    pushNotification.setOpened(false);
     pushNotification.setMessagedata(JSON.stringify(message));
 
     // #TODO : move constant in separate file
@@ -173,6 +175,7 @@ export class NotificationsHook {
 
     const notificationData = new NotificationData();
     notificationData.setId(notificationId);
+    notificationData.setDelivered(true);
     notificationData.setOpened(true);
 
     let response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
@@ -206,6 +209,7 @@ export class NotificationsHook {
       ranked: false,
     };
     notifyWorker.setDelivered(false);
+    notifyWorker.setOpened(false);
     notifyWorker.setMessagedata(JSON.stringify(workerMessage));
 
     // #TODO : move constant in separate file
@@ -243,6 +247,7 @@ export class NotificationsHook {
       ranked: false,
     };
     notifyEmployer.setDelivered(false);
+    notifyEmployer.setOpened(false);
     notifyEmployer.setMessagedata(JSON.stringify(message));
 
     // #TODO : move constant in separate file

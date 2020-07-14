@@ -1,0 +1,166 @@
+version: "3.7"
+
+networks:
+  ondemandservice_net:
+    # name: ondemandservice_net
+    driver: overlay
+
+services:
+  mongodb:
+    image: mongo
+    networks:
+      - ondemandservice_net
+    ports:
+      - 27017:27017
+    restart: always
+    deploy:
+      replicas: 1
+      # placement:
+      #   max_replicas_per_node: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  api_gw:
+    image: ondemandservice/api_gw
+    build:
+      context: ./api-gateway/
+    networks:
+      - ondemandservice_net
+    environment:
+      PORT: "3000"
+      JWT_SECRET: "47YNbpelXTd2gAi+6r1C4bDj4NSlxUDS"
+      SOCKET_PING_INTERVAL: "18000"
+      SOCKET_PING_TIMEOUT: "5000"
+      USERS_SVC_IP: users
+      USERS_SVC_PORT: "5001"
+      NOTIFICATIONS_SVC_IP: notifications
+      NOTIFICATIONS_SVC_PORT: "5002"
+      RANKS_SVC_IP: ranks
+      RANKS_SVC_PORT: "5003"
+      WORKERS_SVC_IP: workers
+      WORKERS_SVC_PORT: "5004"
+    ports:
+      - 80:3000
+    depends_on:
+      - notifications
+      - users
+      - ranks
+      - workers
+    deploy:
+      replicas: 2
+      # placement:
+      #   max_replicas_per_node: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  notifications:
+    image: ondemandservice/notifications
+    build:
+      context: ./microservices/notifications
+    networks:
+      - ondemandservice_net
+    environment:
+      DB: notifications
+      DB_HOST: mongodb
+      DB_PORT: "27017"
+      GRPC_PORT: "5002"
+    ports:
+      - 5002:5002
+    depends_on:
+      - mongodb
+    deploy:
+      replicas: 1
+      # placement:
+      #   max_replicas_per_node: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  ranks:
+    image: ondemandservice/ranks
+    build:
+      context: ./microservices/ranks
+    networks:
+      - ondemandservice_net
+    environment:
+      DB: ranks
+      DB_HOST: mongodb
+      DB_PORT: "27017"
+      GRPC_PORT: "5003"
+    ports:
+      - 5003:5003
+    depends_on:
+      - mongodb
+    deploy:
+      replicas: 1
+      # placement:
+      #   max_replicas_per_node: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  users:
+    image: ondemandservice/users
+    build:
+      context: ./microservices/users
+    networks:
+      - ondemandservice_net
+    environment:
+      DB: users
+      DB_HOST: mongodb
+      DB_PORT: "27017"
+      GRPC_PORT: "5001"
+    ports:
+      - 5001:5001
+    depends_on:
+      - mongodb
+    deploy:
+      replicas: 1
+      # placement:
+      #   max_replicas_per_node: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  workers:
+    image: ondemandservice/workers
+    build:
+      context: ./microservices/workers
+    networks:
+      - ondemandservice_net
+    environment:
+      DB: workers
+      DB_HOST: mongodb
+      DB_PORT: "27017"
+      GRPC_PORT: "5004"
+    ports:
+      - 5004:5004
+    depends_on:
+      - mongodb
+    deploy:
+      replicas: 1
+      # placement:
+      #   max_replicas_per_node: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 10s

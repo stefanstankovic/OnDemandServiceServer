@@ -51,8 +51,18 @@ export const ackNotification: RequestHandler = async (req, res, next) => {
     return next();
   }
 
-  const notificationData = new NotificationData();
-  notificationData.setId(id);
+  const notificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.getPushNotificationById(
+    id
+  );
+
+  if (!notificationResponse.getSuccess()) {
+    res
+      .status(400)
+      .json({ success: false, message: notificationResponse.getMessage() });
+    return next();
+  }
+
+  const notificationData = notificationResponse.getData()!;
   notificationData.setDelivered(true);
   let response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
     notificationData
