@@ -6,28 +6,54 @@ import {
 } from "../_proto/notifications/notifications_grpc_pb";
 import {
   NotificationData,
-  EmailData,
+  UserDeviceData,
   Response,
   UserId,
   Query,
   PushNotifications,
-  Emails,
-  EmailAddress,
+  UserDevicesData,
+  DeviceId,
   NotificationId,
   NotificationDataResponse,
 } from "../_proto/notifications/notifications_pb";
 
-import { EmailHelper } from "../../helpers/email.helper";
+import { UserDeviceHelper } from "../../helpers/userDevice.helper";
 import { NotificationsHelper } from "../../helpers/notifications.helper";
 
 class NotificationsHandler implements INotificationsServer {
-  private _emailHelper: EmailHelper;
   private _notificationHelper: NotificationsHelper;
+  private _userDeviceHelper: UserDeviceHelper;
 
   constructor() {
-    this._emailHelper = new EmailHelper();
+    this._userDeviceHelper = new UserDeviceHelper();
     this._notificationHelper = new NotificationsHelper();
   }
+  addUserDevice = (
+    call: grpc.ServerUnaryCall<UserDeviceData>,
+    callback: grpc.sendUnaryData<Response>
+  ): void => {
+    this._userDeviceHelper.AddUserDevice(call.request).then((response) => {
+      callback(null, response);
+    });
+  };
+
+  getUserDevices = (
+    call: grpc.ServerUnaryCall<UserId>,
+    callback: grpc.sendUnaryData<UserDevicesData>
+  ): void => {
+    this._userDeviceHelper.GetUserDevices(call.request).then((response) => {
+      callback(null, response);
+    });
+  };
+
+  removeUserDevice = (
+    call: grpc.ServerUnaryCall<DeviceId>,
+    callback: grpc.sendUnaryData<Response>
+  ): void => {
+    this._userDeviceHelper.RemoveUserDevice(call.request).then((response) => {
+      callback(null, response);
+    });
+  };
 
   sendPushNotification = (
     call: grpc.ServerUnaryCall<NotificationData>,
@@ -38,15 +64,6 @@ class NotificationsHandler implements INotificationsServer {
       .then((response) => {
         callback(null, response);
       });
-  };
-
-  sendEmail = (
-    call: grpc.ServerUnaryCall<EmailData>,
-    callback: grpc.sendUnaryData<Response>
-  ): void => {
-    this._emailHelper.SendEmail(call.request).then((response) => {
-      callback(null, response);
-    });
   };
 
   getPushNotificationsForUser = (
@@ -60,34 +77,12 @@ class NotificationsHandler implements INotificationsServer {
       });
   };
 
-  getEmailsForEmailAddress = (
-    call: grpc.ServerUnaryCall<EmailAddress>,
-    callback: grpc.sendUnaryData<Emails>
-  ): void => {
-    this._emailHelper
-      .GetEmailsForEmailAddress(call.request)
-      .then((response) => {
-        callback(null, response);
-      });
-  };
-
   findPushNotificationsForUser = (
     call: grpc.ServerUnaryCall<Query>,
     callback: grpc.sendUnaryData<PushNotifications>
   ): void => {
     this._notificationHelper
       .FindPushNotificationsForUser(call.request)
-      .then((response) => {
-        callback(null, response);
-      });
-  };
-
-  findEmailsForEmailByContent = (
-    call: grpc.ServerUnaryCall<Query>,
-    callback: grpc.sendUnaryData<Emails>
-  ): void => {
-    this._emailHelper
-      .FindEmailsForEmailByContent(call.request)
       .then((response) => {
         callback(null, response);
       });

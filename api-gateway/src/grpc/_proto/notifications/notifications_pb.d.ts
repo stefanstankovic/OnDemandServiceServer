@@ -47,39 +47,6 @@ export namespace NotificationData {
     }
 }
 
-export class EmailData extends jspb.Message { 
-    getEmail(): string;
-    setEmail(value: string): void;
-
-    getType(): string;
-    setType(value: string): void;
-
-    getMessagedata(): string;
-    setMessagedata(value: string): void;
-
-    getAttempt(): number;
-    setAttempt(value: number): void;
-
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): EmailData.AsObject;
-    static toObject(includeInstance: boolean, msg: EmailData): EmailData.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: EmailData, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): EmailData;
-    static deserializeBinaryFromReader(message: EmailData, reader: jspb.BinaryReader): EmailData;
-}
-
-export namespace EmailData {
-    export type AsObject = {
-        email: string,
-        type: string,
-        messagedata: string,
-        attempt: number,
-    }
-}
-
 export class Response extends jspb.Message { 
     getSuccess(): boolean;
     setSuccess(value: boolean): void;
@@ -161,58 +128,6 @@ export namespace PushNotifications {
     }
 }
 
-export class EmailAddress extends jspb.Message { 
-    getEmail(): string;
-    setEmail(value: string): void;
-
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): EmailAddress.AsObject;
-    static toObject(includeInstance: boolean, msg: EmailAddress): EmailAddress.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: EmailAddress, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): EmailAddress;
-    static deserializeBinaryFromReader(message: EmailAddress, reader: jspb.BinaryReader): EmailAddress;
-}
-
-export namespace EmailAddress {
-    export type AsObject = {
-        email: string,
-    }
-}
-
-export class Emails extends jspb.Message { 
-    getSuccess(): boolean;
-    setSuccess(value: boolean): void;
-
-    getMessage(): string;
-    setMessage(value: string): void;
-
-    clearEmailsList(): void;
-    getEmailsList(): Array<EmailData>;
-    setEmailsList(value: Array<EmailData>): void;
-    addEmails(value?: EmailData, index?: number): EmailData;
-
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): Emails.AsObject;
-    static toObject(includeInstance: boolean, msg: Emails): Emails.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: Emails, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): Emails;
-    static deserializeBinaryFromReader(message: Emails, reader: jspb.BinaryReader): Emails;
-}
-
-export namespace Emails {
-    export type AsObject = {
-        success: boolean,
-        message: string,
-        emailsList: Array<EmailData.AsObject>,
-    }
-}
-
 export class Query extends jspb.Message { 
     getUserid(): string;
     setUserid(value: string): void;
@@ -266,6 +181,87 @@ export class NotificationId extends jspb.Message {
 }
 
 export namespace NotificationId {
+    export type AsObject = {
+        id: string,
+    }
+}
+
+export class UserDeviceData extends jspb.Message { 
+    getId(): string;
+    setId(value: string): void;
+
+    getUserid(): string;
+    setUserid(value: string): void;
+
+    getUserdevice(): string;
+    setUserdevice(value: string): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): UserDeviceData.AsObject;
+    static toObject(includeInstance: boolean, msg: UserDeviceData): UserDeviceData.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: UserDeviceData, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): UserDeviceData;
+    static deserializeBinaryFromReader(message: UserDeviceData, reader: jspb.BinaryReader): UserDeviceData;
+}
+
+export namespace UserDeviceData {
+    export type AsObject = {
+        id: string,
+        userid: string,
+        userdevice: string,
+    }
+}
+
+export class UserDevicesData extends jspb.Message { 
+    getSuccess(): boolean;
+    setSuccess(value: boolean): void;
+
+    getMessage(): string;
+    setMessage(value: string): void;
+
+    clearDevicesList(): void;
+    getDevicesList(): Array<UserDeviceData>;
+    setDevicesList(value: Array<UserDeviceData>): void;
+    addDevices(value?: UserDeviceData, index?: number): UserDeviceData;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): UserDevicesData.AsObject;
+    static toObject(includeInstance: boolean, msg: UserDevicesData): UserDevicesData.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: UserDevicesData, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): UserDevicesData;
+    static deserializeBinaryFromReader(message: UserDevicesData, reader: jspb.BinaryReader): UserDevicesData;
+}
+
+export namespace UserDevicesData {
+    export type AsObject = {
+        success: boolean,
+        message: string,
+        devicesList: Array<UserDeviceData.AsObject>,
+    }
+}
+
+export class DeviceId extends jspb.Message { 
+    getId(): string;
+    setId(value: string): void;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): DeviceId.AsObject;
+    static toObject(includeInstance: boolean, msg: DeviceId): DeviceId.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: DeviceId, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): DeviceId;
+    static deserializeBinaryFromReader(message: DeviceId, reader: jspb.BinaryReader): DeviceId;
+}
+
+export namespace DeviceId {
     export type AsObject = {
         id: string,
     }

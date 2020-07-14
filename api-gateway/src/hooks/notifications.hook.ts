@@ -15,6 +15,16 @@ import {
 } from "../models/notification/notification.model";
 import { JobConfirmedData } from "../models/notification/message_data/jobConfirmed.data";
 
+import * as admin from "firebase-admin";
+import { TokenMessage } from "firebase-admin/lib/messaging";
+
+var serviceAccount = require("../../firebaseAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://schemepotrcko-1478115443042.firebaseio.com",
+});
+
 export class NotificationsHook {
   private _evensBus: EventEmitter;
 
@@ -28,6 +38,7 @@ export class NotificationsHook {
     this._evensBus.on(Events.newNotificationAdded, this.newNotificationAdded);
     this._evensBus.on(Events.jobConfirmed, this.onJobConfirmed);
     this._evensBus.on(Events.newRankSubmitted, this.onRankSubmitted);
+    this._evensBus.on(Events.userLogout, this.onUserLogOut);
   }
 
   /**
@@ -37,17 +48,19 @@ export class NotificationsHook {
    */
   private async userConnected(...args: any[]) {
     const user: UserType = args[0] as UserType;
+  }
 
-    if (isNil(user) || isNil(user.id)) {
-      return;
-    }
+  private async onUserLogOut(...args: any[]) {
+    const logoutData = args[0] as { userId: string; deviceId: string };
 
-    const userNotifications: PushNotifications = await ServiceRegistry.getInstance().services.notificationsClient.getPushNotificationsForUser(
-      user.id
+    const response = await ServiceRegistry.getInstance().services.notificationsClient.removeUserDevice(
+      logoutData.deviceId
     );
 
-    if (userNotifications.getNotificationsList().length == 0) {
-      return;
+    if (!response.getSuccess()) {
+      console.log(
+        `Adding the notification failed. Message: ${response.getMessage()}`
+      );
     }
   }
 
@@ -68,6 +81,37 @@ export class NotificationsHook {
       const err = ex as Error;
       console.log(err.message);
     }
+
+    const userDevicesResponse = await ServiceRegistry.getInstance().services.notificationsClient.getUserDevices(
+      notification.userId
+    );
+
+    if (!userDevicesResponse.getSuccess()) {
+      console.log(
+        `Adding the notification failed. Message: ${userDevicesResponse.getMessage()}`
+      );
+    }
+
+    userDevicesResponse.getDevicesList().forEach((value) => {
+      const messageToSend: TokenMessage = {
+        token: value.getUserdevice(),
+        notification: {
+          title: notification.type,
+          body: notification.messageData,
+        },
+      };
+
+      admin
+        .messaging()
+        .send(messageToSend)
+        .then((response) => {
+          // Response is a message ID string.
+          console.log("Successfully sent message:", response);
+        })
+        .catch((error) => {
+          console.log("Error sending message:", error);
+        });
+    });
   }
 
   /**

@@ -13,6 +13,7 @@ import { HireRequestData } from "../models/notification/message_data/hireRequest
 import { Events } from "../hooks/event.types/event.types";
 import { HireResponseData } from "../models/notification/message_data/hireResponse.data";
 import { JobConfirmedData } from "../models/notification/message_data/jobConfirmed.data";
+import { UserDevice } from "../models/notification/userDevice.model";
 
 export const allNotifications: RequestHandler = async (req, res, next) => {
   // @ts-ignore
@@ -109,6 +110,31 @@ export const getNotificationData: RequestHandler = async (req, res, next) => {
     notification: notification.notificationObject,
     additionalInfo: additionalInfo,
   });
+  return next();
+};
+
+export const registerDevice: RequestHandler = async (req, res, next) => {
+  const { deviceId } = req.body;
+  // @ts-ignore
+  const userId = req.user.id;
+
+  const userDevice = new UserDevice();
+  userDevice.notificationObject = {
+    id: null,
+    userId: userId,
+    deviceId: deviceId,
+  };
+
+  const response = await ServiceRegistry.getInstance().services.notificationsClient.addUserDevice(
+    userDevice.grpcNotificationData
+  );
+
+  if (!response.getSuccess()) {
+    res.status(400).json({ success: false, message: response.getMessage() });
+    return next();
+  }
+
+  res.status(201).json({ success: true, id: response.getId() });
   return next();
 };
 

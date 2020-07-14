@@ -1,6 +1,7 @@
 export enum Events {
   userSignUp = "user.signup",
   userLogIn = "user.login",
+  userLogout = "user.logout",
   emitToUser = "socket.emit.to.user",
   userConnectedOnSocket = "socket.user.connected",
   userDisconnectedFromSocket = "socket.user.disconnected",

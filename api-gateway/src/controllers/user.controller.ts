@@ -150,3 +150,16 @@ export const updateUser: RequestHandler = async (req, res, next) => {
 
   res.status(201).json({ success: true, user: updatedUser.userObject });
 };
+
+export const logout: RequestHandler = async (req, res, next) => {
+  // @ts-ignore
+  const userId = req.user.id;
+  const { deviceId } = req.body;
+
+  try {
+    ServiceRegistry.getInstance().services.eventsBus.emit(Events.userLogout, {
+      userId,
+      deviceId,
+    });
+  } catch {}
+};

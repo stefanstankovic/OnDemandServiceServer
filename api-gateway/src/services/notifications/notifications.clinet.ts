@@ -8,14 +8,14 @@ import { ClientBase } from "../client.base";
 import {
   Response,
   PushNotifications,
-  Emails,
   NotificationData,
-  EmailData,
   UserId,
-  EmailAddress,
   Query,
   NotificationDataResponse,
   NotificationId,
+  UserDeviceData,
+  UserDevicesData,
+  DeviceId,
 } from "../../grpc/_proto/notifications/notifications_pb";
 
 export class NotificationClient extends ClientBase<INotificationsClient> {
@@ -36,20 +36,6 @@ export class NotificationClient extends ClientBase<INotificationsClient> {
     return new Promise<Response>((resolve, reject) => {
       this._client!.sendPushNotification(
         pushNotification,
-        (error: grpc.ServiceError | null, response: Response): void => {
-          if (error) {
-            reject(error);
-          }
-          resolve(response);
-        }
-      );
-    });
-  }
-
-  sendEmail(email: EmailData): Promise<Response> {
-    return new Promise<Response>((resolve, reject) => {
-      this._client!.sendEmail(
-        email,
         (error: grpc.ServiceError | null, response: Response): void => {
           if (error) {
             reject(error);
@@ -102,23 +88,6 @@ export class NotificationClient extends ClientBase<INotificationsClient> {
     });
   }
 
-  getEmailsForEmailAddress(email: string): Promise<Emails> {
-    const emailAddress: EmailAddress = new EmailAddress();
-    emailAddress.setEmail(email);
-
-    return new Promise<Emails>((resolve, reject) => {
-      this._client!.getEmailsForEmailAddress(
-        emailAddress,
-        (error: grpc.ServiceError | null, response: Emails): void => {
-          if (error) {
-            reject(error);
-          }
-          resolve(response);
-        }
-      );
-    });
-  }
-
   findPushNotificationsForUser(
     userId: string,
     pattern: string
@@ -134,24 +103,6 @@ export class NotificationClient extends ClientBase<INotificationsClient> {
           error: grpc.ServiceError | null,
           response: PushNotifications
         ): void => {
-          if (error) {
-            reject(error);
-          }
-          resolve(response);
-        }
-      );
-    });
-  }
-
-  findEmailsForEmailByContent(email: string, pattern: string): Promise<Emails> {
-    const query = new Query();
-    query.setEmail(email);
-    query.setPartiallycontenten(pattern);
-
-    return new Promise<Emails>((resolve, reject) => {
-      this._client!.findEmailsForEmailByContent(
-        query,
-        (error: grpc.ServiceError | null, response: Emails): void => {
           if (error) {
             reject(error);
           }
@@ -187,6 +138,52 @@ export class NotificationClient extends ClientBase<INotificationsClient> {
           error: grpc.ServiceError | null,
           response: NotificationDataResponse
         ): void => {
+          if (error) {
+            reject(error);
+          }
+          resolve(response);
+        }
+      );
+    });
+  }
+
+  addUserDevice(userDeviceData: UserDeviceData): Promise<Response> {
+    return new Promise<Response>((resolve, reject) => {
+      this._client!.addUserDevice(
+        userDeviceData,
+        (error: grpc.ServiceError | null, response: Response): void => {
+          if (error) {
+            reject(error);
+          }
+          resolve(response);
+        }
+      );
+    });
+  }
+
+  getUserDevices(id: string): Promise<UserDevicesData> {
+    const userId = new UserId();
+    userId.setId(id);
+    return new Promise<UserDevicesData>((resolve, reject) => {
+      this._client!.getUserDevices(
+        userId,
+        (error: grpc.ServiceError | null, response: UserDevicesData): void => {
+          if (error) {
+            reject(error);
+          }
+          resolve(response);
+        }
+      );
+    });
+  }
+
+  removeUserDevice(id: string): Promise<Response> {
+    const deviceId = new DeviceId();
+    deviceId.setId(id);
+    return new Promise<Response>((resolve, reject) => {
+      this._client!.removeUserDevice(
+        deviceId,
+        (error: grpc.ServiceError | null, response: Response): void => {
           if (error) {
             reject(error);
           }

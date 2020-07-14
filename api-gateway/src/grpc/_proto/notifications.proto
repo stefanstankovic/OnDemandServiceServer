@@ -11,13 +11,6 @@ message NotificationData {
     bool opened = 6;
 }
 
-message EmailData {
-    string email = 1;
-    string type = 2;
-    string messageData = 3;
-    int32 attempt = 4;
-}
-
 message Response {
     bool success = 1;
     string message = 2;
@@ -34,15 +27,6 @@ message PushNotifications {
     repeated NotificationData notifications = 3;
 }
 
-message EmailAddress {
-    string email = 1;
-}
-
-message Emails {
-    bool success = 1;
-    string message = 2;
-    repeated EmailData emails = 3;
-}
 
 message Query {
     string userId = 1;
@@ -56,6 +40,23 @@ message NotificationId {
     string id = 1;
 }
 
+
+message UserDeviceData {
+    string id = 1;
+    string userId = 2;
+    string userDevice = 3;
+}
+
+message UserDevicesData {
+    bool success = 1;
+    string message = 2;
+    repeated UserDeviceData devices = 3;
+}
+
+message  DeviceId {
+    string Id = 1;
+}
+
 message NotificationDataResponse {
     bool success = 1;
     string message = 2;
@@ -63,9 +64,9 @@ message NotificationDataResponse {
 }
 
 service Notifications {
-    rpc SendEmail (EmailData) returns (Response);
-    rpc GetEmailsForEmailAddress (EmailAddress) returns (Emails);
-    rpc FindEmailsForEmailByContent (Query) returns (Emails);
+    rpc AddUserDevice (UserDeviceData) returns (Response);
+    rpc GetUserDevices (UserId) returns (UserDevicesData);
+    rpc RemoveUserDevice (DeviceId) returns (Response);
     rpc GetPushNotificationById (NotificationId) returns (NotificationDataResponse);
     rpc SendPushNotification (NotificationData) returns (Response);
     rpc GetPushNotificationsForUser (UserId) returns (PushNotifications);
