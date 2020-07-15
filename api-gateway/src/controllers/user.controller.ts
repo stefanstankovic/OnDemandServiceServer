@@ -162,4 +162,6 @@ export const logout: RequestHandler = async (req, res, next) => {
       deviceId,
     });
   } catch {}
+
+  res.status(201).json({ success: true });
 };

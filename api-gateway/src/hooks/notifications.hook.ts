@@ -12,6 +12,7 @@ import { HireResponseType } from "../models/workers/hireResponse.model";
 import {
   NotificationType,
   Notification,
+  PushNotificationType,
 } from "../models/notification/notification.model";
 import { JobConfirmedData } from "../models/notification/message_data/jobConfirmed.data";
 
@@ -71,11 +72,16 @@ export class NotificationsHook {
   private async newNotificationAdded(...args: any[]) {
     const notification = args[0] as NotificationType;
 
+    const notificationModel = new Notification();
+    notificationModel.notificationObject = notification;
+    var pushNotification: PushNotificationType =
+      notificationModel.pushNotificationObject;
+
     try {
       ServiceRegistry.getInstance().services.eventsBus.emit(
         Events.notifyUser,
         notification.userId,
-        notification
+        pushNotification
       );
     } catch (ex) {
       const err = ex as Error;
@@ -96,8 +102,8 @@ export class NotificationsHook {
       const messageToSend: TokenMessage = {
         token: value.getUserdevice(),
         notification: {
-          title: notification.type,
-          body: notification.messageData,
+          title: pushNotification.title,
+          body: pushNotification.subtitle,
         },
       };
 

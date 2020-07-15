@@ -20,7 +20,7 @@ export class UserDevice {
       deviceData.setId(this._id);
     }
     deviceData.setUserid(this._userId!);
-    deviceData.setUserid(this._deviceId!);
+    deviceData.setUserdevice(this._deviceId!);
 
     return deviceData;
   }

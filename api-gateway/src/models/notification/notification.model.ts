@@ -10,6 +10,18 @@ export type NotificationType = {
   opened: boolean;
 };
 
+export type PushNotificationType = {
+  title: string;
+  subtitle: string;
+};
+
+export const NOTIFICATION_TYPE = {
+  HIRE_REQUEST: "hireRequest",
+  HIRE_ACCEPTED: "hireAccepted",
+  HIRE_REJECTED: "hireRejected",
+  JOB_CONFIRMED: "jobConfirmed",
+};
+
 export class Notification {
   constructor(
     private _id: string | null = null,
@@ -62,4 +74,49 @@ export class Notification {
     this._delivered = notification.delivered;
     this._opened = notification.opened;
   }
+
+  get pushNotificationObject(): PushNotificationType {
+    return {
+      title: this.getNotificationTitle(this._type!),
+      subtitle: this.getNotificationSubtitle(this._type!, this._messageData!),
+    };
+  }
+
+  private getNotificationTitle = (type: string): string => {
+    switch (type) {
+      case NOTIFICATION_TYPE.HIRE_REQUEST:
+        return "Work Request";
+      case NOTIFICATION_TYPE.HIRE_ACCEPTED:
+        return "Job Accepted";
+      case NOTIFICATION_TYPE.HIRE_REJECTED:
+        return "Job Rejected";
+      case NOTIFICATION_TYPE.JOB_CONFIRMED:
+        return "Job is finished!";
+      default:
+        return "Notification";
+    }
+  };
+
+  getNotificationSubtitle = (type: string, messageData: string) => {
+    let messageObject: { message: string } = { message: "" };
+    switch (type) {
+      case NOTIFICATION_TYPE.HIRE_REQUEST:
+        messageObject = JSON.parse(messageData) as { message: string };
+        let splittedMessage = messageObject.message.split("|");
+        let newMessage =
+          `When: ${splittedMessage[0]}, ` +
+          `Where: ${splittedMessage[1]}, ` +
+          `Comment: ${splittedMessage[2]}`;
+
+        return newMessage.substr(0, 30) + "...";
+      case NOTIFICATION_TYPE.HIRE_REJECTED:
+      case NOTIFICATION_TYPE.HIRE_ACCEPTED:
+        messageObject = JSON.parse(messageData);
+        return messageObject.message.substr(0, 30) + "...";
+      case NOTIFICATION_TYPE.JOB_CONFIRMED:
+        return "Please add your rank.";
+      default:
+        return "Notification";
+    }
+  };
 }

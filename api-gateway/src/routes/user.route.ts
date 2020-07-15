@@ -11,7 +11,7 @@ const routes = Router();
 
 routes.post("/login", login);
 
-routes.post("/logout", logout);
+routes.post("/logout", authenticationMiddleware, logout);
 
 routes.post("/signup", singUp);
 
