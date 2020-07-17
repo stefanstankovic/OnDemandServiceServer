@@ -5,7 +5,7 @@ export interface ILocation extends Document {
   workerId: IWorker["_id"];
   latitude: string;
   longitude: string;
-  createAt: string;
+  createdAt: string;
 }
 
 const LocationSchema: Schema = new Schema(

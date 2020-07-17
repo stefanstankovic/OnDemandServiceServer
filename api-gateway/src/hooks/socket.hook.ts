@@ -136,12 +136,6 @@ export class SocketHook {
       );
     });
 
-    if (socket.handshake.query.user.role === UserRole.Worker) {
-      socket.on(SocketEvents.locationChanged, (...args) => {
-        this._evensBus.emit(Events.workerChangedLocation, args);
-      });
-    }
-
     socket.on("test", (...args) => {
       const user = socket.handshake.query.user as UserType;
       console.log(JSON.stringify(user));

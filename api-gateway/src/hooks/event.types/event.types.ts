@@ -6,7 +6,6 @@ export enum Events {
   userConnectedOnSocket = "socket.user.connected",
   userDisconnectedFromSocket = "socket.user.disconnected",
   notifyUser = "socket.notify.user",
-  workerChangedLocation = "socket.worker.moved",
   workerHireRequest = "worker.hire.request",
   workerAcceptedHireRequest = "worker.accepted.hire.request",
   workerRejectedHireRequest = "worker.rejected.hire.request",

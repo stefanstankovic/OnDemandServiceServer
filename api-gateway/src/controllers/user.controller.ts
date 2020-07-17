@@ -62,7 +62,7 @@ export const singUp: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const userDetails = new UserDetails("", "", "", "", user);
+    const userDetails = new UserDetails("", "", "", "", user.userObject);
     var responseDetail: Response = await ServiceRegistry.getInstance().services.userClient.addUserDetails(
       userDetails.grpcUserDetails
     );

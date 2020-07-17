@@ -20,7 +20,7 @@ export class UserDetails {
     public firstName: string = "",
     public lastName: string = "",
     public birthday: string = "",
-    public user: User | undefined = undefined
+    public user: UserType | undefined = undefined
   ) {}
 
   get grpcUserDetails() {
@@ -30,7 +30,9 @@ export class UserDetails {
     userDetails.setLastname(this.lastName);
     userDetails.setBirthday(this.birthday);
     if (this.user) {
-      userDetails.setUser(this.user.grpcUserData);
+      const userModel = new User();
+      userModel.userObject = this.user;
+      userDetails.setUser(userModel.grpcUserData);
     }
 
     return userDetails;
@@ -43,10 +45,9 @@ export class UserDetails {
     this.birthday = userDetails.getBirthday();
 
     if (!isNil(userDetails.getUser())) {
-      if (!this.user) {
-        this.user = new User();
-      }
-      this.user.grpcUserData = userDetails.getUser()!;
+      const userModel = new User();
+      userModel.grpcUserData = userDetails.getUser()!;
+      this.user = userModel.userObject;
     }
   }
 
@@ -56,12 +57,8 @@ export class UserDetails {
       firstName: this.firstName,
       lastName: this.lastName,
       birthday: this.birthday,
-      user: undefined,
+      user: !isNil(this.user) ? this.user : undefined,
     };
-
-    if (!this.user) {
-      userData.user = this.user;
-    }
 
     return userData;
   }
@@ -72,11 +69,7 @@ export class UserDetails {
     this.lastName = userDetail.lastName;
     this.birthday = userDetail.birthday;
     if (userDetail.user) {
-      if (!this.user) {
-        this.user = new User();
-      }
-
-      this.user.userObject = userDetail.user;
+      this.user = userDetail.user;
     }
   }
 }

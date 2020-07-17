@@ -4,6 +4,41 @@ import { isUndefined, set } from "lodash";
 import { ServiceRegistry } from "../services/service.registry";
 import { Events } from "../hooks/event.types/event.types";
 import { Worker } from "../models/workers/worker.model";
+import { User } from "../models/user/user.model";
+import { UserDetails } from "../models/user/userDetails.model";
+import { WorkerDetailsData } from "../models/workers/types/workerDetails.type";
+import { WorkerData } from "../grpc/_proto/workers/workers_pb";
+import { UserData } from "../grpc/_proto/user/user_pb";
+
+const getWorkerDetails = async (
+  workerId: string
+): Promise<WorkerDetailsData> => {
+  let workerDetails: WorkerDetailsData = {
+    name: "Worker",
+    mobile: "nomobile",
+    email: "nophone",
+  };
+  const userDetailsResponse = await ServiceRegistry.getInstance().services.userClient.findUserDetailsByUserId(
+    workerId
+  );
+
+  const userResponse = await ServiceRegistry.getInstance().services.userClient.findUserById(
+    workerId
+  );
+
+  if (userDetailsResponse.getSuccess()) {
+    workerDetails.name =
+      `${userDetailsResponse.getData()?.getFirstname()} ` +
+      `${userDetailsResponse.getData()?.getLastname()}`;
+  }
+
+  if (userResponse.getSuccess()) {
+    workerDetails.mobile = userResponse.getData()?.getMobile();
+    workerDetails.email = userResponse.getData()?.getEmail();
+  }
+
+  return workerDetails;
+};
 
 export const allWorkersForEmployer: RequestHandler = async (req, res, next) => {
   // @ts-ignore
@@ -20,26 +55,40 @@ export const allWorkersForEmployer: RequestHandler = async (req, res, next) => {
     return next();
   }
 
-  const workers = workersResponse.getWorkersList().map((worker) => {
-    let response = {};
-    const workerData = new Worker();
-    workerData.grpsWorker = worker.getData()!;
+  const workers = await Promise.all(
+    workersResponse.getWorkersList().map(async (worker) => {
+      let response = {};
+      const workerData = new Worker();
+      workerData.grpsWorker = worker.getData()!;
 
-    set(response, "worker", workerData.workerObject);
+      set(response, "worker", workerData.workerObject);
 
-    const locationArray = worker.getLocationList().map((location) => {
-      const locationData = new Location();
-      locationData.grpcLocation = location;
-      return locationData.locationObject;
-    });
+      const userDetails = await getWorkerDetails(
+        workerData.workerObject.workerId
+      );
+      set(response, "workerDetails", userDetails);
 
-    set(response, "location", locationArray);
+      const locationArray = worker.getLocationList().map((location) => {
+        const locationData = new Location();
+        locationData.grpcLocation = location;
+        return locationData.locationObject;
+      });
 
-    return response;
-  });
+      set(response, "location", locationArray);
+
+      return response;
+    })
+  );
 
   res.status(201).json({ success: true, workers: workers });
   return next();
+};
+
+export const workerDetails: RequestHandler = async (req, res, next) => {
+  const { workerId } = req.params;
+  const workerDetails = await getWorkerDetails(workerId);
+
+  res.status(201).json({ success: true, workerDetails: workerDetails });
 };
 
 export const addLocation: RequestHandler = async (req, res, next) => {

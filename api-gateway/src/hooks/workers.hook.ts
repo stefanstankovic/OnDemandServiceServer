@@ -28,7 +28,7 @@ export class WorkersHook {
     this._evensBus.on(Events.userSignUp, this.onUserLogIn);
     this._evensBus.on(Events.userLogout, this.onUserLogOut);
     this._evensBus.on(Events.userDisconnectedFromSocket, this.userDisconnected);
-    this._evensBus.on(Events.workerChangedLocation, this.onChangeLocation);
+    this._evensBus.on(Events.newLocationAdded, this.onChangeLocation);
     this._evensBus.on(Events.workerHireRequest, this.hireRequest);
     this._evensBus.on(Events.workerAcceptedHireRequest, this.onHireResponse);
     this._evensBus.on(Events.workerRejectedHireRequest, this.onHireResponse);
@@ -176,10 +176,6 @@ export class WorkersHook {
     const locationObject = new Location();
     locationObject.locationObject = location;
 
-    await ServiceRegistry.getInstance().services.workersClient.updateWorkerLocation(
-      locationObject.grpcLocation
-    );
-
     if (
       isUndefined(workers[location.workerId]) ||
       isEmpty(workers[location.workerId])
@@ -190,7 +186,7 @@ export class WorkersHook {
 
       if (!workerResponse.getSuccess()) {
         console.log({
-          action: Events.workerChangedLocation,
+          action: Events.newLocationAdded,
           success: false,
           message: workerResponse.getMessage(),
         });
@@ -207,7 +203,7 @@ export class WorkersHook {
     ) {
       try {
         ServiceRegistry.getInstance().services.eventsBus.emit(
-          Events.notifyUser,
+          Events.emitToUser,
           SocketEvents.locationChanged,
           workers[location.workerId],
           location

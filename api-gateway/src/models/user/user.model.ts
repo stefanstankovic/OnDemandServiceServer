@@ -85,13 +85,13 @@ export class User {
   }
 
   set userObject(user: UserType) {
-    (this.email = user.email),
-      (this.mobile = user.mobile),
-      (this.password = user.password),
-      (this.role = user.role),
-      (this.id = user.id),
-      (this.createAt = user.createAt),
-      (this.updateAt = user.updateAt),
-      (this.accessToken = user.accessToken);
+    this.email = user.email;
+    this.mobile = user.mobile;
+    this.password = user.password;
+    this.role = user.role;
+    this.id = user.id;
+    this.createAt = user.createAt;
+    this.updateAt = user.updateAt;
+    this.accessToken = user.accessToken;
   }
 }

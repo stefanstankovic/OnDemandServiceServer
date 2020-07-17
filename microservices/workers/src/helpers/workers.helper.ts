@@ -487,7 +487,7 @@ export class WorkersHelper {
     grpcLocation.setWorkerid(location.workerId.toString());
     grpcLocation.setLongitude(location.longitude);
     grpcLocation.setLatitude(location.latitude);
-    grpcLocation.setCreatedat(location.createAt);
+    grpcLocation.setCreatedat(JSON.stringify(location.createdAt));
     return grpcLocation;
   }
 }

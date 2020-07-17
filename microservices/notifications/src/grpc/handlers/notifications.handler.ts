@@ -28,6 +28,7 @@ class NotificationsHandler implements INotificationsServer {
     this._userDeviceHelper = new UserDeviceHelper();
     this._notificationHelper = new NotificationsHelper();
   }
+
   addUserDevice = (
     call: grpc.ServerUnaryCall<UserDeviceData>,
     callback: grpc.sendUnaryData<Response>

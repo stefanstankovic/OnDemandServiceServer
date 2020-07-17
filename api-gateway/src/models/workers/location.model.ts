@@ -5,7 +5,7 @@ export type LocationType = {
   workerId: string;
   latitude: number;
   longitude: number;
-  createdAt: string;
+  createdAt: Date;
 };
 
 export class Location {
@@ -13,7 +13,7 @@ export class Location {
     private _workerId: string | null = null,
     private _latitude: string | null = null,
     private _longitude: string | null = null,
-    private _createdAd: string | null = null
+    private _createdAd: Date | null = null
   ) {}
 
   get grpcLocation(): GrpcLocation {
@@ -22,7 +22,7 @@ export class Location {
     location.setWorkerid(this._workerId!);
     location.setLatitude(this._latitude!);
     location.setLongitude(this._longitude!);
-    location.setCreatedat(this._createdAd!);
+    location.setCreatedat(JSON.stringify(this._createdAd!));
 
     return location;
   }
@@ -31,7 +31,7 @@ export class Location {
     this._workerId = location.getWorkerid();
     this._latitude = location.getLatitude();
     this._longitude = location.getLongitude();
-    this._createdAd = location.getCreatedat();
+    this._createdAd = new Date(JSON.parse(location.getCreatedat()));
   }
 
   get locationObject(): LocationType {
