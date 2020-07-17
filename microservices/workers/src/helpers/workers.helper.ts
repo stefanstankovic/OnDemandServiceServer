@@ -77,6 +77,9 @@ export class WorkersHelper {
           propertiesForUpdate
         ).exec();
       } else {
+        worker.active = workerData.getActive();
+        worker.busy = workerData.getBusy();
+        worker.archived = workerData.getArchived();
         dbWorker = await worker.save();
       }
 
@@ -297,23 +300,22 @@ export class WorkersHelper {
         !isUndefined(locationData.getLatitude()) &&
         !isUndefined(locationData.getLongitude())
       ) {
-        if (worker.busy) {
-          let newLocation: ILocation = new Location();
-          newLocation.workerId = worker.id.toString();
-          newLocation.latitude = locationData.getLatitude();
-          newLocation.longitude = locationData.getLongitude();
+        let newLocation: ILocation = new Location();
+        newLocation.workerId = worker.id.toString();
+        newLocation.latitude = locationData.getLatitude();
+        newLocation.longitude = locationData.getLongitude();
 
-          await newLocation.save();
+        if (worker.busy) {
+          worker.location.push(newLocation);
         } else {
-          let location = await Location.findOne({ workerId: worker.id }).exec();
-          await Location.updateOne(
-            { _id: location?.id },
-            {
-              latitude: locationData.getLatitude(),
-              longitude: locationData.getLongitude(),
-            }
-          ).exec();
+          if (worker.location.length == 0) {
+            worker.location.push(newLocation);
+          } else {
+            worker.location[0] = newLocation;
+          }
         }
+
+        await worker.save();
 
         result.setSuccess(true);
         return result;
@@ -337,17 +339,16 @@ export class WorkersHelper {
     try {
       const worker = await Worker.findOne({
         workerId: workerIdData.getWorkerid(),
+        archived: false,
       }).exec();
       if (isNull(worker)) {
         throw new Error(
           `Worker with id ${workerIdData.getWorkerid()} doesn't exist`
         );
       }
-      const location = await Location.find({ workerId: worker.id })
-        .sort({ createAt: -1 })
-        .exec();
-      const grpcLocationArray = location.map((loc, index) => {
-        return this.DbLocationToLocationData(worker, loc);
+
+      const grpcLocationArray = worker.location.map((loc) => {
+        return this.DbLocationToLocationData(loc);
       });
 
       result.setSuccess(true);
@@ -408,7 +409,7 @@ export class WorkersHelper {
         const workerData = this.DbWorkerToWorkerData(worker);
 
         const workerId = new WorkerId();
-        workerId.setWorkerid(worker.id);
+        workerId.setWorkerid(worker.workerId);
         const locationResult = await this.getWorkerLocation(workerId);
 
         if (!locationResult.getSuccess()) {
@@ -481,14 +482,12 @@ export class WorkersHelper {
     return propertiesForUpdate;
   }
 
-  private DbLocationToLocationData(
-    worker: IWorker,
-    location: ILocation
-  ): GrpcLocation {
+  private DbLocationToLocationData(location: ILocation): GrpcLocation {
     const grpcLocation: GrpcLocation = new GrpcLocation();
-    grpcLocation.setWorkerid(worker.workerId);
+    grpcLocation.setWorkerid(location.workerId.toString());
     grpcLocation.setLongitude(location.longitude);
     grpcLocation.setLatitude(location.latitude);
+    grpcLocation.setCreatedat(location.createAt);
     return grpcLocation;
   }
 }

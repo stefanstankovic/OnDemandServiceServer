@@ -1,9 +1,9 @@
 import { Services, ServiceRegistry } from "../services/service.registry";
 import { EventEmitter } from "events";
 import { Events } from "./event.types/event.types";
-import { UserType, UserRole } from "../models/user/user.model";
+import { UserType, UserRole, User } from "../models/user/user.model";
 import { Worker } from "../models/workers/worker.model";
-import { isUndefined, isNil } from "lodash";
+import { isUndefined, isNil, isEmpty } from "lodash";
 import { LocationType, Location } from "../models/workers/location.model";
 import {
   HireRequestType,
@@ -12,9 +12,10 @@ import {
 import { HireResponseType } from "../models/workers/hireResponse.model";
 import { HireWorkerRequest, Status } from "../grpc/_proto/workers/workers_pb";
 import { JobConfirmationData } from "../models/workers/types/jobConfirmation.type";
+import { SocketEvents } from "./event.types/socket.event.types";
 
 //mapping workers => employee
-const workers: { [key: string]: string } = {};
+export const workers: { [key: string]: string } = {};
 
 export class WorkersHook {
   public _evensBus: EventEmitter;
@@ -23,6 +24,9 @@ export class WorkersHook {
     this._evensBus = this._services.eventsBus;
 
     this._evensBus.on(Events.userConnectedOnSocket, this.userConnected);
+    this._evensBus.on(Events.userLogIn, this.onUserLogIn);
+    this._evensBus.on(Events.userSignUp, this.onUserLogIn);
+    this._evensBus.on(Events.userLogout, this.onUserLogOut);
     this._evensBus.on(Events.userDisconnectedFromSocket, this.userDisconnected);
     this._evensBus.on(Events.workerChangedLocation, this.onChangeLocation);
     this._evensBus.on(Events.workerHireRequest, this.hireRequest);
@@ -30,22 +34,44 @@ export class WorkersHook {
     this._evensBus.on(Events.workerRejectedHireRequest, this.onHireResponse);
     this._evensBus.on(Events.jobConfirmed, this.onJobConfirmed);
   }
+
   /**
-   * On connect event handler
+   * On log in event handler
    * @param args array of arguments
    * @param args[0] connected user. Expected type UserType
+   * @param args[1] auth token. Expected type string
    */
-  private async userConnected(...args: any[]) {
+  private async onUserLogIn(...args: any[]) {
     const user: UserType = args[0] as UserType;
 
     if (user.role !== UserRole.Worker) {
       return;
     }
 
-    const worker: Worker = new Worker(user.id, false, true, false);
+    const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+      user.id!
+    );
+
+    if (!workerDataResponse.getSuccess()) {
+      console.log({
+        action: Events.userConnectedOnSocket,
+        success: false,
+        message: workerDataResponse.getMessage(),
+      });
+
+      const worker: Worker = new Worker(user.id, false, true, false);
+      const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+        worker.grpsWorker
+      );
+
+      return;
+    }
+
+    const workerData = workerDataResponse.getWorkersList()[0];
+    workerData.setActive(true);
 
     const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
-      worker.grpsWorker
+      workerData
     );
 
     if (!response.getSuccess()) {
@@ -59,23 +85,81 @@ export class WorkersHook {
   }
 
   /**
-   * On disconnect event handler
+   * On log out event handler
    * @param args array of arguments
-   * @param args[0] disconnected user. Expected type UserType
+   * @param args[0] object of {userId: string, deviceId: string}
    */
-  private async userDisconnected(...args: any[]) {
-    const user: UserType = args[0] as UserType;
+  private async onUserLogOut(...args: any[]) {
+    const arg: { userId: string; deviceId: string } = args[0] as {
+      userId: string;
+      deviceId: string;
+    };
+
+    const userDataResponse = await ServiceRegistry.getInstance().services.userClient.findUserById(
+      arg.userId
+    );
+
+    if (!userDataResponse.getSuccess()) {
+      console.log({
+        action: Events.userConnectedOnSocket,
+        success: false,
+        message: userDataResponse.getMessage(),
+      });
+      return;
+    }
+
+    const userObject = new User();
+    userObject.grpcUserData = userDataResponse.getData()!;
+
+    const user: UserType = userObject.userObject;
 
     if (user.role !== UserRole.Worker) {
       return;
     }
 
-    const worker: Worker = new Worker(user.id, false, false, null);
-
-    await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
-      worker.grpsWorker
+    const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+      user.id!
     );
+
+    if (!workerDataResponse.getSuccess()) {
+      console.log({
+        action: Events.userConnectedOnSocket,
+        success: false,
+        message: workerDataResponse.getMessage(),
+      });
+      return;
+    }
+
+    const workerData = workerDataResponse.getWorkersList()[0];
+    workerData.setActive(false);
+
+    const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+      workerData
+    );
+
+    if (!response.getSuccess()) {
+      console.log({
+        action: Events.userConnectedOnSocket,
+        success: false,
+        message: response.getMessage(),
+      });
+      return;
+    }
   }
+
+  /**
+   * On connect event handler
+   * @param args array of arguments
+   * @param args[0] connected user. Expected type UserType
+   */
+  private async userConnected(...args: any[]) {}
+
+  /**
+   * On disconnect event handler
+   * @param args array of arguments
+   * @param args[0] disconnected user. Expected type UserType
+   */
+  private async userDisconnected(...args: any[]) {}
 
   /**
    * On change location event handler
@@ -96,7 +180,10 @@ export class WorkersHook {
       locationObject.grpcLocation
     );
 
-    if (isUndefined(workers[location.workerId])) {
+    if (
+      isUndefined(workers[location.workerId]) ||
+      isEmpty(workers[location.workerId])
+    ) {
       const workerResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
         location.workerId
       );
@@ -114,10 +201,14 @@ export class WorkersHook {
       workers[location.workerId] = workerData.getEmployerid();
     }
 
-    if (!isUndefined(workers[location.workerId])) {
+    if (
+      !isUndefined(workers[location.workerId]) &&
+      !isEmpty(workers[location.workerId])
+    ) {
       try {
         ServiceRegistry.getInstance().services.eventsBus.emit(
           Events.notifyUser,
+          SocketEvents.locationChanged,
           workers[location.workerId],
           location
         );
@@ -153,25 +244,25 @@ export class WorkersHook {
     const hireResponse = args[1] as HireResponseType;
 
     if (hireResponse.accepted) {
-      const hireWorker = new HireWorkerRequest();
-      hireWorker.setWorkerid(hireRequest.workerId);
-      hireWorker.setEmployerid(hireRequest.employerId);
-
-      const response = await ServiceRegistry.getInstance().services.workersClient.hireWorker(
-        hireWorker
+      const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+        hireRequest.workerId
       );
 
-      if (!response.getSuccess()) {
-        console.log(`Hiring worker failed. Message: ${response.getMessage()}`);
+      if (!workerDataResponse.getSuccess()) {
+        console.log({
+          action: Events.userConnectedOnSocket,
+          success: false,
+          message: workerDataResponse.getMessage(),
+        });
         return;
       }
 
-      const workerStatus = new Status();
-      workerStatus.setBusy(true);
-      workerStatus.setWorkerid(hireRequest.workerId);
+      const workerData = workerDataResponse.getWorkersList()[0];
+      workerData.setBusy(true);
+      workerData.setEmployerid(hireRequest.employerId);
 
-      const statusUpdateResponse = await ServiceRegistry.getInstance().services.workersClient.updateWorkerStatus(
-        workerStatus
+      const statusUpdateResponse = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+        workerData
       );
 
       if (!statusUpdateResponse.getSuccess()) {
@@ -219,7 +310,7 @@ export class WorkersHook {
   }
 
   /**
-   * On change location event handler
+   * On job finished
    * @param args array of params.
    * @param args[0] hire request object. Expected type HireRequestType
    * @param args[1] job confirmation object. Expected type JobConfirmationData
@@ -228,24 +319,24 @@ export class WorkersHook {
     const hireRequest: HireRequestType = args[0] as HireRequestType;
     const jobConfirmed: JobConfirmationData = args[1] as JobConfirmationData;
 
-    const workerStatus = new Status();
-    workerStatus.setWorkerid(jobConfirmed.workerId);
-    workerStatus.setActive(true);
-    const workerResponse = await ServiceRegistry.getInstance().services.workersClient.updateWorkerStatus(
-      workerStatus
+    const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+      jobConfirmed.workerId
     );
 
-    if (!workerResponse.getSuccess()) {
-      console.log(
-        `Hiring worker failed. Message: ${workerResponse.getMessage()}`
-      );
+    if (!workerDataResponse.getSuccess()) {
+      console.log({
+        action: Events.userConnectedOnSocket,
+        success: false,
+        message: workerDataResponse.getMessage(),
+      });
       return;
     }
 
-    const worker: Worker = new Worker(jobConfirmed.workerId, false, true, null);
+    const workerData = workerDataResponse.getWorkersList()[0];
+    workerData.setArchived(true);
 
     await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
-      worker.grpsWorker
+      workerData
     );
 
     const hireRequestData = new HireRequest();

@@ -1,4 +1,5 @@
 import { model, Schema, Document } from "mongoose";
+import Location, { ILocation } from "./location.model";
 
 export interface IWorker extends Document {
   workerId: string;
@@ -6,6 +7,7 @@ export interface IWorker extends Document {
   active: boolean;
   archived: boolean;
   employer: string;
+  location: Array<ILocation>;
   createAt: string;
   updateAt: string;
 }
@@ -36,12 +38,10 @@ const WorkerSchema: Schema = new Schema(
       required: false,
       type: String,
     },
-    location: [
-      {
-        latitude: String,
-        longitude: String,
-      },
-    ],
+    location: {
+      type: [Location.schema],
+      default: [],
+    },
   },
   {
     timestamps: {

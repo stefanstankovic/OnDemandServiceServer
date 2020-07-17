@@ -79,7 +79,7 @@ export const singUp: RequestHandler = async (req, res, next) => {
   // fire the user sign up event
   ServiceRegistry.getInstance().services.eventsBus.emit(
     Events.userSignUp,
-    user,
+    user.userObject,
     token
   );
 

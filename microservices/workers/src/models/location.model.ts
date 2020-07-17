@@ -14,8 +14,14 @@ const LocationSchema: Schema = new Schema(
       required: true,
       type: Schema.Types.ObjectId,
     },
-    latitude: String,
-    longitude: String,
+    latitude: {
+      required: true,
+      type: String,
+    },
+    longitude: {
+      required: true,
+      type: String,
+    },
   },
   {
     timestamps: {

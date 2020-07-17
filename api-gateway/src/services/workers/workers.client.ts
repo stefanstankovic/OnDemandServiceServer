@@ -175,10 +175,10 @@ export class WorkersClient extends ClientBase<IWorkersClient> {
   }
 
   allWorkersForEmployer(
-    workerId: string
+    employerId: string
   ): Promise<AllWorkersForEmployerResponse> {
     const workerIdData = new EmployerId();
-    workerIdData.setId(workerId);
+    workerIdData.setId(employerId);
 
     return new Promise<AllWorkersForEmployerResponse>((resolve, reject) => {
       this._client!.allWorkersForEmployer(

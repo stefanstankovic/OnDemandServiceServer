@@ -12,6 +12,7 @@ message Location {
     string workerId = 1;
     string latitude = 2;
     string longitude = 3;
+    string createdAt = 4;
 }
 
 message LocationResult {
@@ -47,7 +48,8 @@ message WorkersResponse {
 message WorkerStatus {
     bool active = 1;
     bool busy = 2;
-    Paging paging = 3;
+    bool archived = 3;
+    Paging paging = 4;
 }
 
 message Radius {

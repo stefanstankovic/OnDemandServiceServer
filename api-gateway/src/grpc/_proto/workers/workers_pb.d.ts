@@ -45,6 +45,9 @@ export class Location extends jspb.Message {
     getLongitude(): string;
     setLongitude(value: string): void;
 
+    getCreatedat(): string;
+    setCreatedat(value: string): void;
+
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Location.AsObject;
@@ -61,6 +64,7 @@ export namespace Location {
         workerid: string,
         latitude: string,
         longitude: string,
+        createdat: string,
     }
 }
 
@@ -220,6 +224,9 @@ export class WorkerStatus extends jspb.Message {
     getBusy(): boolean;
     setBusy(value: boolean): void;
 
+    getArchived(): boolean;
+    setArchived(value: boolean): void;
+
 
     hasPaging(): boolean;
     clearPaging(): void;
@@ -241,6 +248,7 @@ export namespace WorkerStatus {
     export type AsObject = {
         active: boolean,
         busy: boolean,
+        archived: boolean,
         paging?: Paging.AsObject,
     }
 }

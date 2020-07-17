@@ -78,15 +78,34 @@ export class SocketHook {
       this._services.eventsBus.emit(Events.userConnectedOnSocket, user, socket);
     });
 
+    /**
+     * Emit new message to user:
+     * @param args[0] Socket event
+     * @param args[1] user id
+     * @param args[2] data
+     */
     this._evensBus.on(Events.emitToUser, (...args: any[]): void => {
-      const userId = args[0];
-      const data = args[1];
+      const eventType = args[0];
+      const userId = args[1];
+      const data = args[2];
+
+      if (isNil(eventType)) {
+        throw new Error(`Event Type is missing in ${Events.emitToUser}`);
+      }
+
+      if (isNil(userId)) {
+        throw new Error(`User id is missing in ${Events.emitToUser}`);
+      }
+
+      if (isNil(data)) {
+        throw new Error(`Data is missing in ${Events.emitToUser}`);
+      }
 
       if (isNil(socketList[userId])) {
         throw new Error(`User with id: ${userId} isn't connected on socket.`);
       }
 
-      socketList[userId].emit(Events.emitToUser, data);
+      socketList[userId].emit(eventType, data);
     });
 
     this._evensBus.on(Events.notifyUser, (...args: any[]): void => {

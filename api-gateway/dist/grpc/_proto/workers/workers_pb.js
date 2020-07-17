@@ -632,7 +632,8 @@ proto.workers.Location.toObject = function(includeInstance, msg) {
   var f, obj = {
     workerid: jspb.Message.getFieldWithDefault(msg, 1, ""),
     latitude: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    longitude: jspb.Message.getFieldWithDefault(msg, 3, "")
+    longitude: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    createdat: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -681,6 +682,10 @@ proto.workers.Location.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setLongitude(value);
       break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCreatedat(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -728,6 +733,13 @@ proto.workers.Location.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       3,
+      f
+    );
+  }
+  f = message.getCreatedat();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
       f
     );
   }
@@ -785,6 +797,24 @@ proto.workers.Location.prototype.getLongitude = function() {
  */
 proto.workers.Location.prototype.setLongitude = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string createdAt = 4;
+ * @return {string}
+ */
+proto.workers.Location.prototype.getCreatedat = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.workers.Location} returns this
+ */
+proto.workers.Location.prototype.setCreatedat = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -1832,6 +1862,7 @@ proto.workers.WorkerStatus.toObject = function(includeInstance, msg) {
   var f, obj = {
     active: jspb.Message.getBooleanFieldWithDefault(msg, 1, false),
     busy: jspb.Message.getBooleanFieldWithDefault(msg, 2, false),
+    archived: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
     paging: (f = msg.getPaging()) && proto.workers.Paging.toObject(includeInstance, f)
   };
 
@@ -1878,6 +1909,10 @@ proto.workers.WorkerStatus.deserializeBinaryFromReader = function(msg, reader) {
       msg.setBusy(value);
       break;
     case 3:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setArchived(value);
+      break;
+    case 4:
       var value = new proto.workers.Paging;
       reader.readMessage(value,proto.workers.Paging.deserializeBinaryFromReader);
       msg.setPaging(value);
@@ -1925,10 +1960,17 @@ proto.workers.WorkerStatus.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getArchived();
+  if (f) {
+    writer.writeBool(
+      3,
+      f
+    );
+  }
   f = message.getPaging();
   if (f != null) {
     writer.writeMessage(
-      3,
+      4,
       f,
       proto.workers.Paging.serializeBinaryToWriter
     );
@@ -1973,12 +2015,30 @@ proto.workers.WorkerStatus.prototype.setBusy = function(value) {
 
 
 /**
- * optional Paging paging = 3;
+ * optional bool archived = 3;
+ * @return {boolean}
+ */
+proto.workers.WorkerStatus.prototype.getArchived = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.workers.WorkerStatus} returns this
+ */
+proto.workers.WorkerStatus.prototype.setArchived = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 3, value);
+};
+
+
+/**
+ * optional Paging paging = 4;
  * @return {?proto.workers.Paging}
  */
 proto.workers.WorkerStatus.prototype.getPaging = function() {
   return /** @type{?proto.workers.Paging} */ (
-    jspb.Message.getWrapperField(this, proto.workers.Paging, 3));
+    jspb.Message.getWrapperField(this, proto.workers.Paging, 4));
 };
 
 
@@ -1987,7 +2047,7 @@ proto.workers.WorkerStatus.prototype.getPaging = function() {
  * @return {!proto.workers.WorkerStatus} returns this
 */
 proto.workers.WorkerStatus.prototype.setPaging = function(value) {
-  return jspb.Message.setWrapperField(this, 3, value);
+  return jspb.Message.setWrapperField(this, 4, value);
 };
 
 
@@ -2005,7 +2065,7 @@ proto.workers.WorkerStatus.prototype.clearPaging = function() {
  * @return {boolean}
  */
 proto.workers.WorkerStatus.prototype.hasPaging = function() {
-  return jspb.Message.getField(this, 3) != null;
+  return jspb.Message.getField(this, 4) != null;
 };
 
 

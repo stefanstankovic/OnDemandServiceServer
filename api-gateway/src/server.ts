@@ -9,6 +9,7 @@ import workerRoutes from "./routes/worker.route";
 import userDetailsRoutes from "./routes/userDetails.route";
 import rankRoutes from "./routes/rank.route";
 import notificationRoutes from "./routes/notification.route";
+import locationRoutes from "./routes/location.route";
 
 import { authenticationMiddleware } from "./middlewares/authentication.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
@@ -35,6 +36,7 @@ app.use("/worker", authenticationMiddleware, workerRoutes);
 app.use("/userdetails", authenticationMiddleware, userDetailsRoutes);
 app.use("/rank", authenticationMiddleware, rankRoutes);
 app.use("/notification", authenticationMiddleware, notificationRoutes);
+app.use("/location", authenticationMiddleware, locationRoutes);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ message: err.message });

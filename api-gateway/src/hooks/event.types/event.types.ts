@@ -14,4 +14,5 @@ export enum Events {
   notificationOpened = "notification.opened",
   jobConfirmed = "job.confirmed",
   newRankSubmitted = "new.rank.submitted",
+  newLocationAdded = "new.location.added",
 }
