@@ -24,4 +24,4 @@ const UserDevice: Schema = new Schema(
   }
 );
 
-export default model<IUserDevice>("Email", UserDevice);
+export default model<IUserDevice>("Devices", UserDevice);

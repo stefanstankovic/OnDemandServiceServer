@@ -2,7 +2,6 @@ import { RequestHandler } from "express";
 import {
   WorkerStatus,
   WorkersResponse,
-  Status,
 } from "../grpc/_proto/workers/workers_pb";
 
 import { ServiceRegistry } from "../services/service.registry";
@@ -11,10 +10,7 @@ import {
   HireRequest,
 } from "../models/workers/hireWorker.model";
 import { Events } from "../hooks/event.types/event.types";
-import {
-  HireResponseType,
-  HireResponse,
-} from "../models/workers/hireResponse.model";
+import { HireResponseType } from "../models/workers/hireResponse.model";
 import { JobConfirmationData } from "../models/workers/types/jobConfirmation.type";
 
 export const allWorkers: RequestHandler = async (req, res, next) => {

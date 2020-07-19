@@ -48,39 +48,57 @@ export class WorkersHook {
       return;
     }
 
-    const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
-      user.id!
-    );
-
-    if (!workerDataResponse.getSuccess()) {
-      console.log({
-        action: Events.userConnectedOnSocket,
-        success: false,
-        message: workerDataResponse.getMessage(),
-      });
-
-      const worker: Worker = new Worker(user.id, false, true, false);
-      const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
-        worker.grpsWorker
+    try {
+      const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+        user.id!
       );
 
-      return;
-    }
+      if (!workerDataResponse.getSuccess()) {
+        console.log({
+          action: Events.userConnectedOnSocket,
+          success: false,
+          message: workerDataResponse.getMessage(),
+        });
 
-    const workerData = workerDataResponse.getWorkersList()[0];
-    workerData.setActive(true);
+        const worker: Worker = new Worker(user.id, false, true, false);
+        const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+          worker.grpsWorker
+        );
 
-    const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
-      workerData
-    );
+        if (!response.getSuccess()) {
+          console.log({
+            action: Events.userConnectedOnSocket,
+            success: false,
+            message: workerDataResponse.getMessage(),
+          });
+        }
 
-    if (!response.getSuccess()) {
-      console.log({
-        action: Events.userConnectedOnSocket,
-        success: false,
-        message: response.getMessage(),
-      });
-      return;
+        return;
+      }
+
+      const workerData = workerDataResponse.getWorkersList()[0];
+      workerData.setActive(true);
+
+      const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+        workerData
+      );
+
+      if (!response.getSuccess()) {
+        console.log({
+          action: Events.userConnectedOnSocket,
+          success: false,
+          message: response.getMessage(),
+        });
+        return;
+      }
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onUserLogIn",
+          hook: "Workers",
+          error: err,
+        })
+      );
     }
   }
 
@@ -94,56 +112,65 @@ export class WorkersHook {
       userId: string;
       deviceId: string;
     };
+    try {
+      const userDataResponse = await ServiceRegistry.getInstance().services.userClient.findUserById(
+        arg.userId
+      );
 
-    const userDataResponse = await ServiceRegistry.getInstance().services.userClient.findUserById(
-      arg.userId
-    );
+      if (!userDataResponse.getSuccess()) {
+        console.log({
+          action: Events.userConnectedOnSocket,
+          success: false,
+          message: userDataResponse.getMessage(),
+        });
+        return;
+      }
 
-    if (!userDataResponse.getSuccess()) {
-      console.log({
-        action: Events.userConnectedOnSocket,
-        success: false,
-        message: userDataResponse.getMessage(),
-      });
-      return;
-    }
+      const userObject = new User();
+      userObject.grpcUserData = userDataResponse.getData()!;
 
-    const userObject = new User();
-    userObject.grpcUserData = userDataResponse.getData()!;
+      const user: UserType = userObject.userObject;
 
-    const user: UserType = userObject.userObject;
+      if (user.role !== UserRole.Worker) {
+        return;
+      }
 
-    if (user.role !== UserRole.Worker) {
-      return;
-    }
+      const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+        user.id!
+      );
 
-    const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
-      user.id!
-    );
+      if (!workerDataResponse.getSuccess()) {
+        console.log({
+          action: Events.userConnectedOnSocket,
+          success: false,
+          message: workerDataResponse.getMessage(),
+        });
+        return;
+      }
 
-    if (!workerDataResponse.getSuccess()) {
-      console.log({
-        action: Events.userConnectedOnSocket,
-        success: false,
-        message: workerDataResponse.getMessage(),
-      });
-      return;
-    }
+      const workerData = workerDataResponse.getWorkersList()[0];
+      workerData.setActive(false);
 
-    const workerData = workerDataResponse.getWorkersList()[0];
-    workerData.setActive(false);
+      const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+        workerData
+      );
 
-    const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
-      workerData
-    );
-
-    if (!response.getSuccess()) {
-      console.log({
-        action: Events.userConnectedOnSocket,
-        success: false,
-        message: response.getMessage(),
-      });
-      return;
+      if (!response.getSuccess()) {
+        console.log({
+          action: Events.userConnectedOnSocket,
+          success: false,
+          message: response.getMessage(),
+        });
+        return;
+      }
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onUserLogOut",
+          hook: "Workers",
+          error: err,
+        })
+      );
     }
   }
 
@@ -172,46 +199,55 @@ export class WorkersHook {
     if (isUndefined(location)) {
       return;
     }
+    try {
+      const locationObject = new Location();
+      locationObject.locationObject = location;
 
-    const locationObject = new Location();
-    locationObject.locationObject = location;
-
-    if (
-      isUndefined(workers[location.workerId]) ||
-      isEmpty(workers[location.workerId])
-    ) {
-      const workerResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
-        location.workerId
-      );
-
-      if (!workerResponse.getSuccess()) {
-        console.log({
-          action: Events.newLocationAdded,
-          success: false,
-          message: workerResponse.getMessage(),
-        });
-        return;
-      }
-
-      const workerData = workerResponse.getWorkersList()[0];
-      workers[location.workerId] = workerData.getEmployerid();
-    }
-
-    if (
-      !isUndefined(workers[location.workerId]) &&
-      !isEmpty(workers[location.workerId])
-    ) {
-      try {
-        ServiceRegistry.getInstance().services.eventsBus.emit(
-          Events.emitToUser,
-          SocketEvents.locationChanged,
-          workers[location.workerId],
-          location
+      if (
+        isUndefined(workers[location.workerId]) ||
+        isEmpty(workers[location.workerId])
+      ) {
+        const workerResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+          location.workerId
         );
-      } catch (ex) {
-        const err = ex as Error;
-        console.log(err.message);
+
+        if (!workerResponse.getSuccess()) {
+          console.log({
+            action: Events.newLocationAdded,
+            success: false,
+            message: workerResponse.getMessage(),
+          });
+          return;
+        }
+
+        const workerData = workerResponse.getWorkersList()[0];
+        workers[location.workerId] = workerData.getEmployerid();
       }
+
+      if (
+        !isUndefined(workers[location.workerId]) &&
+        !isEmpty(workers[location.workerId])
+      ) {
+        try {
+          ServiceRegistry.getInstance().services.eventsBus.emit(
+            Events.emitToUser,
+            SocketEvents.locationChanged,
+            workers[location.workerId],
+            location
+          );
+        } catch (ex) {
+          const err = ex as Error;
+          console.log(err.message);
+        }
+      }
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onChangeLocation",
+          hook: "Workers",
+          error: err,
+        })
+      );
     }
   }
 
@@ -221,12 +257,6 @@ export class WorkersHook {
    */
   private async hireRequest(...args: any[]) {
     const hireRequest: HireRequestType = args[0] as HireRequestType;
-
-    if (isNil(hireRequest)) {
-      return;
-    }
-
-    console.log(JSON.stringify(hireRequest));
   }
 
   /**
@@ -238,70 +268,79 @@ export class WorkersHook {
   private async onHireResponse(...args: any[]) {
     const hireRequest = args[0] as HireRequestType;
     const hireResponse = args[1] as HireResponseType;
-
-    if (hireResponse.accepted) {
-      const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
-        hireRequest.workerId
-      );
-
-      if (!workerDataResponse.getSuccess()) {
-        console.log({
-          action: Events.userConnectedOnSocket,
-          success: false,
-          message: workerDataResponse.getMessage(),
-        });
-        return;
-      }
-
-      const workerData = workerDataResponse.getWorkersList()[0];
-      workerData.setBusy(true);
-      workerData.setEmployerid(hireRequest.employerId);
-
-      const statusUpdateResponse = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
-        workerData
-      );
-
-      if (!statusUpdateResponse.getSuccess()) {
-        console.log(
-          `Updating worker status failed. Message: ${statusUpdateResponse.getMessage()}`
+    try {
+      if (hireResponse.accepted) {
+        const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+          hireRequest.workerId
         );
-        return;
-      }
 
-      hireRequest.status = "accepted";
-      hireRequest.requestMessage += `|${hireResponse.responseMessage}`;
+        if (!workerDataResponse.getSuccess()) {
+          console.log({
+            action: Events.userConnectedOnSocket,
+            success: false,
+            message: workerDataResponse.getMessage(),
+          });
+          return;
+        }
 
-      var requestForUpdate = new HireRequest();
-      requestForUpdate.hireRequestObject = hireRequest;
+        const workerData = workerDataResponse.getWorkersList()[0];
+        workerData.setBusy(true);
+        workerData.setEmployerid(hireRequest.employerId);
 
-      const hireRequestUpdateResponse = await ServiceRegistry.getInstance().services.workersClient.updateHireRequest(
-        requestForUpdate.grpcHireRequest
-      );
-
-      if (!hireRequestUpdateResponse.getSuccess()) {
-        console.log(
-          `Updating hire request failed. Message: ${hireRequestUpdateResponse.getMessage()}`
+        const statusUpdateResponse = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+          workerData
         );
-        return;
-      }
 
-      workers[hireRequest.workerId] = hireRequest.employerId;
-    } else {
-      hireRequest.status = "declined";
+        if (!statusUpdateResponse.getSuccess()) {
+          console.log(
+            `Updating worker status failed. Message: ${statusUpdateResponse.getMessage()}`
+          );
+          return;
+        }
 
-      var requestForUpdate = new HireRequest();
-      requestForUpdate.hireRequestObject = hireRequest;
+        hireRequest.status = "accepted";
+        hireRequest.requestMessage += `|${hireResponse.responseMessage}`;
 
-      const hireRequestUpdateResponse = await ServiceRegistry.getInstance().services.workersClient.updateHireRequest(
-        requestForUpdate.grpcHireRequest
-      );
+        var requestForUpdate = new HireRequest();
+        requestForUpdate.hireRequestObject = hireRequest;
 
-      if (!hireRequestUpdateResponse.getSuccess()) {
-        console.log(
-          `Updating hire request failed. Message: ${hireRequestUpdateResponse.getMessage()}`
+        const hireRequestUpdateResponse = await ServiceRegistry.getInstance().services.workersClient.updateHireRequest(
+          requestForUpdate.grpcHireRequest
         );
-        return;
+
+        if (!hireRequestUpdateResponse.getSuccess()) {
+          console.log(
+            `Updating hire request failed. Message: ${hireRequestUpdateResponse.getMessage()}`
+          );
+          return;
+        }
+
+        workers[hireRequest.workerId] = hireRequest.employerId;
+      } else {
+        hireRequest.status = "declined";
+
+        var requestForUpdate = new HireRequest();
+        requestForUpdate.hireRequestObject = hireRequest;
+
+        const hireRequestUpdateResponse = await ServiceRegistry.getInstance().services.workersClient.updateHireRequest(
+          requestForUpdate.grpcHireRequest
+        );
+
+        if (!hireRequestUpdateResponse.getSuccess()) {
+          console.log(
+            `Updating hire request failed. Message: ${hireRequestUpdateResponse.getMessage()}`
+          );
+          return;
+        }
       }
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onHireResponse",
+          hook: "Workers",
+          error: err,
+        })
+      );
     }
   }
 
@@ -315,34 +354,44 @@ export class WorkersHook {
     const hireRequest: HireRequestType = args[0] as HireRequestType;
     const jobConfirmed: JobConfirmationData = args[1] as JobConfirmationData;
 
-    const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
-      jobConfirmed.workerId
-    );
+    try {
+      const workerDataResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkerById(
+        jobConfirmed.workerId
+      );
 
-    if (!workerDataResponse.getSuccess()) {
-      console.log({
-        action: Events.userConnectedOnSocket,
-        success: false,
-        message: workerDataResponse.getMessage(),
-      });
-      return;
+      if (!workerDataResponse.getSuccess()) {
+        console.log({
+          action: Events.userConnectedOnSocket,
+          success: false,
+          message: workerDataResponse.getMessage(),
+        });
+        return;
+      }
+
+      const workerData = workerDataResponse.getWorkersList()[0];
+      workerData.setArchived(true);
+
+      await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+        workerData
+      );
+
+      const hireRequestData = new HireRequest();
+      hireRequest.status = "confirmed";
+      hireRequestData.hireRequestObject = hireRequest;
+
+      await ServiceRegistry.getInstance().services.workersClient.updateHireRequest(
+        hireRequestData.grpcHireRequest
+      );
+
+      delete workers[jobConfirmed.workerId];
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onHireResponse",
+          hook: "Workers",
+          error: err,
+        })
+      );
     }
-
-    const workerData = workerDataResponse.getWorkersList()[0];
-    workerData.setArchived(true);
-
-    await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
-      workerData
-    );
-
-    const hireRequestData = new HireRequest();
-    hireRequest.status = "confirmed";
-    hireRequestData.hireRequestObject = hireRequest;
-
-    await ServiceRegistry.getInstance().services.workersClient.updateHireRequest(
-      hireRequestData.grpcHireRequest
-    );
-
-    delete workers[jobConfirmed.workerId];
   }
 }

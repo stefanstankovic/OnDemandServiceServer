@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 RUN npm clean-install
-RUN npm build
+RUN node /app/node_modules/typescript/bin/tsc
 RUN /app/node_modules/.bin/grpc_tools_node_protoc \
     --js_out=import_style=commonjs,binary:"/app/dist/grpc/_proto/workers" \
     --grpc_out="/app/dist/grpc/_proto/workers" \

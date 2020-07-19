@@ -4,11 +4,7 @@ import { isUndefined, set } from "lodash";
 import { ServiceRegistry } from "../services/service.registry";
 import { Events } from "../hooks/event.types/event.types";
 import { Worker } from "../models/workers/worker.model";
-import { User } from "../models/user/user.model";
-import { UserDetails } from "../models/user/userDetails.model";
 import { WorkerDetailsData } from "../models/workers/types/workerDetails.type";
-import { WorkerData } from "../grpc/_proto/workers/workers_pb";
-import { UserData } from "../grpc/_proto/user/user_pb";
 
 const getWorkerDetails = async (
   workerId: string

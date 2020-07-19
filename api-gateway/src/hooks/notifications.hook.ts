@@ -54,13 +54,23 @@ export class NotificationsHook {
   private async onUserLogOut(...args: any[]) {
     const logoutData = args[0] as { userId: string; deviceId: string };
 
-    const response = await ServiceRegistry.getInstance().services.notificationsClient.removeUserDevice(
-      logoutData.deviceId
-    );
+    try {
+      const response = await ServiceRegistry.getInstance().services.notificationsClient.removeUserDevice(
+        logoutData.deviceId
+      );
 
-    if (!response.getSuccess()) {
-      console.log(
-        `Adding the notification failed. Message: ${response.getMessage()}`
+      if (!response.getSuccess()) {
+        console.log(
+          `Adding the notification failed. Message: ${response.getMessage()}`
+        );
+      }
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onUserLogOut",
+          hook: "notifications",
+          error: err,
+        })
       );
     }
   }
@@ -71,53 +81,62 @@ export class NotificationsHook {
    */
   private async newNotificationAdded(...args: any[]) {
     const notification = args[0] as NotificationType;
-
-    const notificationModel = new Notification();
-    notificationModel.notificationObject = notification;
-    var pushNotification: PushNotificationType =
-      notificationModel.pushNotificationObject;
-
     try {
-      ServiceRegistry.getInstance().services.eventsBus.emit(
-        Events.notifyUser,
-        notification.userId,
-        pushNotification
+      const notificationModel = new Notification();
+      notificationModel.notificationObject = notification;
+      var pushNotification: PushNotificationType =
+        notificationModel.pushNotificationObject;
+
+      try {
+        ServiceRegistry.getInstance().services.eventsBus.emit(
+          Events.notifyUser,
+          notification.userId,
+          pushNotification
+        );
+      } catch (ex) {
+        const err = ex as Error;
+        console.log(err.message);
+      }
+
+      const userDevicesResponse = await ServiceRegistry.getInstance().services.notificationsClient.getUserDevices(
+        notification.userId
       );
-    } catch (ex) {
-      const err = ex as Error;
-      console.log(err.message);
-    }
 
-    const userDevicesResponse = await ServiceRegistry.getInstance().services.notificationsClient.getUserDevices(
-      notification.userId
-    );
+      if (!userDevicesResponse.getSuccess()) {
+        console.log(
+          `Adding the notification failed. Message: ${userDevicesResponse.getMessage()}`
+        );
+      }
 
-    if (!userDevicesResponse.getSuccess()) {
-      console.log(
-        `Adding the notification failed. Message: ${userDevicesResponse.getMessage()}`
-      );
-    }
+      userDevicesResponse.getDevicesList().forEach((value) => {
+        const messageToSend: TokenMessage = {
+          token: value.getUserdevice(),
+          notification: {
+            title: pushNotification.title,
+            body: pushNotification.subtitle,
+          },
+        };
 
-    userDevicesResponse.getDevicesList().forEach((value) => {
-      const messageToSend: TokenMessage = {
-        token: value.getUserdevice(),
-        notification: {
-          title: pushNotification.title,
-          body: pushNotification.subtitle,
-        },
-      };
-
-      admin
-        .messaging()
-        .send(messageToSend)
-        .then((response) => {
-          // Response is a message ID string.
-          console.log("Successfully sent message:", response);
+        admin
+          .messaging()
+          .send(messageToSend)
+          .then((response) => {
+            // Response is a message ID string.
+            console.log("Successfully sent message:", response);
+          })
+          .catch((error) => {
+            console.log("Error sending message:", error);
+          });
+      });
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "newNotificationAdded",
+          hook: "notifications",
+          error: err,
         })
-        .catch((error) => {
-          console.log("Error sending message:", error);
-        });
-    });
+      );
+    }
   }
 
   /**
@@ -130,41 +149,50 @@ export class NotificationsHook {
     if (isNil(hireRequest)) {
       return;
     }
+    try {
+      const pushNotification: NotificationData = new NotificationData();
+      let message = {
+        userId: hireRequest.employerId,
+        message: hireRequest.requestMessage,
+        itemId: hireRequest.id,
+      };
+      pushNotification.setDelivered(false);
+      pushNotification.setOpened(false);
+      pushNotification.setMessagedata(JSON.stringify(message));
 
-    const pushNotification: NotificationData = new NotificationData();
-    let message = {
-      userId: hireRequest.employerId,
-      message: hireRequest.requestMessage,
-      itemId: hireRequest.id,
-    };
-    pushNotification.setDelivered(false);
-    pushNotification.setOpened(false);
-    pushNotification.setMessagedata(JSON.stringify(message));
+      // #TODO : move constant in separate file
+      pushNotification.setType("hireRequest");
+      pushNotification.setUserid(hireRequest.workerId);
 
-    // #TODO : move constant in separate file
-    pushNotification.setType("hireRequest");
-    pushNotification.setUserid(hireRequest.workerId);
-
-    const response = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
-      pushNotification
-    );
-
-    if (!response.getSuccess()) {
-      console.log(
-        `Adding the notification failed. Message: ${response.getMessage()}`
+      const response = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
+        pushNotification
       );
-      return;
+
+      if (!response.getSuccess()) {
+        console.log(
+          `Adding the notification failed. Message: ${response.getMessage()}`
+        );
+        return;
+      }
+
+      pushNotification.setId(response.getId());
+
+      const newNotification = new Notification();
+      newNotification.grpcNotificationData = pushNotification;
+
+      ServiceRegistry.getInstance().services.eventsBus.emit(
+        Events.newNotificationAdded,
+        newNotification.notificationObject
+      );
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "hireRequest",
+          hook: "notifications",
+          error: err,
+        })
+      );
     }
-
-    pushNotification.setId(response.getId());
-
-    const newNotification = new Notification();
-    newNotification.grpcNotificationData = pushNotification;
-
-    ServiceRegistry.getInstance().services.eventsBus.emit(
-      Events.newNotificationAdded,
-      newNotification.notificationObject
-    );
   }
 
   /**
@@ -177,42 +205,52 @@ export class NotificationsHook {
     const hireRequest = args[0] as HireRequestType;
     const hireResponse = args[1] as HireResponseType;
 
-    const pushNotification: NotificationData = new NotificationData();
-    let message = {
-      workerId: hireRequest.workerId,
-      message: hireResponse.responseMessage,
-      itemId: hireRequest.id,
-    };
-    pushNotification.setDelivered(false);
-    pushNotification.setOpened(false);
-    pushNotification.setMessagedata(JSON.stringify(message));
+    try {
+      const pushNotification: NotificationData = new NotificationData();
+      let message = {
+        workerId: hireRequest.workerId,
+        message: hireResponse.responseMessage,
+        itemId: hireRequest.id,
+      };
+      pushNotification.setDelivered(false);
+      pushNotification.setOpened(false);
+      pushNotification.setMessagedata(JSON.stringify(message));
 
-    // #TODO : move constant in separate file
-    pushNotification.setType(
-      hireResponse.accepted ? "hireAccepted" : "hireRejected"
-    );
-    pushNotification.setUserid(hireRequest.employerId);
-
-    const response = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
-      pushNotification
-    );
-
-    if (!response.getSuccess()) {
-      console.log(
-        `Adding the notification failed. Message: ${response.getMessage()}`
+      // #TODO : move constant in separate file
+      pushNotification.setType(
+        hireResponse.accepted ? "hireAccepted" : "hireRejected"
       );
-      return;
+      pushNotification.setUserid(hireRequest.employerId);
+
+      const response = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
+        pushNotification
+      );
+
+      if (!response.getSuccess()) {
+        console.log(
+          `Adding the notification failed. Message: ${response.getMessage()}`
+        );
+        return;
+      }
+
+      pushNotification.setId(response.getId());
+
+      const newNotification = new Notification();
+      newNotification.grpcNotificationData = pushNotification;
+
+      ServiceRegistry.getInstance().services.eventsBus.emit(
+        Events.newNotificationAdded,
+        newNotification.notificationObject
+      );
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onHireResponse",
+          hook: "notifications",
+          error: err,
+        })
+      );
     }
-
-    pushNotification.setId(response.getId());
-
-    const newNotification = new Notification();
-    newNotification.grpcNotificationData = pushNotification;
-
-    ServiceRegistry.getInstance().services.eventsBus.emit(
-      Events.newNotificationAdded,
-      newNotification.notificationObject
-    );
   }
 
   /**
@@ -223,22 +261,32 @@ export class NotificationsHook {
   private async onGetNotification(...args: any[]) {
     let notificationId = args[0];
 
-    const notificationData = new NotificationData();
-    notificationData.setId(notificationId);
-    notificationData.setDelivered(true);
-    notificationData.setOpened(true);
+    try {
+      const notificationData = new NotificationData();
+      notificationData.setId(notificationId);
+      notificationData.setDelivered(true);
+      notificationData.setOpened(true);
 
-    let response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
-      notificationData
-    );
+      let response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
+        notificationData
+      );
 
-    if (!response.getSuccess()) {
-      console.log({
-        action: Events.notificationOpened,
-        success: false,
-        message: response.getMessage(),
-      });
-      return;
+      if (!response.getSuccess()) {
+        console.log({
+          action: Events.notificationOpened,
+          success: false,
+          message: response.getMessage(),
+        });
+        return;
+      }
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onGetNotification",
+          hook: "notifications",
+          error: err,
+        })
+      );
     }
   }
 
@@ -250,80 +298,89 @@ export class NotificationsHook {
    */
   private async onJobConfirmed(...args: any[]) {
     const hireRequest: HireRequestType = args[0] as HireRequestType;
+    try {
+      const notifyWorker: NotificationData = new NotificationData();
+      let workerMessage = {
+        userId: hireRequest.employerId,
+        message: hireRequest.requestMessage,
+        itemId: hireRequest.id,
+        ranked: false,
+      };
+      notifyWorker.setDelivered(false);
+      notifyWorker.setOpened(false);
+      notifyWorker.setMessagedata(JSON.stringify(workerMessage));
 
-    const notifyWorker: NotificationData = new NotificationData();
-    let workerMessage = {
-      userId: hireRequest.employerId,
-      message: hireRequest.requestMessage,
-      itemId: hireRequest.id,
-      ranked: false,
-    };
-    notifyWorker.setDelivered(false);
-    notifyWorker.setOpened(false);
-    notifyWorker.setMessagedata(JSON.stringify(workerMessage));
+      // #TODO : move constant in separate file
+      notifyWorker.setType("jobConfirmed");
+      notifyWorker.setUserid(hireRequest.workerId);
 
-    // #TODO : move constant in separate file
-    notifyWorker.setType("jobConfirmed");
-    notifyWorker.setUserid(hireRequest.workerId);
+      const workerNotificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
+        notifyWorker
+      );
 
-    const workerNotificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
-      notifyWorker
-    );
+      if (!workerNotificationResponse.getSuccess()) {
+        console.log({
+          action: Events.notificationOpened,
+          success: false,
+          message: workerNotificationResponse.getMessage(),
+        });
+        return;
+      }
 
-    if (!workerNotificationResponse.getSuccess()) {
-      console.log({
-        action: Events.notificationOpened,
-        success: false,
-        message: workerNotificationResponse.getMessage(),
-      });
-      return;
+      notifyWorker.setId(workerNotificationResponse.getId());
+
+      const newNotification = new Notification();
+      newNotification.grpcNotificationData = notifyWorker;
+
+      ServiceRegistry.getInstance().services.eventsBus.emit(
+        Events.newNotificationAdded,
+        newNotification.notificationObject
+      );
+
+      const notifyEmployer: NotificationData = new NotificationData();
+      let message = {
+        userId: hireRequest.workerId,
+        message: hireRequest.requestMessage,
+        itemId: hireRequest.id,
+        ranked: false,
+      };
+      notifyEmployer.setDelivered(false);
+      notifyEmployer.setOpened(false);
+      notifyEmployer.setMessagedata(JSON.stringify(message));
+
+      // #TODO : move constant in separate file
+      notifyEmployer.setType("jobConfirmed");
+      notifyEmployer.setUserid(hireRequest.employerId);
+
+      const employerNotificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
+        notifyEmployer
+      );
+
+      if (!employerNotificationResponse.getSuccess()) {
+        console.log({
+          action: Events.notificationOpened,
+          success: false,
+          message: employerNotificationResponse.getMessage(),
+        });
+      }
+
+      notifyEmployer.setId(employerNotificationResponse.getId());
+
+      newNotification.grpcNotificationData = notifyEmployer;
+
+      ServiceRegistry.getInstance().services.eventsBus.emit(
+        Events.newNotificationAdded,
+        newNotification.notificationObject
+      );
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onJobConfirmed",
+          hook: "notifications",
+          error: err,
+        })
+      );
     }
-
-    notifyWorker.setId(workerNotificationResponse.getId());
-
-    const newNotification = new Notification();
-    newNotification.grpcNotificationData = notifyWorker;
-
-    ServiceRegistry.getInstance().services.eventsBus.emit(
-      Events.newNotificationAdded,
-      newNotification.notificationObject
-    );
-
-    const notifyEmployer: NotificationData = new NotificationData();
-    let message = {
-      userId: hireRequest.workerId,
-      message: hireRequest.requestMessage,
-      itemId: hireRequest.id,
-      ranked: false,
-    };
-    notifyEmployer.setDelivered(false);
-    notifyEmployer.setOpened(false);
-    notifyEmployer.setMessagedata(JSON.stringify(message));
-
-    // #TODO : move constant in separate file
-    notifyEmployer.setType("jobConfirmed");
-    notifyEmployer.setUserid(hireRequest.employerId);
-
-    const employerNotificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.sendPushNotification(
-      notifyEmployer
-    );
-
-    if (!employerNotificationResponse.getSuccess()) {
-      console.log({
-        action: Events.notificationOpened,
-        success: false,
-        message: employerNotificationResponse.getMessage(),
-      });
-    }
-
-    notifyEmployer.setId(employerNotificationResponse.getId());
-
-    newNotification.grpcNotificationData = notifyEmployer;
-
-    ServiceRegistry.getInstance().services.eventsBus.emit(
-      Events.newNotificationAdded,
-      newNotification.notificationObject
-    );
   }
 
   /**
@@ -335,46 +392,56 @@ export class NotificationsHook {
   private async onRankSubmitted(...args: any[]) {
     const notificationId = args[1] as string;
 
-    const notificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.getPushNotificationById(
-      notificationId
-    );
+    try {
+      const notificationResponse = await ServiceRegistry.getInstance().services.notificationsClient.getPushNotificationById(
+        notificationId
+      );
 
-    if (!notificationResponse.getSuccess()) {
-      console.log({
-        action: Events.notificationOpened,
-        success: false,
-        message: notificationResponse.getMessage(),
-      });
-      return;
-    }
+      if (!notificationResponse.getSuccess()) {
+        console.log({
+          action: Events.notificationOpened,
+          success: false,
+          message: notificationResponse.getMessage(),
+        });
+        return;
+      }
 
-    const notification = notificationResponse.getData();
+      const notification = notificationResponse.getData();
 
-    if (
-      isUndefined(notification) ||
-      isUndefined(notification.getMessagedata())
-    ) {
-      return;
-    }
+      if (
+        isUndefined(notification) ||
+        isUndefined(notification.getMessagedata())
+      ) {
+        return;
+      }
 
-    let notificationData = JSON.parse(
-      notification.getMessagedata()
-    ) as JobConfirmedData;
+      let notificationData = JSON.parse(
+        notification.getMessagedata()
+      ) as JobConfirmedData;
 
-    notificationData.ranked = true;
+      notificationData.ranked = true;
 
-    notification.setMessagedata(JSON.stringify(notificationData));
+      notification.setMessagedata(JSON.stringify(notificationData));
 
-    const response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
-      notification
-    );
-    if (!response.getSuccess()) {
-      console.log({
-        action: Events.notificationOpened,
-        success: false,
-        message: response.getMessage(),
-      });
-      return;
+      const response = await ServiceRegistry.getInstance().services.notificationsClient.updatePushNotification(
+        notification
+      );
+      if (!response.getSuccess()) {
+        console.log({
+          action: Events.notificationOpened,
+          success: false,
+          message: response.getMessage(),
+        });
+        return;
+      }
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          eventHandler: "onRankSubmitted",
+          hook: "notifications",
+          error: err,
+        })
+      );
     }
   }
 }

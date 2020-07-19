@@ -1,4 +1,4 @@
-import "./utils/config";
+//import "./utils/config";
 import express = require("express");
 import { json } from "body-parser";
 import { Request, Response, NextFunction } from "express";
@@ -31,6 +31,7 @@ const io: socketio.Server = socketio.listen(server);
 app.use(errorMiddleware);
 
 app.use(json());
+
 app.use("/user", userRoutes);
 app.use("/worker", authenticationMiddleware, workerRoutes);
 app.use("/userdetails", authenticationMiddleware, userDetailsRoutes);

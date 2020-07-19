@@ -1,2 +1,2 @@
 docker-compose build 
-docker stack deploy -c docker-compose.yaml ondemandservice_apps
+docker stack deploy -c docker-compose.yaml ondemand_services
