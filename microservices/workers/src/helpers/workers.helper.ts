@@ -402,6 +402,7 @@ export class WorkersHelper {
     try {
       const workers = await Worker.find({
         employer: employerId.getId(),
+        archived: false,
       });
       const hiredWorkers: Array<HiredWorker> = new Array<HiredWorker>();
 
@@ -466,10 +467,10 @@ export class WorkersHelper {
     }
 
     if (
-      isBoolean(workerData.getActive()) &&
-      worker.archived !== workerData.getActive()
+      isBoolean(workerData.getArchived()) &&
+      worker.archived !== workerData.getArchived()
     ) {
-      set(propertiesForUpdate, "archived", workerData.getActive());
+      set(propertiesForUpdate, "archived", workerData.getArchived());
     }
 
     if (

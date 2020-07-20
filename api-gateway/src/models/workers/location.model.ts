@@ -1,5 +1,5 @@
 import { Location as GrpcLocation } from "../../grpc/_proto/workers/workers_pb";
-import { isNull } from "lodash";
+import { isNull, isUndefined, isString, isEmpty } from "lodash";
 
 export type LocationType = {
   workerId: string;
@@ -31,7 +31,15 @@ export class Location {
     this._workerId = location.getWorkerid();
     this._latitude = location.getLatitude();
     this._longitude = location.getLongitude();
-    this._createdAd = new Date(JSON.parse(location.getCreatedat()));
+    let createdAt = location.getCreatedat();
+
+    if (
+      !isUndefined(createdAt) &&
+      !isString(createdAt) &&
+      !isEmpty(createdAt)
+    ) {
+      this._createdAd = new Date(JSON.parse(location.getCreatedat()));
+    }
   }
 
   get locationObject(): LocationType {
