@@ -48,7 +48,7 @@ export class Rank {
   }
 
   set rankObject(rank: RankType) {
-    this._userId = rank.rankedById;
+    this._userId = rank.userId;
     this._rankedById = rank.rankedById;
     this._type = rank.type;
     this._stars = rank.stars;

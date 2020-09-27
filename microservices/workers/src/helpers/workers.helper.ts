@@ -52,22 +52,16 @@ export class WorkersHelper {
   public async addOrUpdateWorker(workerData: WorkerData): Promise<Response> {
     const result = new Response();
     try {
-      let workerExists: boolean = true;
       let worker: IWorker | null;
       worker = await Worker.findOne({
         workerId: workerData.getWorkerid(),
         archived: false,
       });
 
-      if (isNil(worker)) {
-        workerExists = false;
-        worker = new Worker();
-        worker.workerId = workerData.getWorkerid();
-      }
-
       let dbWorker: IWorker;
 
-      if (workerExists) {
+      if (!isNull(worker)) {
+        console.log("updating the existing worker");
         const propertiesForUpdate = this.UpdateWorkerProperties(
           worker,
           workerData
@@ -77,15 +71,20 @@ export class WorkersHelper {
           propertiesForUpdate
         ).exec();
       } else {
+        console.log("creating a new worker");
+        worker = new Worker();
+        worker.workerId = workerData.getWorkerid();
         worker.active = workerData.getActive();
         worker.busy = workerData.getBusy();
         worker.archived = workerData.getArchived();
+        console.log(worker);
         dbWorker = await worker.save();
       }
 
       result.setSuccess(true);
       result.setId(dbWorker._id);
     } catch (ex) {
+      console.log(ex);
       var err = ex as Error;
       result.setSuccess(false);
       result.setMessage(err.message);

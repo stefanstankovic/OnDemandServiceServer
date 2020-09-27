@@ -1,4 +1,4 @@
-import "./utils/config";
+//import "./utils/config";
 import express = require("express");
 import { json } from "body-parser";
 import { Request, Response, NextFunction } from "express";

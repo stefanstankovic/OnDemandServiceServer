@@ -17,7 +17,6 @@ const WorkerSchema: Schema = new Schema(
     workerId: {
       required: true,
       type: String,
-      unique: true,
     },
     active: {
       required: true,

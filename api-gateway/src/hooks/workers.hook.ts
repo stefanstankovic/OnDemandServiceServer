@@ -55,7 +55,7 @@ export class WorkersHook {
 
       if (!workerDataResponse.getSuccess()) {
         console.log({
-          action: Events.userConnectedOnSocket,
+          action: Events.userLogIn,
           success: false,
           message: workerDataResponse.getMessage(),
         });
@@ -67,7 +67,7 @@ export class WorkersHook {
 
         if (!response.getSuccess()) {
           console.log({
-            action: Events.userConnectedOnSocket,
+            action: Events.userLogIn,
             success: false,
             message: workerDataResponse.getMessage(),
           });
@@ -85,7 +85,7 @@ export class WorkersHook {
 
       if (!response.getSuccess()) {
         console.log({
-          action: Events.userConnectedOnSocket,
+          action: Events.userLogIn,
           success: false,
           message: response.getMessage(),
         });
@@ -119,7 +119,7 @@ export class WorkersHook {
 
       if (!userDataResponse.getSuccess()) {
         console.log({
-          action: Events.userConnectedOnSocket,
+          action: Events.userLogout,
           success: false,
           message: userDataResponse.getMessage(),
         });
@@ -141,7 +141,7 @@ export class WorkersHook {
 
       if (!workerDataResponse.getSuccess()) {
         console.log({
-          action: Events.userConnectedOnSocket,
+          action: Events.userLogout,
           success: false,
           message: workerDataResponse.getMessage(),
         });
@@ -157,7 +157,7 @@ export class WorkersHook {
 
       if (!response.getSuccess()) {
         console.log({
-          action: Events.userConnectedOnSocket,
+          action: Events.userLogout,
           success: false,
           message: response.getMessage(),
         });
@@ -276,7 +276,7 @@ export class WorkersHook {
 
         if (!workerDataResponse.getSuccess()) {
           console.log({
-            action: Events.userConnectedOnSocket,
+            action: Events.workerAcceptedHireRequest,
             success: false,
             message: workerDataResponse.getMessage(),
           });
@@ -361,7 +361,7 @@ export class WorkersHook {
 
       if (!workerDataResponse.getSuccess()) {
         console.log({
-          action: Events.userConnectedOnSocket,
+          action: Events.jobConfirmed,
           success: false,
           message: workerDataResponse.getMessage(),
         });
@@ -383,11 +383,32 @@ export class WorkersHook {
         hireRequestData.grpcHireRequest
       );
 
+      const worker: Worker = new Worker(
+        jobConfirmed.workerId,
+        false,
+        true,
+        false
+      );
+
+      const response = await ServiceRegistry.getInstance().services.workersClient.addOrUpdateWorker(
+        worker.grpsWorker
+      );
+
+      if (!response.getSuccess()) {
+        console.log({
+          event: Events.jobConfirmed,
+          action: "Recreate a worker",
+          success: false,
+          message: workerDataResponse.getMessage(),
+        });
+        return;
+      }
+
       delete workers[jobConfirmed.workerId];
     } catch (err) {
       console.error(
         JSON.stringify({
-          eventHandler: "onHireResponse",
+          eventHandler: "onJobConfirm",
           hook: "Workers",
           error: err,
         })

@@ -50,7 +50,9 @@ export class NotificationsHelper {
   ): Promise<PushNotifications> {
     const response = new PushNotifications();
     try {
-      const query = Notification.find({ userId: userId.getId() });
+      const query = Notification.find({ userId: userId.getId() }).sort({
+        createAt: -1,
+      });
       const notifications = (await query.exec()) as Array<INotification>;
       response.setNotificationsList(
         this.DbNotificationsToNotificationsData(notifications)
@@ -104,7 +106,9 @@ export class NotificationsHelper {
         });
       }
 
-      const query = Notification.find(searchQuery);
+      const query = Notification.find(searchQuery).sort({
+        createAt: -1,
+      });
       const notifications = (await query.exec()) as Array<INotification>;
       response.setNotificationsList(
         this.DbNotificationsToNotificationsData(notifications)
@@ -125,6 +129,8 @@ export class NotificationsHelper {
       const query = Notification.find({
         userId: userId.getId(),
         delivered: false,
+      }).sort({
+        createAt: -1,
       });
       const notifications = (await query.exec()) as Array<INotification>;
       response.setNotificationsList(

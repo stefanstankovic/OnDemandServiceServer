@@ -11,11 +11,11 @@ const HireRequest: Schema = new Schema(
   {
     workerId: {
       required: true,
-      type: Schema.Types.ObjectId,
+      type: String,
     },
     employer: {
       required: true,
-      type: Schema.Types.ObjectId,
+      type: String,
     },
     status: {
       required: true,

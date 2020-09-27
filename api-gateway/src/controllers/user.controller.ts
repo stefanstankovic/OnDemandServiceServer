@@ -50,7 +50,7 @@ export const singUp: RequestHandler = async (req, res, next) => {
   }
 
   user.id = response.getId();
-  delete user.password;
+  //delete user.password;
 
   let token: string;
   try {
@@ -102,7 +102,7 @@ export const login: RequestHandler = async (req, res, next) => {
   const user = new User();
   user.grpcUserData = response.getData()!;
 
-  delete user.password;
+  //delete user.password;
   let token: string;
   try {
     token = await jwtAuth.sign(user.userObject);

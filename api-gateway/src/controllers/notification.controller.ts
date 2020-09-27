@@ -138,6 +138,22 @@ export const registerDevice: RequestHandler = async (req, res, next) => {
   return next();
 };
 
+export const unregisterDevice: RequestHandler = async (req, res, next) => {
+  const { deviceId } = req.body;
+
+  const response = await ServiceRegistry.getInstance().services.notificationsClient.removeUserDevice(
+    deviceId
+  );
+
+  if (!response.getSuccess()) {
+    res.status(400).json({ success: false, message: response.getMessage() });
+    return next();
+  }
+
+  res.status(201).json({ success: true, id: response.getId() });
+  return next();
+};
+
 async function getNotificationAdditionalInfo(
   notification: NotificationData
 ): Promise<Object | null> {

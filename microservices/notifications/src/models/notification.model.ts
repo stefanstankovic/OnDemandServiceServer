@@ -7,6 +7,8 @@ export interface INotification extends Document {
   delivered: boolean;
   opened: boolean;
   stringData: string;
+  createAt: string;
+  updateAt: string;
 }
 
 const NotificationSchema: Schema = new Schema(

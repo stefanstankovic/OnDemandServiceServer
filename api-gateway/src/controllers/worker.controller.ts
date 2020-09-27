@@ -12,11 +12,16 @@ import {
 import { Events } from "../hooks/event.types/event.types";
 import { HireResponseType } from "../models/workers/hireResponse.model";
 import { JobConfirmationData } from "../models/workers/types/jobConfirmation.type";
+import { UserType } from "../models/user/user.model";
+import { values } from "lodash";
 
 export const allWorkers: RequestHandler = async (req, res, next) => {
   const workerStatus: WorkerStatus = new WorkerStatus();
   workerStatus.setActive(true);
   workerStatus.setBusy(false);
+
+  // @ts-ignore
+  const userId = req.user.id;
 
   const workersResponse: WorkersResponse = await ServiceRegistry.getInstance().services.workersClient.getWorkers(
     workerStatus
@@ -30,45 +35,54 @@ export const allWorkers: RequestHandler = async (req, res, next) => {
   }
 
   let workers = await Promise.all(
-    workersResponse.getWorkersList().map(
-      async (value, index): Promise<object | undefined> => {
-        let user = await ServiceRegistry.getInstance().services.userClient.findUserById(
-          value.getWorkerid()
-        );
-
-        if (!user.getSuccess()) {
-          return undefined;
+    workersResponse
+      .getWorkersList()
+      .filter((value, index) => {
+        if (value.getWorkerid() === userId) {
+          return false;
         }
 
-        let userData = user.getData();
+        return true;
+      })
+      .map(
+        async (value, index): Promise<object | undefined> => {
+          let user = await ServiceRegistry.getInstance().services.userClient.findUserById(
+            value.getWorkerid()
+          );
 
-        var userDetailsResponse = await ServiceRegistry.getInstance().services.userClient.findUserDetailsByUserId(
-          value.getWorkerid()
-        );
+          if (!user.getSuccess()) {
+            return undefined;
+          }
 
-        if (!userDetailsResponse.getSuccess()) {
+          let userData = user.getData();
+
+          var userDetailsResponse = await ServiceRegistry.getInstance().services.userClient.findUserDetailsByUserId(
+            value.getWorkerid()
+          );
+
+          if (!userDetailsResponse.getSuccess()) {
+            return {
+              id: value.getWorkerid(),
+              active: value.getActive(),
+              busy: value.getBusy(),
+              email: userData?.getEmail(),
+              mobile: userData?.getMobile(),
+              name: "Worker",
+            };
+          }
+
+          let userDetails = userDetailsResponse.getData();
+
           return {
             id: value.getWorkerid(),
             active: value.getActive(),
             busy: value.getBusy(),
             email: userData?.getEmail(),
             mobile: userData?.getMobile(),
-            name: "Worker",
+            name: `${userDetails?.getFirstname()} ${userDetails?.getLastname()}`,
           };
         }
-
-        let userDetails = userDetailsResponse.getData();
-
-        return {
-          id: value.getWorkerid(),
-          active: value.getActive(),
-          busy: value.getBusy(),
-          email: userData?.getEmail(),
-          mobile: userData?.getMobile(),
-          name: `${userDetails?.getFirstname()} ${userDetails?.getLastname()}`,
-        };
-      }
-    )
+      )
   );
 
   res.status(201).json({ success: true, workers: workers });
